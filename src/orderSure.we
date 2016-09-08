@@ -1,0 +1,353 @@
+<!-- 确认订单 -->
+<template>
+  <div class="total">
+     <a class="no__address" if="false">
+       <text class="no__address--text">请填写收货地址</text>
+       <text class="address__right">></text>
+     </a>
+     <!-- 收货地址 -->
+     <a class="address">
+       <div class="address__left">
+         <div class="receipt">
+           <text class="receipt__name">收件人：{{receipt__name}}</text>
+           <text class="receipt__phone">{{receipt__phone}}</text>
+           <text class="isDefault" if={{isDefault}}>默认</text>
+         </div>
+         <text class="address__content">收货地址：{{receipt__address}}</text>
+       </div>
+       <text class="address__right">></text>
+     </a>
+     <div style="height: 20px;background-color: #efefef;"></div>
+     <!-- 订单详情 -->
+     <div class="goods__head">
+       <text class="goods__name">{{goods__name}} ></text>
+       <text class="order__type">{{order__type}}</text>
+     </div>
+     <div class="goods__content">
+       <div class="goods__left">
+         <img class="goods__png" src="{{godds__png}}"></img>
+         <div class="goods__detail">
+           <text class="goods__tip">
+           {{goods__tip}}...</text>
+           <text class="goods__spec">颜色：{{goods__color}}&nbsp;尺码：{{goods__size}}</text>
+         </div>
+       </div>
+       <div class="goods__right">
+         <text class="real__price">&#165;{{real__price}}</text>
+         <text class="price">{{price}}</text>
+         <text class="num">×{{number}}</text>
+       </div>
+     </div>
+     <div style="height: 20px;background-color:#efefef;"></div>
+     <!-- 运费 -->
+     <div class="fare">
+       <text class="left">运费</text>
+       <text class="right">{{fare}}</text>
+     </div>
+     <!-- 发票信息 -->
+     <div class="invoice">
+       <text class="left">发票信息</text>
+       <text class="right">默认(不开发票)></text>
+     </div>
+     <!-- 价格合计 -->
+     <div class="total__price">
+       <text class="left">价格合计</text>
+       <text class="right">&#165;{{total__price}}</text>
+     </div>
+     <!-- 备注 -->
+     <div class="note">
+       <text class="left">填写备注：</text>
+       <input class="note__content" type="text" oninput="remark" placeholder="请填写备注~" value="{{remark__content}}"></input>
+     </div>
+     <div style="height: 20px;background-color:#efefef;"></div>
+     <div class="points">
+       <text class="points__head">风险提示</text>
+       <text class="points__text">请您务必审慎阅读、充分理解协议中相关条款内容，其中包括：</text>
+       <text class="points__text">1.风险提示条款和特别提示条款；</text>
+       <text class="points__text">2.与您约定法律适用和管辖的条款；</text>
+       <text class="points__text">3.其他以粗体标识的重要条款。</text>
+       <text class="points__text">如您不同意相关协议、公告、规则、操作流程和项目页面承诺，您有权选择不支持，一旦选择支持，即视为您已确只并完全同意相关协议。</text>
+     </div>
+     <div class="agreenment">
+       <text class="agreenment__text1">提交订单代表您已同意</text>
+       <text class="agreenment__text2">《布偶猫商品定制协议》</text>
+     </div>
+     <!-- 订单支付 -->
+     <div class="foot">
+       <div class="foot__left">
+         <text class="foot__price">实际支付：&#165;{{total__price}}</text>
+         <text class="foot__original">原价：&#165;{{before__price}}</text>
+       </div>
+       <text class="submit">提交订单</text>
+     </div>
+  </div>
+
+  
+</template>
+
+
+
+<script>
+module.exports = {
+    data: {
+      receipt__name:"panda",
+      receipt__phone:"13628670643",
+      isDefault:true,
+      receipt__address:"湖北省武汉市洪山区关山街道光谷软件园E2栋",
+      order__type:"定制订单",
+      goods__name:"DOUBLEMINT",
+      godds__png:"",
+      goods__tip:"简约纯棉黑色球心瘦上衣纯色T恤",
+      goods__color:"白",
+      goods__size:"S",
+      real__price:"159.00",
+      price:"225.00",
+      number:"2",
+      fare:"免运费",
+      total__price:"318.00",
+      remark__content:null,
+      before__price:"450.00"
+    },
+    methods: {
+      remark:function(data){
+        this.remark__content=data.value;
+      }
+    }
+}
+</script>
+
+
+<style>
+.total{
+  flex-direction: column;
+}
+.no__address{
+   height: 110px;
+   justify-content: space-between;
+   flex-direction: row;
+   line-height: 110px;
+}
+.no__address--text{
+  color: #999999;
+  font-size: 28px;
+  margin-left: 50px;
+}
+.address__right{
+  margin-right: 20px;
+  justify-content: center;
+}
+.address{
+  flex-direction: row;
+  justify-content: space-between;
+}
+.address__left{
+  width: 634px;
+  margin-left: 20px;
+  margin-top: 34px;
+}
+.receipt{
+  flex-direction: row;
+  margin-bottom: 18px;
+}
+.receipt__name{
+  font-size: 28px;
+  color: #333333;
+  line-height: 36px;
+  margin-right: 80px;
+}
+.receipt__phone{
+  font-size: 28px;
+  margin-right: 20px;
+  line-height: 36px;
+}
+.isDefault{
+  font-size: 24px;
+  background-color: #f15d31;
+  color: #ffffff;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 5px;
+  width: 90px;
+  text-align: center;
+}
+.address__content{
+   line-height: 46px;
+   font-size: 28px;
+   color: #999999;
+   margin-bottom: 30px;
+
+}
+.goods__head{
+  flex-direction: row;
+  justify-content: space-between;
+  height: 90px;
+  color: #333333;
+  background-color: #f8f8f8;
+}
+.goods__name{
+   font-size: 28px;
+   line-height: 90px;
+   margin-left: 70px;
+}
+.order__type{
+   font-size: 28px;
+   line-height: 90px;
+   margin-right: 20px;
+
+}
+.goods__content{
+  flex-direction: row;
+  height: 220px;
+  justify-content: space-between;
+}
+.goods__left{
+  flex-direction: row;
+  margin-top: 30px;
+  margin-left: 20px;
+}
+.goods__png{
+  width: 160px;
+  height: 160px;
+  background-color: green;
+}
+.goods__detail{
+   margin-left: 20px;
+   flex-direction: column;
+   width: 310px;
+}
+.goods__tip{
+  font-size: 28px;
+  color: #333333;
+  line-height: 42px;
+}
+.goods__spec{
+  font-size: 24px;
+  color: #999999;
+  margin-top: 12px;
+}
+.goods__right{
+  margin-right: 20px;
+}
+.real__price{
+  font-size: 28px;
+  color: #ff404b;
+  margin-top: 32px;
+  flex-direction:row;
+  justify-content:flex-end;
+}
+.price{
+  font-size: 24px;
+  color: #999;
+  text-decoration:line-through;
+  margin-top: 10px;
+  flex-direction:row;
+  justify-content:flex-end;
+}
+.num{
+   font-size: 28px;
+   color: #999;
+   margin-top: 40px;
+   flex-direction:row;
+  justify-content:flex-end;
+}
+.fare{
+  height: 110px;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid #e0e0e0;
+}
+.invoice{
+  height: 110px;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid #e0e0e0;
+}
+.total__price{
+  height: 110px;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid #e0e0e0;
+}
+.left{
+   font-size: 28px;
+   color: #333333;
+   line-height: 110px;
+   margin-left: 20px;
+}
+.right{
+   font-size: 28px;
+   color: #999999;
+   line-height: 110px;
+   margin-right: 20px;
+}
+.note{
+  flex-direction: row;
+}
+.note__content{
+  height: 110px;
+  outline: none;
+  font-size: 28px;
+}
+.points{
+  margin-top: 30px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 30px;
+}
+.points__head{
+  font-size: 28px;
+  color: #333333;
+}
+.points__text{
+  font-size: 24px;
+  color: #999999;
+  line-height: 44px;
+}
+.agreenment{
+  height: 150px;
+  background-color: #efefef;
+  padding-left: 20px;
+  padding-top: 20px;
+  flex-direction: row;
+}
+.agreenment__text1{
+  color: #999999;
+  font-size: 28px;
+}
+.agreenment__text2{
+  color: #1ea8e6;
+  font-size: 28px;
+}
+.foot{
+   flex-direction: row;
+   justify-content: flex-end;
+   height: 120px;
+}
+.foot__left{
+    margin-right: 40px;
+}
+.foot__price{
+  flex-direction: row;
+  justify-content: flex-end;
+  font-size: 28px;
+  margin-top: 30px;
+  color: #333333;
+}
+.foot__original{
+   flex-direction: row;
+  justify-content: flex-end;
+  font-size: 24px;
+  text-decoration:line-through;
+  margin-top: 0px;
+  color: #999999;
+}
+.submit{
+   width: 300px;
+   font-size: 32px;
+   line-height: 120px;
+   background-color: #ff555f;
+   color: #ffffff;
+   text-align: center;
+}
+</style>
+
