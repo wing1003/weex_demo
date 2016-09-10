@@ -1,0 +1,137 @@
+<!-- 收银台 -->
+<template>
+  <div class="total">
+     <div class="wechart" onclick="check(1)">
+       <div class="left">
+         <img class="pay__icon" src=""></img>
+         <div class="pay__content">
+           <text class="pay__type">微信支付</text>
+           <text class="pay__tip">推荐安装微信5.0及以上版本使用</text>
+         </div>
+       </div>
+       <img class="right" src="../pay{{pay1}}.png"></img>
+     </div>
+     <div class="alipay" onclick="check(2)">
+       <div class="left">
+         <img class="pay__icon" src=""></img>
+         <div class="pay__content">
+           <text class="pay__type">支付宝支付</text>
+           <text class="pay__tip">推荐有支付宝的账户使用</text>
+         </div>
+       </div>
+       <img class="right" src="../pay{{pay2}}.png"></img>
+     </div>
+     <div class="pay">
+       <text class="pay__text">支付：</text>
+       <text class="price">&#165;165.00</text>
+       <text class="now__pay" onclick="pay">立即付款</text>
+     </div>
+  </div>
+  
+</template>
+
+
+
+<script>
+module.exports = {
+    data: {
+      pay1:2,
+      pay2:1,
+      payindex:null
+    },
+    methods: {
+      check:function(index){
+        this.payindex=index;
+        if(index==1){
+          this.pay1=2;
+          this.pay2=1;
+        }else{
+          this.pay1=1;
+          this.pay2=2;
+        }
+      },
+      pay:function(){
+        alert(this.payindex);
+      }
+    }
+}
+</script>
+
+
+<style>
+.total{
+  flex-direction: column;
+  background-color: #efefef;
+  position: relative;
+}
+.wechart{
+  flex-direction: row;
+  justify-content: space-between;
+  height: 140px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #ffffff;
+}
+.alipay{
+  flex-direction: row;
+  justify-content: space-between;
+  height: 140px;
+  background-color: #ffffff;
+}
+.left{
+  flex-direction: row;
+}
+.pay__icon{
+  height: 50px;
+  width: 50px;
+  background-color: green;
+  margin-top: 45px;
+  margin-left: 20px;
+  margin-right: 38px;
+}
+.pay__type{
+  color: #333333;
+  font-size: 28px;
+  margin-top:32px;
+}
+.pay__tip{
+  color: #999999;
+  font-size: 24px;
+  margin-top: 8px;
+}
+.right{
+  height: 42px;
+  width: 42px;
+  /*background-color: red;*/
+  margin-top: 49px;
+  margin-right: 24px;
+}
+.pay{
+   position: absolute;
+   bottom: 0;
+   background-color: #ffffff;
+   flex-direction: row;
+   height: 120px;
+   width: 750px;
+   justify-content: flex-end;
+}
+.pay__text{
+  font-size: 28px;
+  line-height: 120px;
+  color: #333333;
+}
+.price{
+  font-size: 28px;
+  line-height: 120px;
+  color: #ff404b;
+  margin-right: 30px;
+}
+.now__pay{
+  font-size: 32px;
+  line-height: 120px;
+  width: 300px;
+  background-color: #ff404b;
+  color: #ffffff;
+  text-align: center;
+}
+</style>
+
