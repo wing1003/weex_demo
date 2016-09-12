@@ -1,0 +1,183 @@
+<template>
+  <div class="sizeAndColor" style="display: {{shown?'block':'none'}};" >
+    <div class="shade"></div>
+    <div class="head">
+      <text class="btnClose" onclick="toggle" style="background: url({{base}}/images/close.png) no-repeat"></text>
+    </div>
+
+    <contain class="contain">
+      <div class="member">
+        <image class="member__avatar" src="{{base}}/images/avatar.jpg" style="-webkit-background-size: contain;
+        background-size: contain;"></image>
+        <div class="price">
+          <text style="font-size: 32">256</text><text style="font-size: 24">元</text>
+        </div>
+        
+        <text style="font-size: 24">经典大牌范儿 重工钉珠无袖连衣裙</text>
+      </div>
+
+      <div>
+        <text style="margin-bottom: 20; font-size: 26;">颜色</text>
+        <div style="flex-direction: row; justify-content: flex-start; margin-bottom: 40;">
+          <div repeat="color in colors">
+            <text class="btn btn-{{color.has?'black':'gray'}}" bind:class="{'btn-active': true }" onclick="checked($index)" style="margin-right: 20;">{{color.item}}</text>
+            <wxc-button type="default" size="small" value="{{color.item}}" style="margin-right: 20px;"></wxc-button>
+          </div>     
+        </div>
+        <text style="margin-bottom: 20; font-size: 26;">尺码</text>
+        <div style="flex-direction: row; justify-content: flex-start;">
+          <div repeat="{{sizes}}">
+            <text class="btn btn-{{has?'black':'gray'}}" style=" margin-right: 20; border-color: {{has?'':'#efeff0'}};">{{item}}&#xe606;</text>
+          </div>
+        </div>
+      </div>
+    </contain>
+    
+    <buou-singleselectbtn repeat="{{colors}}" type="sure" size="samll"></buou-singleselectbtn>
+  </div>
+</template>
+
+
+<script>
+
+  require('./components/buou-singleselectbtn.we');
+  module.exports = {
+    data: {
+      base: '../../src',
+      shown: true,
+      colorChecked: 0,
+      colors: [{
+                index: 0,
+                item:"蓝色",
+                has: true
+              },{
+                index: 1,
+                item:"红色",
+                has: false
+              }],
+      sizeChecked: 0,
+      sizes: [{
+                index: 0,
+                item: "S",
+                has: true
+              },{
+                index: 1,
+                item:"M",
+                has: false
+              }]
+    },
+    methods:{
+      toggle: function(){
+        this.shown = !this.shown;
+      },
+      setShown: function(v){
+        this.shown = v;
+      },
+      checked: function(index){
+        this.colorChecked = index;
+        // console.log(this.$el);
+        // this.colors[]
+      }
+
+    },
+    init: function () {
+      console.log('ViewModel constructor begins--------------1')
+    },
+    created: function () {
+      console.log('Data observation finished-----------------------2')
+
+
+    },
+    ready: function () {
+      console.log('Virtual DOM finished------------------------3');
+    }
+
+  }
+</script>
+
+<style>
+  .shade{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 750;
+    height: 100%;
+    background: #000;
+    opacity: .5;
+    z-index: 1;
+  }
+  .sizeAndColor{
+    width: 750;
+    height: 800;
+    position: fixed;
+    bottom: 0;
+    background: #eee;
+    font-family: Microsoft Yahei;
+  }
+  .head{
+    height: 75;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .btnClose{
+    width: 36;
+    height: 36;
+    margin-top: 19;
+    margin-right: 30;
+    /*background: url(../images/close.png) no-repeat;*/
+    -webkit-background-size: contain;
+    background-size: contain;
+  }
+
+  .contain{
+    width: 750;
+    background: #fff;
+    height: 725;
+    padding-left: 20;
+  }
+  .member{
+    padding-left: 180;
+    margin-bottom: 35;
+  }
+  .member__avatar{
+    width: 160px;
+    height: 160px;
+    border-style: solid;
+    border-color: #fff;
+    border-width: 1;
+    background: #000;
+    position: absolute;
+    left: 0;
+    top: -40;
+  }
+  .price{
+    flex-direction: row;
+    align-items: flex-end;
+    height: 90;
+  }
+
+  .btn{
+    width: 100;
+    height: 40;
+    line-height: 28;
+    border-style: solid;
+    border-color: #fff;
+    border-width: 2;
+    border-radius: 5;
+    text-align: center;
+    font-size: 22;
+  }
+  .btn-black{
+    color: #222222;
+    border-color: #222222;
+  }
+  .btn-gray{
+    color: #efeff0;
+    border-color: #efeff0;
+  }
+  .btn-active{
+    color: red;
+  }
+
+</style>

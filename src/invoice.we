@@ -1,0 +1,309 @@
+<template>
+  <div class="wrapper">
+  	
+  	<div style="flex-direction: column;">
+  	    <buou-tabbar tab-items = {{tabItems}}></buou-tabbar>
+  	</div>
+  	<div style="height: 88"></div>
+  	<div style="display: {{tabItems[0].display}}; height: {{contentHeight}}">
+  		<div class="sure">
+  			<buou-button type="sure" size="large" value="确定"></buou-button>
+  		</div>
+  	</div>
+
+  	<div style="display: {{tabItems[1].display}}; height: {{contentHeight}}; padding-top: 20px">
+  		<buou-panel class="margBottom" type="white" border="1px" font-size="28"
+			title="发票抬头"
+
+  			>
+  			<div class="invoiceHead invoiceHead-pad" style="flex-direction: row;">
+  				<div repeat="{{selectHead}}">
+  					<text class="iconfont gray">{{icon}}{{text}}</text>
+  				</div>
+  			</div>
+  			<input
+  				class="invoiceTitle"
+			    type="url"
+			    autofocus="true"
+			    placeholder="请填写名称"
+			    value=""
+			    style="placeholder-color: #666666; height: 90;">
+			  </input>
+  		</buou-panel>
+
+  		<buou-panel class="margBottom" type="white" border="1px" font-size="28"
+			title="收票人信息"
+
+  			>
+  			<div class="receive receive-padb" style="flex-direction: row; border-bottom-width: 1; border-color: #cccccc">
+  				<text>*</text>
+  				<text class="fSizeM gray" style="width: 200;">收票人手机</text>
+  				<text class="fSizeM">{{mobile}}</text>
+			</div>
+			<div class="receive receive-padt" style="flex-direction: row;">
+  				<text class="fSizeM gray" style="width: 200; padding-left: 14;">收票人邮箱</text>
+  				<input
+	  				class="mail"
+				    type="url"
+				    autofocus="true"
+				    placeholder="请填写名称"
+				    value=""
+				    style="placeholder-color: #666666; font-size: 28; padding-top: 4">
+				</input>
+  			</div>
+  		</buou-panel>
+		
+  		<buou-panel class="margBottom" type="white" border="1px" font-size="28"
+			title="发票内容"
+
+  			>
+			<div class="invoiceCont invoiceCont-pad" repeat="{{selectHead}}">
+				<text class="{{icon}}"></text><text class="iconfont fSizeM">{{text}}</text>
+			</div>
+  		</buou-panel>
+
+  		<div class="sure">
+  			<buou-button type="sure" size="large" value="确定"></buou-button>
+  		</div>
+  	</div>
+
+  	<div style="display: {{tabItems[2].display}}; height: {{contentHeight}}">
+  		<buou-panel class="margBottom" type="white" border="1px" font-size="28"
+			title="发票抬头"
+
+  			>
+  			<div class="invoiceHead invoiceHead-pad" style="flex-direction: row;">
+  				<div repeat="{{selectHead}}">
+  					<text class="iconfont fSizeM">{{icon}}{{text}}</text>
+  				</div>
+  			</div>
+  			<input
+  				class="invoiceTitle"
+			    type="url"
+			    autofocus="true"
+			    placeholder="请填写名称"
+			    value=""
+			    style="placeholder-color: #cccccc; height: 90;">
+			  </input>
+  		</buou-panel>
+
+  		<buou-panel class="margBottom" type="white" border="1px"
+			title="发票内容"
+
+  			>
+			<div class="invoiceCont invoiceCont-pad" repeat="{{selectHead}}">
+				<text class="iconfont fSizeM">{{icon}}{{text}}</text>
+			</div>
+  		</buou-panel>
+
+  		<div class="sure">
+  			<buou-button type="sure" size="large" value="确定"></buou-button>
+  		</div>
+  	</div>
+
+  </div>
+
+
+</template>
+
+<style>
+	.wrapper{
+		background: #eee;
+		position: relative;
+		height: 100%;
+		font-family: Microsoft Yahei,Arial, "Helvetica Neue", Helvetica, sans-serif;
+	}
+
+	.sure{
+		position: absolute;
+		bottom: 120;
+		left: 0;
+		width: 750;
+		align-items: center;
+	}
+
+	.invoiceHead{
+		height: 100;
+		align-items: center;
+	}
+
+	.invoiceHead-pad{
+		padding-top: 10;
+		padding-bottom: 30;
+	}
+
+	.invoiceTitle{
+		border-width: 0;
+		font-size: 32;
+		background: #f5f5f5;
+		padding-left: 8;
+		margin-bottom: 20;
+	}
+
+	.receive{
+		height: 90;
+		align-items: center;
+	}
+	.receive-padb{
+		padding-bottom: 20;
+	}
+	.receive-padt{
+		padding-top: 20;
+	}
+
+	.invoiceCont{
+		height: 60;
+	}
+
+	.invoiceCont-pad{
+		justify-content: flex-end;
+	}
+
+	.mail{
+		border-width: 0;
+		font-size: 32;
+	}
+
+	.margBottom{
+		margin-bottom: 20;
+	}
+
+	.iconfont{
+		font-family: 'iconfont';
+	}
+
+	.fSizeM{
+		font-size: 28;
+	}
+
+	.red{
+		color: #ff404b;
+	}
+
+	.gray{
+		color: #999999;
+	}
+	.lightGray{
+		color: #cccccc;
+	}
+
+	@font-face{
+		font-family: "iconfont";
+		src: "url('//at.alicdn.com/t/font_1473300269_5417576.ttf')";
+	}
+
+</style>
+
+<script>
+
+	require('weex-components');
+	require('./components/buou-tabbar.we');
+	require('./components/buou-button.we');
+	require('./components/buou-panel.we');
+
+
+	function getBase(dir){
+	  var dirs = dir.split('/');
+	  dirs.forEach(function(dir, index) {
+	    if (!dir) dirs.splice(index, 1);
+	  });
+	  
+	  var root = dirs.length > 0 ? dirs[0] : '';
+	  var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
+
+	  return './index.html?page=./' + root + '/' + subRoot;
+	}
+
+	module.exports = {
+	  data: {
+	    root: 'dist',
+	    pages: {
+	      page1: {name:'page1'}
+	    },
+	    imageDomain: '../images',
+	    pageImage: 'customDetails.jpg',
+	    ctHeight: 800,
+	    contentHeight: 800,
+	    tabItems: [
+	        {
+	          index: 0,
+	          display: 'block',
+	          title: '不开发票',
+	          titleColor: '#000000',
+	          // selectedImage: '',
+	          visibility: 'visible',
+	        },
+	        {
+	          index: 1,
+	          display: 'none',
+	          title: '电子发票',
+	          titleColor: '#000000',
+	          // selectedImage: '...',
+	          visibility: 'hidden',
+	        },
+	        {
+	          index: 2,
+	          display: 'none',
+	          title: '普通发票',
+	          titleColor: '#000000',
+	          // selectedImage: '...',
+	          visibility: 'hidden',
+	        }
+	      ],
+	    invoiceType: 1,
+	    selectHead: [{
+	    	icon: '&#xe61f;',
+	    	text: '个人'
+	    },{
+	    	icon: '&#xe620;',
+	    	text: '单位'
+	    }],
+	    mobile: 1585665622323
+
+
+	  },
+	  created: function() {
+	  	this.ctHeight = this.$getConfig().env.deviceHeight;
+	  	this.contentHeight = this.ctHeight-88;
+
+	  	this.$on('tabBar.onClick', function(e){
+	  		var detail = e.detail;
+	  		this.invoiceType = detail.index;
+
+	  		for (var i=0; i < this.tabItems.length; i++) {
+	  			if(detail.index == i){
+	  				this.tabItems[i].display = 'block';
+	  			}else{
+	  				this.tabItems[i].display = 'none';
+	  			}
+	  		}
+
+	  	})
+
+
+	  	// iconfont
+	  	var domModule = require('@weex-module/dom');
+	  	      //目前支持ttf、woff文件，不支持svg、eot类型
+	  	      // domModule.addRule('font-face', {
+	  	      //   'font-family': "iconfont_0.0.0",
+	  	      //   'src' : "url('//at.alicdn.com/t/font_1473300269_5417576.ttf')"
+	  	      // });
+	  },
+	  computed: {
+	  	fullcontent: {
+	  		get: function(){
+	  			// 
+	  		},
+	  		set: function(v){
+	  			// 
+	  		}
+	  	}
+	  },
+	  methods: {
+	    jump: function(page){
+	      var base = getBase(this.root);
+	      console.log(base + this.pages[page].name + '.js');
+	    }
+	  }
+	}
+</script>
