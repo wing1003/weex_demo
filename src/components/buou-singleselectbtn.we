@@ -1,0 +1,22 @@
+<template>
+	<buou-button repeat="{{list}}" type="{{type}}" size="{{size}}" value="{{value}}"></buou-button>
+</template>
+
+<script>
+
+require('./buou-button.we');
+module.exports = {
+	data:{
+		list:[],
+		type: 'default',
+		size: 'small'
+	},
+	ready: {
+		// 
+	},
+	methods:{
+		// 
+	}
+}
+
+</script>
