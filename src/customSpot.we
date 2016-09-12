@@ -18,22 +18,22 @@
 
       <div>
         <text style="margin-bottom: 20; font-size: 26;">颜色</text>
-        <div style="flex-direction: row; justify-content: flex-start; margin-bottom: 40;">
-          <div repeat="color in colors">
-            <text class="btn btn-{{color.has?'black':'gray'}}" bind:class="{'btn-active': true }" onclick="checked($index)" style="margin-right: 20;">{{color.item}}</text>
-            <wxc-button type="default" size="small" value="{{color.item}}" style="margin-right: 20px;"></wxc-button>
-          </div>     
-        </div>
+
+        <buou-singleselectbtn sign="color" data-list="{{colors}}" type="default" active="sure" size="small" height="100"></buou-singleselectbtn>
+
         <text style="margin-bottom: 20; font-size: 26;">尺码</text>
-        <div style="flex-direction: row; justify-content: flex-start;">
-          <div repeat="{{sizes}}">
-            <text class="btn btn-{{has?'black':'gray'}}" style=" margin-right: 20; border-color: {{has?'':'#efeff0'}};">{{item}}&#xe606;</text>
-          </div>
+
+        <buou-singleselectbtn sign="size" data-list="{{sizes}}" type="default" active="sure" size="small" height="100"></buou-singleselectbtn>
+
         </div>
+
+        <div class="submit">
+          <buou-button type="sure" size="middle" value="确定"></buou-button>
+        </div>
+        
       </div>
     </contain>
     
-    <buou-singleselectbtn repeat="{{colors}}" type="sure" size="samll"></buou-singleselectbtn>
   </div>
 </template>
 
@@ -45,26 +45,10 @@
     data: {
       base: '../../src',
       shown: true,
-      colorChecked: 0,
-      colors: [{
-                index: 0,
-                item:"蓝色",
-                has: true
-              },{
-                index: 1,
-                item:"红色",
-                has: false
-              }],
-      sizeChecked: 0,
-      sizes: [{
-                index: 0,
-                item: "S",
-                has: true
-              },{
-                index: 1,
-                item:"M",
-                has: false
-              }]
+      colors: [ ],
+      sizes: [ ],
+      currentColor: '',
+      currentSize: ''
     },
     methods:{
       toggle: function(){
@@ -82,14 +66,49 @@
     },
     init: function () {
       console.log('ViewModel constructor begins--------------1')
+
     },
     created: function () {
       console.log('Data observation finished-----------------------2')
 
+      // 加载颜色列表
+      var dataColors = [{
+        value: "蓝色"
+      },{
+        value: "红色"
+      }];
+      dataColors.forEach(function(item, i){
+        item.index = i;
+        item.bgColor = '';
+      })
+      this.colors = dataColors;
+      this.currentColor = this.colors[0].value || '';
+
+      // 加载尺寸列表
+      var dataSizes =[{
+        value: "M"
+      },{
+        value: "S"
+      }];
+      dataSizes.forEach(function(item, i){
+        item.index = i;
+        item.bgColor = '';
+      })
+      this.sizes = dataSizes;
+      this.currentSize = this.sizes[0].value || '';
 
     },
     ready: function () {
       console.log('Virtual DOM finished------------------------3');
+      var vm = this;
+      vm.$on('singleselectbtn.onClick', function(e){
+        if(e.detail.sign==="color"){
+          vm.currentColor = vm.colors[e.detail.index].value;
+        } else if(e.detail.sign==="size") {
+           vm.currentSize = vm.sizes[e.detail.index].value;
+        }
+      })
+
     }
 
   }
@@ -178,6 +197,20 @@
   }
   .btn-active{
     color: red;
+  }
+
+  .submit{
+    width: 750;
+    flex-direction: row;
+    justify-content: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding-top: 20;
+    padding-bottom: 20;
+    border-top-width: 1;
+    border-color: #efefef;
+    border-style: solid;
   }
 
 </style>
