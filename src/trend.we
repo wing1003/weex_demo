@@ -1,0 +1,342 @@
+<!-- 帖子详情 -->
+<template>
+  <div class="total">
+     <!-- 帖子发起者 -->
+     <div class="head__detail">
+      <img class="head__png" src="{{head__png}}"></img>
+      <div style="margin-left:20px;">
+        <div style="flex-direction:row">
+          <text class="name">{{name}}</text>
+        </div>
+        <div style="flex-direction:row">
+          <text class="focus">关注 | {{focus__num}}</text>
+          <text class="focus">粉丝 | {{fans__num}}</text>
+          <text class="focus">发起 | {{sponsor__num}}</text>
+        </div>
+      </div> 
+     </div>
+     <!-- 帖子文字内容 -->
+     <text class="trend__head">{{head}}</text>
+     <text class="trend__text">{{content}}</text>
+     <!-- 帖子图片内容 -->
+     <div  repeat="{{imageList}}">
+       <img class="trend__img" src="{{image}}"></img>
+     </div>
+     <div style="height: 20px;background-color:#fafafa;margin-top:10px;"></div>
+     <!-- 点赞者 -->
+     <div id="liker" class="liker"  ontouchstart="test()">
+       <div class="liker__num">
+         <text style="font-size:24px;">赞</text>
+         <text style="font-size:20px;">{{like__number}}</text>
+       </div>
+       <img class="liker__head" repeat="{{likers}}" src="{{liker__head}}"></img>
+       <div style="width: 20px;"></div>
+     </div>
+     <div style="height: 20px;background-color:#fafafa;margin-top:10px;"></div>
+     <!-- 评论 -->
+     <text class="talk__number">评论 {{talk__number}}</text>
+     <div style="padding-bottom: 30px;border-bottom: 1px solid #efeff0" repeat="{{talks__repeat}}">
+     <div  class="talk">
+       <img class="talk__png" src="{{talk__png}}"></img>
+       <div class="talk__content">
+         <div class="talk__head">
+           <text class="talk__name">{{talk__name}}</text>
+           <text class="talk__time">{{talk__time}}</text>
+         </div>
+         <text class="talk_main">{{talk__text}}</text>
+       </div>
+     </div>
+     <div class="triangle"></div>
+     <div id="replys" repeat="{{replys__repeat}}" class="replys">
+       <text class="reply__name">{{name1}}</text>
+       <text class="reply">回复</text>
+       <text class="reply__name">{{name2}}：</text>
+       <text repeat="{{reply__texts}}" class="reply__content">{{reply__text}}</text>
+     </div>
+     </div>
+     <text class="download">下载布偶猫APP</text>
+  </div>
+   
+</template>
+
+
+
+<script>
+module.exports = {
+    data: {
+      head__png:null,
+      name:"百度一下",
+      focus__num:0,
+      fans__num:0,
+      sponsor__num:0,
+      head:"俏皮减龄白色套装",
+      content:"和设计师沟通了很久，最终做出了这款裙子，不用多说，很仙很美！就这两个字！",
+      like__number:15,
+      talk__number:20,
+      imageList:[{
+        image:"../png/trend_content.png"
+      },{
+        image:"../png/trend_content.png"
+      }],
+      likers:[{
+        liker__head:""
+      }],
+      talks__repeat:[{
+        talk__png:null,
+        talk__name:"评论者1",
+        talk__time:"1天前",
+        talk__text:"蓝白格纹蓝白格纹蓝白格纹蓝白格纹蓝白格纹蓝白格纹蓝白格纹蓝白格纹蓝白格纹",
+        replys__repeat:[{
+          reply__texts:[{
+          reply__text:"和"
+          }],
+          name1:"回复者1",
+          name2:"回复者2",
+          reply__content:"和设计师沟通了很久，最终做出了这款裙子，不用多说，很仙很美！就这两个字！",
+        },{
+          reply__texts:[{
+          reply__text:"和"
+          }],
+          name1:"回复者3",
+          name2:"回复者4",
+          reply__content:"爱上的骄傲了身份那么懒是分开了三分了你看福利卡阿拉斯加房间爱辽宁师傅那里卡数量可能",
+        }]
+      },{
+        talk__png:null,
+        talk__name:"评论者2",
+        talk__time:"2天前",
+        talk__text:"蓝白格纹蓝白格纹蓝白格纹蓝白格纹蓝白格纹蓝白格纹蓝白格纹蓝白格纹蓝白格纹",
+        replys__repeat:[{
+          reply__texts:[{
+          reply__text:"和"
+          }],
+          name1:"回复者5",
+          name2:"回复者6",
+          reply__content:"一个新的字符串，包含从 stringObject 的 start（包括 start 所指的字符） 处开始的 length 个字符。如果没有指定 length，那么返回的字符串包含从 start 到 stringObject 的结尾的字符",
+        },{
+          reply__texts:[{
+          reply__text:"和"
+          }],
+          name1:"回复者7",
+          name2:"回复者8",
+          reply__content:"要抽取的子串的起始下标。必须是数值。如果是负数，那么该参数声明从字符串的尾部开始算起的位置。",
+        }]
+      }]
+    },
+    methods: {
+      test:function(evt){
+        //console.log(evt.target);
+
+        this.test1=evt.target;
+
+      }
+    },
+    ready:function(){
+        console.log(this.talks__repeat);
+        for(var m=0;m<this.talks__repeat.length;m++){
+           for(var n=0;n<this.talks__repeat[m].replys__repeat.length;n++){
+               for(var i=0;i<this.talks__repeat[m].replys__repeat[n].reply__content.length;i++){
+                 this.talks__repeat[m].replys__repeat[n].reply__texts.push({
+                   reply__text:this.talks__repeat[m].replys__repeat[n].reply__content.substr(i,1)
+                 })
+               }
+           }
+        }
+        
+        
+      }
+}
+</script>
+
+
+<style>
+.head__detail{
+  flex-direction: row;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  background-color: #fafafa;
+}
+.head__png{
+  width: 80px;
+  height: 80px;
+  background-color: green;
+  border-radius: 50px;
+  margin-left: 18px;
+}
+.name{
+  font-size: 26px;
+  line-height: 40px;
+  color: #666666;
+}
+.focus{
+  font-size: 24px;
+  color: #cccccc;
+  line-height: 40px;
+  margin-right: 40px;
+}
+.isfocus{
+  font-size: 24px;
+  color: #3ba8fa;
+  line-height: 44px;
+  width: 100px;
+  height: 44px;
+  margin-right: 30px;
+  margin-top: 28px;
+  text-align: center;
+  border: 1px solid #3ba8fa;
+  border-radius: 22px;
+}
+.trend__head{
+  font-weight: 800;
+  color: #222222;
+  font-size: 30px;
+  margin-top: 20px;
+  line-height: 50px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.trend__text{
+  color: #222222;
+  font-size: 26px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  line-height: 42px;
+}
+.trend__img{
+  height: 1065px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  background-color: green;
+}
+.liker{
+  height: 120px;
+  flex-direction: row;
+  width: 750px;
+  overflow-x: scroll;
+}
+.liker__num{
+  flex-direction: column;
+  color: #ffffff;
+  height: 80px;
+  width: 80px;
+  border-radius: 40px;
+  background-color: #ff404b;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  margin-left: 20px;
+}
+.liker__head{
+  height: 80px;
+  width: 80px;
+  background-color: green;
+  border-radius: 40px;
+  margin-top: 20px;
+  margin-left: 20px;
+}
+.talk__number{
+  height: 80px;
+  color: #333333;
+  font-size: 28px;
+  line-height: 80px;
+  padding-left: 20px;
+  border-bottom: 1px solid #efeff0;
+}
+.talk{
+  flex-direction: row;
+  margin-top: 24px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.talk__png{
+  height: 80px;
+  width: 80px;
+  background-color: green;
+}
+.talk__content{
+  margin-left: 20px;
+  width: 610px;
+}
+.talk__head{
+  flex-direction: row;
+  justify-content: space-between;
+  
+}
+.talk__name{
+   font-size: 26px;
+   color: #666666;
+}
+.talk__time{
+  font-size: 22px;
+  color: #cccccc;
+}
+.talk_main{
+  font-size: 26px;
+  line-height: 42px;
+  margin-top: 10px;
+  color: #222222;
+}
+.triangle{
+  width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 20px solid #efeff0;
+    margin-left: 145px;
+    margin-top: 10px;
+}
+.replys{
+  width: 610px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: #efeff0;
+  margin-left: 120px;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.reply__name{
+   font-size: 26px;
+   color: #666666;
+   line-height: 42px;
+}
+.reply{
+  color: #ff555f;
+  font-size: 26px;
+  line-height: 42px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.replys1{
+ width:700;
+}
+.reply__content{
+  font-size: 26px;
+  color: #222222;
+  line-height: 42px;
+}
+.download{
+  height: 60px;
+  width: 260px;
+  margin-top: 20px;
+  margin-left: 245px;
+  margin-bottom: 20px;
+  background-color: #ff555f;
+  color: #ffffff;
+  font-size: 24px;
+  text-align: center;
+  line-height: 60px;
+  border-radius: 30px;
+}
+/*.t1{
+   flex-direction: column;
+}
+.t2{
+  
+  flex-direction: row;
+}*/
+</style>
+

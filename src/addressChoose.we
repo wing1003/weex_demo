@@ -1,0 +1,221 @@
+<!-- 省市区选择 -->
+<template>
+  <div style="flex-direction: column;position: relative;background-color: rgba(144,144,144,0.5)">
+    <div class="foot">
+      <div class="title">
+        <text class="area">所在地区</text>
+        <text class="complete" onclick="complete">完成</text>
+      </div>
+      <div class="address__detail">
+          <text class="address {{first__class}} " onclick="titleOnclick(1)">{{first}}</text>
+          <text class="address {{second__class}}" onclick="titleOnclick(2)">{{second}}</text>
+          <text class="address {{third__class}}" onclick="titleOnclick(3)">{{third}}</text>
+      </div>
+      <div class="address__list">
+      <scroller style="height: 540px;">
+        <div repeat="{{view__list}}" track-by="placeZh" class="list" onclick="address__click($index)">
+          <text class="list__text {{ischecked}}">{{placeZh}}</text>
+        </div>
+        </scroller>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  module.exports = {
+    data: {
+      first:"请选择",
+      second:null,
+      third:null,
+      first__class:"address__active",
+      second__class:"address__noactive",
+      third__class:"address__noactive",
+      first__last__index:null,
+      second__last__index:null,
+      third__last__index:null,
+      first__list:[],
+      second__list:[],
+      third__list:[],
+      view__list:[],
+      addr:{
+        
+      }
+    },
+    methods: {
+      titleOnclick:function(index){
+        console.log(index);
+        switch (index){
+          case 1:
+            this.view__list=this.first__list;
+            this.second=null;
+            this.third=null;
+            this.first__class="address__active";
+            this.second__class="address__noactive"; 
+            this.third__class="address__noactive";
+          break;
+          case 2:
+            this.view__list=this.second__list;
+            this.third=null;
+            this.second__class="address__active"; 
+            this.third__class="address__noactive";
+          break;
+        }
+      },
+      getList:function(mm){
+        var Arr=[];
+        for(var i=0;i<mm.data.length;i++){
+            //console.log(i);
+            Arr.push({
+              id:mm.data[i].id,
+              placeZh:mm.data[i].placeZh,
+              ischecked:null,
+              level:mm.data[i].level
+            });
+          };
+          return Arr;
+      },
+      getJson2:function(){
+         var mm2={"bizCode":0,"bizMsg":"","data":[{"id":102849,"level":2,"parentId":102848,"placeZh":"武汉市"},{"id":102864,"level":2,"parentId":102848,"placeZh":"黄石市"},{"id":102872,"level":2,"parentId":102848,"placeZh":"襄阳市"},{"id":102882,"level":2,"parentId":102848,"placeZh":"十堰市"},{"id":102891,"level":2,"parentId":102848,"placeZh":"荆州市"},{"id":102900,"level":2,"parentId":102848,"placeZh":"宜昌市"},{"id":102914,"level":2,"parentId":102848,"placeZh":"孝感市"},{"id":102922,"level":2,"parentId":102848,"placeZh":"黄冈市"},{"id":102933,"level":2,"parentId":102848,"placeZh":"咸宁市"},{"id":102940,"level":2,"parentId":102848,"placeZh":"恩施州"},{"id":102949,"level":2,"parentId":102848,"placeZh":"鄂州市"},{"id":102953,"level":2,"parentId":102848,"placeZh":"荆门市"},{"id":102959,"level":2,"parentId":102848,"placeZh":"随州市"},{"id":102963,"level":2,"parentId":102848,"placeZh":"潜江市"},{"id":102991,"level":2,"parentId":102848,"placeZh":"天门市"},{"id":103020,"level":2,"parentId":102848,"placeZh":"仙桃市"},{"id":103047,"level":2,"parentId":102848,"placeZh":"神农架林区"}],"msg":"OK","res":1};
+         return mm2;
+      },
+      getJson3:function(){
+           var mm3={"bizCode":0,"bizMsg":"","data":[{"id":102850,"level":3,"parentId":102849,"placeZh":"硚口区"},{"id":102851,"level":3,"parentId":102849,"placeZh":"武汉经济技术开发区"},{"id":102852,"level":3,"parentId":102849,"placeZh":"江岸区"},{"id":102853,"level":3,"parentId":102849,"placeZh":"武昌区"},{"id":102854,"level":3,"parentId":102849,"placeZh":"江汉区"},{"id":102855,"level":3,"parentId":102849,"placeZh":"蔡甸区"},{"id":102856,"level":3,"parentId":102849,"placeZh":"江夏区"},{"id":102857,"level":3,"parentId":102849,"placeZh":"新洲区"},{"id":102858,"level":3,"parentId":102849,"placeZh":"黄陂区"},{"id":102859,"level":3,"parentId":102849,"placeZh":"汉阳区"},{"id":102860,"level":3,"parentId":102849,"placeZh":"青山区"},{"id":102861,"level":3,"parentId":102849,"placeZh":"洪山区"},{"id":102862,"level":3,"parentId":102849,"placeZh":"汉南区"},{"id":102863,"level":3,"parentId":102849,"placeZh":"东西湖区"}],"msg":"OK","res":1};
+           return mm3;
+      },
+      complete:function(){
+          this.view__list=this.first__list;
+          console.log(this.view__list[0].placeZh);
+      },
+      address__click:function(index){
+        
+        console.log(this.view__list);
+        
+        this.view__list[index].ischecked="checked";
+        //
+        switch (this.view__list[index].level){
+          case 1:
+            if(this.first__last__index!=null){
+               this.view__list[this.first__last__index].ischecked=null;
+            }
+            this.first__last__index=index;
+            this.first=this.view__list[index].placeZh;
+            this.second="请选择";
+            this.first__class="address__noactive";
+            this.second__class="address__active";
+            this.second__list=this.getList(this.getJson2());
+            this.view__list=[];
+            this.view__list=this.second__list;
+          break;
+          case 2:
+            if(this.second__last__index!=null){
+               this.view__list[this.second__last__index].ischecked=null;
+            }
+            this.second__last__index=index;
+            this.second=this.view__list[index].placeZh;
+            this.third="请选择";
+            this.second__class="address__noactive";
+            this.third__class="address__active";
+            this.third__list=this.getList(this.getJson3());
+            this.view__list=[];
+            this.view__list=this.third__list;
+          break;
+          case 3:
+            if(this.third__last__index!=null){
+               this.view__list[this.third__last__index].ischecked=null;
+            }
+            this.third__last__index=index;
+            this.third=this.view__list[index].placeZh;
+          break;
+        }
+
+      }
+    },
+    ready:function(){
+      var mm1={"bizCode":0,"bizMsg":"","data":[{"id":100000,"level":1,"parentId":0,"placeZh":"北京"},{"id":100073,"level":1,"parentId":0,"placeZh":"上海"},{"id":100168,"level":1,"parentId":0,"placeZh":"天津"},{"id":100216,"level":1,"parentId":0,"placeZh":"重庆"},{"id":101254,"level":1,"parentId":0,"placeZh":"河北省"},{"id":101439,"level":1,"parentId":0,"placeZh":"山西省"},{"id":101570,"level":1,"parentId":0,"placeZh":"河南省"},{"id":101770,"level":1,"parentId":0,"placeZh":"辽宁省"},{"id":101890,"level":1,"parentId":0,"placeZh":"吉林省"},{"id":101964,"level":1,"parentId":0,"placeZh":"黑龙江省"},{"id":102110,"level":1,"parentId":0,"placeZh":"内蒙古自治区"},{"id":102225,"level":1,"parentId":0,"placeZh":"江苏省"},{"id":102351,"level":1,"parentId":0,"placeZh":"山东省"},{"id":102515,"level":1,"parentId":0,"placeZh":"安徽省"},{"id":102647,"level":1,"parentId":0,"placeZh":"浙江省"},{"id":102752,"level":1,"parentId":0,"placeZh":"福建省"},{"id":102848,"level":1,"parentId":0,"placeZh":"湖北省"},{"id":103056,"level":1,"parentId":0,"placeZh":"湖南省"},{"id":103198,"level":1,"parentId":0,"placeZh":"广东省"},{"id":103407,"level":1,"parentId":0,"placeZh":"广西壮族自治区"},{"id":103532,"level":1,"parentId":0,"placeZh":"江西省"},{"id":103650,"level":1,"parentId":0,"placeZh":"四川省"},{"id":103857,"level":1,"parentId":0,"placeZh":"海南省"},{"id":104153,"level":1,"parentId":0,"placeZh":"贵州省"},{"id":104252,"level":1,"parentId":0,"placeZh":"云南省"},{"id":104398,"level":1,"parentId":0,"placeZh":"西藏自治区"},{"id":104479,"level":1,"parentId":0,"placeZh":"陕西省"},{"id":104598,"level":1,"parentId":0,"placeZh":"甘肃省"},{"id":104703,"level":1,"parentId":0,"placeZh":"青海省"},{"id":104758,"level":1,"parentId":0,"placeZh":"宁夏回族自治区"},{"id":104786,"level":1,"parentId":0,"placeZh":"新疆维吾尔自治区"},{"id":104915,"level":1,"parentId":0,"placeZh":"海外"},{"id":104934,"level":1,"parentId":0,"placeZh":"香港特别行政区"},{"id":104956,"level":1,"parentId":0,"placeZh":"澳门特别行政区"},{"id":104959,"level":1,"parentId":0,"placeZh":"台湾"}],"msg":"OK","res":1};
+        
+          this.first__list = this.getList(mm1);
+          this.view__list=this.first__list;
+          //this.list=mm1.data;
+          //this.list[0].ischecked="checked";
+          // for(var i=0;i<this.list.length;i++){
+          //    this.list[0].ischecked="checked";
+          // }
+    //   var stream = require('@weex-module/stream');
+    //   stream.fetch({
+    //     method: 'POST',
+    //     url: "http://192.168.1.254:8070/area/list",
+    //     type:'json'
+    //   }, 
+    //   function(response) {
+    //     console.log(response);
+    // //process response
+    //   },
+    //   function(response){
+    //    console.log("bytes received:"+response.length);
+    //   });
+    }
+  }
+</script>
+
+<style>
+.foot{
+  position: absolute;
+  bottom: 0;
+  height: 730px;
+  background-color: #ffffff;
+  width: 750px;
+}
+.title{
+  flex-direction: row;
+  justify-content: space-between;
+  height: 100px;
+  border-bottom: 1px solid #efeff0;
+}
+.area{
+   font-size: 32px;
+   color: #333333;
+   line-height: 100px;
+   margin-left: 310px;
+}
+.complete{
+  font-size: 28px;
+  color: #1ea9e5;
+  line-height: 100px;
+  margin-right: 20px;
+}
+.address__detail{
+  height: 90px;
+  border-bottom: 1px solid #efeff0;
+  flex-direction: row;
+}
+.address{
+  line-height: 90px;
+  color: #333333;
+  font-size: 28px;
+  height: 90px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-left: 20px;
+}
+.address__active{
+  color: #fe424b;
+  border-bottom: 2px solid #fe424b;
+}
+.address__noactive{
+  color: #666666;
+  border-bottom: none;
+}
+.list{
+  margin-left: 40px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.list__text{
+  font-size: 28px;
+  color: #666666;
+}
+.checked{
+  color: #fe424b;
+}
+</style>
