@@ -9,7 +9,7 @@
            <text class="pay__tip">推荐安装微信5.0及以上版本使用</text>
          </div>
        </div>
-       <img class="right" src="../pay{{pay1}}.png"></img>
+       <img class="right" src="static/webApp/image/pay{{pay1}}.png"></img>
      </div>
      <div class="alipay" onclick="check(2)">
        <div class="left">
@@ -19,7 +19,7 @@
            <text class="pay__tip">推荐有支付宝的账户使用</text>
          </div>
        </div>
-       <img class="right" src="../pay{{pay2}}.png"></img>
+       <img class="right" src="static/webApp/image/pay{{pay2}}.png"></img>
      </div>
      <div class="pay">
        <text class="pay__text">支付：</text>
