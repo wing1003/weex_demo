@@ -5,7 +5,7 @@
        <input class="phone" style="color:{{}}" oninput="phoneChange" type="tel" value="{{phone}}" placeholder="手机号" name=""></input>
        <div class="verify">
           <input class="verify__number" oninput="verifyChange" value="{{verify}}" type="number" placeholder="验证码" placeholder="手机号" name=""></input>
-          <text class="verify__send"  onclick="sendVerify">发送验证码</text>
+          <text class="verify__send"  onclick="sendVerify" style="background-color:{{}}">{{content}}</text>
        </div>
         <text class="login" onclick="login">
          登录
@@ -20,6 +20,7 @@
 <script>
 module.exports = {
     data: {
+      root:"static/webApp/view",
       phone:null,
       verify:null,
       color:"red",
@@ -34,14 +35,91 @@ module.exports = {
       verifyChange:function(data){
          this.verify=data.value;
       },
+      jump: function(name){
+          return getBaseUrl(this.root,this[name+"_name"]);
+          //console.log(base + this.pages[page].name + '.js');
+      },
       sendVerify:function(){
          if(!(/^1[3|4|5|7|8]\d{9}$/.test(this.phone))){ 
              alert("手机号码有误，请重填"); 
              return false; 
            }
+        if(this.isonclick==false){
+          return;
+        }
+        var that=this;
+         that.color="gray";
+         that.content="60s";
+         that.isonclick=false;
+          var timer=function(time){
+                var t=setInterval(function(){
+                  if(time>0){
+                     time--;
+                     that.content=time+"s";
+                  }else{
+                    that.color="red";
+                    that.content="发送验证码";
+                    that.time=60;
+                    that.isonclick=true;
+                    clearInterval(t);
+                  }
+               },1e3);
+          }(that.time);
+          stream=__weex_require__('@weex-module/stream');
+              stream.fetch({
+                method:"POST",
+                url:"/send/smsCode",
+                type:"json"
+              },function(response){
+               if(response.status == 200){
+                        //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                        var data = response.data;
+                        try{
+                          data = JSON.parse(response.data); 
+                        }catch(e){}
+                                                          
+                        if(data){
+
+                         
+                          
+                        }else{
+                         //TODO:
+                        }
+                      }else{
+                          //TODO:错误处理
+                          //console.log('--response:-- ', response);
+                      }
+                  },function(err){
+                      //console.log('---err---', err);
+                      //TODO:错误处理
+                  });
       },
       login:function(){
+              // stream.fetch({
+              //   method:"POST",
+              //   url:"/doLogin",
+              //   type:"json"
+              // },function(response){
+              //  if(response.status == 200){
+              //           //这里需要兼容web和Native，Native需要将传递的数据JSON化
+              //           var data = response.data;
+              //           try{
+              //             data = JSON.parse(response.data); 
+              //           }catch(e){}                               
+              //           if(data){
 
+              //           }else{
+              //            //TODO:
+              //           }
+              //         }else{
+              //             //TODO:错误处理
+              //             //console.log('--response:-- ', response);
+              //         }
+              //     },function(err){
+              //         //console.log('---err---', err);
+              //         //TODO:错误处理
+              // });
+              __weex_require__('@weex-module/event').openURL(this.root);
       }
     }
 }
@@ -100,4 +178,3 @@ module.exports = {
   color: #ffffff;
 }
 </style>
-
