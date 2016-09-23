@@ -1,0 +1,526 @@
+<template>
+	<list class="list" loadmoreoffset=2000>
+		<cell style="background-color: #ccc;">
+			<div class="summary">
+				<div>
+					<image class="customImg" src="{{mainPic}}"></image>
+				</div>
+				<div style="flex-direction: row;justify-content: center;font-weight:bold;margin-top:30;">
+					<text class="title">[定制]</text>
+					<text>{{name}}</text>
+				</div>
+				<div style="height:80;">
+					<text class="info">{{description}}</text>
+				</div>
+				<div class="price">
+					<text class="sale">{{cut}}</text>	
+					<text style="font-size:32;line-height: 27;padding-right:27;font-weight: bold;color:#ff555f;">&yen;{{leastPrice}}</text>
+					<text style="font-size:20;color:#ccc;text-decoration: line-through;">原价:&yen;{{orignPrice}}</text>
+				</div>
+				<div style="flex-direction: row;justify-content: center;margin-top: 20;">
+					<text style="font-size: 20;color:#aeaeae;">已定</text>
+					<text style="font-size: 20;color:#afd7fd;">{{sellNum}}</text>
+					<text style="font-size: 20;color:#aeaeae;margin-right: 30;">件/{{targetNum}}件</text>
+					<text style="font-size: 20;color:#aeaeae;">仅剩下</text>
+					<text style="font-size: 20;color:#afd7fd;">{{time}}</text>
+				</div>
+				<div style="flex-direction: row;justify-content: center;">
+					<text style="color:#ccc;font-size: 20;margin-top: 20;">预期未完成即自动退款</text>
+				</div>
+				<div style="flex-direction: row;justify-content: center;margin-top: 64;margin-bottom: 20;">
+					<text style="font-size:20;color:#ccc;">销量{{totalSell}}</text>
+					<text style="font-size:20;color:#ccc;width:203;text-align: center;border-width: 1;border-left-style: solid;border-right-style: solid;border-top-style:none;border-bottom-style:none;margin-left: 45;margin-right: 45;border-color: #ccc; ">收藏量{{likeNum}}</text>
+					<text style="font-size:20;color:#ccc;">包邮</text>
+				</div>
+			</div>
+<!-- 			<div class="detail">
+	<div class="wrapper">
+        <embed class="content" style="visibility:{{visibility}}" repeat={{tabItems}} src={{src}} type="weex"></embed>
+        <div class="tabbar" append = "tree">
+            <wxc-tabitem repeat={{tabItems}} index={{index}} icon={{icon}} title={{title}} title-color={{titleColor}}></wxc-tabItem>
+        </div>
+    </div>
+</div> -->
+			<div class="detail">
+		     	<img class="head__png" src="{{avatar}}"></img>
+	      		<div style="margin-left:20;">
+			        <div style="flex-direction:row">
+			            <text class="name">{{nickName}}</text>
+		            	<image class="tip__png" src="../"></image>
+			        </div>
+			        <div style="flex-direction:row">
+		          		<text class="focus">关注</text>
+			          	<text class="focus focus__center">|</text>
+			          	<text class="focus focus__right">{{focus}}</text>
+			          	<text class="focus">粉丝</text>
+			          	<text class="focus focus__center">|</text>
+			          	<text class="focus focus__right">{{fansNum}}</text>
+			          	<text class="focus">发起</text>
+			          	<text class="focus focus__center">|</text>
+			          	<text class="focus">{{sponsorNum}}</text>
+			        </div>
+		        </div>			      
+	     	</div>
+	     	<div class="goods__tab">
+	       		<text style="margin-left: 120px;" class="tab__text active">详情</text>
+	       		<text style="margin-right: 120px;" class="tab__text">评价</text>
+	     	</div>
+	     	<div style="min-height: 770px;background-color: black">
+	        	<slider auto-play="false" onchange="change" style="...">
+	          		<image repeat="{{listPic}}" src="{{src}}" style="..."></image>
+	      			<indicator></indicator>
+        		</slider>
+	     	</div>
+	     	<div class="footer">
+	       		<text class="partIn" onclick="takepart">我要参与</text>
+       		</div>
+
+       		<div class="goods_item" style="flex-direction: column;position:relative;background-color:#fff;" if="{{shown}}">
+  				<div id="content" class="content" style="position:absolute">
+  					<div onclick="quit" if="{{shown}}">
+  						<img class="cancel" src="../cancel.png"></img>
+					</div>
+    				<div repeat="{{content__list}}"  class="content__list">
+       					<div  class="content__detail">
+         				<image class="image" src="{{pngsrc}}"></image>
+         			<div class="pay__detail">
+		           <div style="flex-direction: row;margin-bottom:50px;">
+		             <text class="pay">支付金额</text>
+		             <text class="cash">{{pay}}</text>
+		             <text class="pay">元</text>
+		           </div>
+		           <div class="dispatch">
+		             <text class="dispatch__content">配送费用：</text>
+		             <text class="dispatch__content">免运费</text>
+		           </div>
+		           <div class="dispatch">
+		             <text class="dispatch__content">发货时间：</text>
+		             <text class="dispatch__content">项目结束后{{daytime}}天内</text>
+		           </div>
+		         </div>
+     				<text onclick="join" class="join">去参与</text>
+       			</div>
+		       		<div>
+		         		<text class="describe">{{content}}</text>
+    				</div>
+    				</div>
+  				</div>
+  			</div>
+		</cell>
+	</list>
+</template>
+<style>
+	.customImg{
+		width: 750;
+		height:750;
+	}
+	.summary{
+		background-color: #fff;
+	}
+	.title{
+		color:#ff555f;
+	}
+	.info{
+		flex-direction: row;
+		justify-content: center;
+		margin-top:18;
+		margin-left:77;
+		margin-right:77;
+		margin-bottom:67;
+		text-align:center;
+		font-size:22;
+		color:#666;
+	}
+	.price{
+		flex-direction: row;
+		justify-content: center;
+		height:28;
+		line-height:28;
+	}
+	.sale{
+		width:53;
+		height:25;
+		line-height:25;
+		border-radius:8;
+		background-color:#ff555f;
+		color:#fff;
+		font-size:20;
+		text-align:center;
+		margin-right:10;
+		margin-top: 1;
+	}
+    .detail{
+    	height:160;
+    	margin-top:20;
+	  	flex-direction: row;
+	  	align-items: center;
+	  	background-color: #fff;
+	}
+	.head__png{
+	  width: 100;
+	  height: 100;
+	  background-color: black;
+	  margin-left: 18px;
+	}
+	.name{
+	  font-size: 26px;
+	  line-height: 50px;
+	  color: #666666;
+	}
+.tip__png{
+  width: 30px;
+  height: 30px;
+  background-color: black;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+.focus{
+  font-size: 22px;
+  color: #cccccc;
+  line-height: 50px;
+}
+.focus__center{
+  margin-left:11px;
+  margin-right: 12px;
+}
+.focus__right{
+  margin-right: 40px;
+}
+.isfocus{
+  font-size: 24px;
+  color: #3ba8fa;
+  line-height: 44px;
+  width: 100px;
+  height: 44px;
+  margin-right: 30px;
+  margin-top: 28px;
+  text-align: center;
+  border: 1px solid #3ba8fa;
+  border-radius: 22px;
+}
+.goods__tab{
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 20;
+  height: 90;
+  border-bottom: 1 solid #efeff0;
+  background-color: #fff;
+}
+.tab__text{
+  width: 52px;
+  height: 90px;
+  line-height: 90px;
+  font-size: 26px;
+  color: #333333;
+}
+.active{
+  color: #ff404b;
+  border-bottom: 2px solid #ff404b;
+}
+.footer{
+  flex-direction: row;
+  justify-content: center;
+  height: 100;
+  background-color: #fff;
+}
+.service{
+  position: relative;
+}
+.service__png{
+  margin-top: 12px;
+  width: 42px;
+  height: 42px;
+  background-color: black;
+}
+.meg__number{
+  width: 26px;
+  height: 26px;
+  position: absolute;
+  background-color: red;
+  line-height: 26px;
+  text-align: center;
+  top: 6px;
+  left: 26px;
+  z-index: 9;
+  border-radius: 13px;
+  font-size: 20px;
+  color: #ffffff;
+}
+.custom{
+  font-size: 20px;
+  margin-top: 12px;
+  color: #8d8d8d;
+}
+.partIn{
+  height: 60;
+  width: 330;
+  font-size: 24px;
+  color: #FFFFFF;
+  background-color: #ff404b;
+  line-height: 60px;
+  border-radius: 30px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+
+.content{
+bottom: 0;
+flex-direction: column;
+}
+.image{
+  width: 160px;
+  height: 160px;
+  background-color: #666666;
+}
+.content__detail{
+  flex-direction: row;
+  margin-top: 30px;
+  margin-left: 20px;
+  margin-bottom: 30px;
+  position: relative;
+}
+.pay__detail{
+  flex-direction: column;
+  margin-left: 20px;
+}
+.content__list{
+ background-color: #FFFFFF;
+ width: 750px;
+}
+.dispatch{
+  flex-direction: row;
+  margin-top: 10px;
+}
+.dispatch__content{
+  font-size: 22px;
+  color: #cccccc;
+}
+.pay{
+   font-size: 24px;
+   margin-top: 10px;
+}
+.cash{
+    font-size: 33px;
+    margin-left: 10px;
+    color: #ff555f;
+}
+.join{
+    font-size: 24px;
+    position: absolute;
+    right: 0;
+    width: 180px;
+    height: 60px;
+    line-height: 60px;
+    color: #ffffff;
+    background-color: #ff555f;
+    text-align: center;
+    border-radius: 30px;
+    margin-right: 30px;
+}
+.describe{
+  font-size: 24px;
+  color: #222222;
+  line-height: 42px;
+  margin-left: 20px;
+  margin-right: 20px;
+  height: 180px;
+  border-bottom: 1px solid #efeff0;
+}
+.cancel{
+  height: 36px;
+  width: 36px;
+  margin-left: 30px;
+  margin-bottom: 15px;
+  background-color: #ccc;
+}
+</style>
+<script>
+  require('weex-components');
+  require('../buou_components/buou-tabbar-info.we');
+
+
+  function getBaseUrl(dir,page){
+    var dirs = dir.split('/');
+    dirs.forEach(function(dir, index) {
+      if (!dir) dirs.splice(index, 1);
+    });
+    var root = dirs.length > 0 ? dirs[0] : '';
+    var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
+
+    //return './index.html?page=./' + root + '/' + subRoot;
+    return "?page=./"+ root + '/' + subRoot + page;
+}
+  module.exports = {
+
+  	 data: {
+  	 	root:"dist",
+  	 	doc_name:"order.js",
+  	 	mainPic:"",
+  	 	name:"",
+  	 	description:"",
+  	 	cut:"",
+  	 	orignPrice:"",
+  	 	leastPrice:"",
+		sellNum:"",
+		targetNum:"",
+		time:"",
+		totalSell:"",
+		likeNum:"",
+		//用户信息
+		avatar:"",
+		nickName:"",
+		focus:"",
+		fansNum:"",
+		sponsorNum:"",
+
+		listPic: [{
+			src:""
+		}],//[{src: ""}, {src:""}]  	 	
+          tabItems: [ ],
+          selectedIndex: 0,
+          shown:false,
+          selectedColor: '#ff0000',
+          unselectedColor: '#000000',
+          content__list:[{
+	        pay:123,
+	        daytime:15,
+	        pngsrc:"images/test.png",
+	        content:"谢谢大家的关注和支持！您将获得：由黑子亲自参与设计和打板的黑色T恤，潮感十足，特立而不独行轻松穿出入流范儿！"
+	      }]
+	    },
+        created: function () {
+          this.selected(this.selectedIndex);
+
+          this.$on('tabItem.onClick',function(e){
+            var detail= e.detail;
+            this.selectedIndex = detail.index;
+            this.selected(detail.index);
+
+            var params = {
+              index: detail.index
+            };
+            this.$dispatch('tabBar.onClick', params);
+          });
+          this._getData();
+        },
+        methods: {
+        	_getData:function(){
+        		var that=this,
+	        			stream=__weex_require__('@weex-module/stream');
+	        		stream.fetch({
+	        			method:"get",
+	        			url:"/custom/getCustomDetails?customId=43",
+	        			type:"json"
+	        		},function(response){
+	    				 if(response.status == 200){
+	                      //这里需要兼容web和Native，Native需要将传递的数据JSON化
+	                      var data = response.data;
+	                      try{
+	                        data = JSON.parse(response.data); 
+	                      }catch(e){}
+	                                                        
+	                      if(data){
+
+	                        var obj = data.data,
+	                        	customDetailBean=obj.customDetailBean,
+	                        	custom=customDetailBean.custom;
+	                        
+	                        var	memberDetailBean=customDetailBean.memberDetailBean,
+	                        	memberDetail=memberDetailBean.memberDetail;
+	                        console.log(obj)
+	                        that.mainPic=that.image+custom.mainPic;
+	                        that.name=custom.name;
+	                        that.leastPrice=custom.leastPrice;
+	                        that.avatar=that.image+memberDetail.avatar;
+	                        that.nickName=memberDetail.nickname;
+	                        that.fansNum=memberDetailBean.fansNum;
+	                        that.sponsorNum=memberDetailBean.sponsorNum;
+	                        
+	                       // that.imageList=custom.listPic.split(",");
+	                        custom.listPic.split(",").forEach(function(value,index){
+	                        	//that.imageList=that.image+this.value;
+	                        	//var arr=[],obj={that.src:this.value};
+	                        	
+	                        	arr.push(obj);
+	                        	that.imageList=that.image+this.value;
+	                        });
+	                      }else{
+	                       //TODO:
+	                      }
+	                    }else{
+	                        //TODO:错误处理
+	                        //console.log('--response:-- ', response);
+	                    }
+	                },function(err){
+	                    //console.log('---err---', err);
+	                    //TODO:错误处理
+	        		});
+	        		stream.fetch({
+	        			method:"get",
+	        			url:"/custom/supportCustom?customId=43",
+	        			type:"json"
+	        		},function(response){
+	    				 if(response.status == 200){
+	                      //这里需要兼容web和Native，Native需要将传递的数据JSON化
+	                      var data = response.data;
+	                      try{
+	                        data = JSON.parse(response.data); 
+	                      }catch(e){}
+	                                                        
+	                      if(data){
+	                        var dataList=[];
+	                          data.data.customItemAppList.forEach(function(value, index, array){
+	                            dataList.push({
+	                                  pay:array[index].price,
+	                                  daytime:data.data.sendDay,
+	                                  pngsrc:that.image+data.data.productMainPic,
+	                                  content:array[index].description
+	                                });
+	                            })
+	                            that.content__list=dataList;
+	                        
+	                      }else{
+	                       //TODO:
+	                      }
+	                    }else{
+	                        //TODO:错误处理
+	                        //console.log('--response:-- ', response);
+	                    }
+	                },function(err){
+	                    //console.log('---err---', err);
+	                    //TODO:错误处理
+	        		});
+
+        	},
+            selected: function(index) {
+              for(var i = 0; i < this.tabItems.length; i++) {
+                var tabItem = this.tabItems[i];
+                if(i == index){
+                  tabItem.icon = tabItem.selectedImage;
+                  tabItem.titleColor = this.selectedColor;
+                  tabItem.visibility = 'visible';
+                }
+                else {
+                  tabItem.icon = tabItem.image;
+                  tabItem.titleColor = this.unselectedColor;
+                  tabItem.visibility = 'hidden';
+                }
+              }
+            },
+            takepart:function(){
+            	this.shown=!this.shown;
+            },
+            quit:function(){
+            	this.shown=!this.shown;
+            },
+            join:function(){
+            	require('@weex-module/event').openURL(this.jump());
+            },
+            jump: function(page){
+		        return getBaseUrl(this.root,this.doc_name);
+		        //console.log(base + this.pages[page].name + '.js');
+	        } 
+        }
+  };
+</script>

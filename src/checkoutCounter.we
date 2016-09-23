@@ -3,7 +3,7 @@
   <div class="total">
      <div class="wechart" onclick="check(1)">
        <div class="left">
-         <img class="pay__icon" src=""></img>
+         <img class="pay__icon" src="static/webApp/image/weixin_icon.png"></img>
          <div class="pay__content">
            <text class="pay__type">微信支付</text>
            <text class="pay__tip">推荐安装微信5.0及以上版本使用</text>
@@ -13,7 +13,7 @@
      </div>
      <div class="alipay" onclick="check(2)">
        <div class="left">
-         <img class="pay__icon" src=""></img>
+         <img class="pay__icon" src="static/webApp/image/zhi_icon.png"></img>
          <div class="pay__content">
            <text class="pay__type">支付宝支付</text>
            <text class="pay__tip">推荐有支付宝的账户使用</text>
@@ -81,9 +81,8 @@ module.exports = {
   flex-direction: row;
 }
 .pay__icon{
-  height: 50px;
+  height: 45px;
   width: 50px;
-  background-color: green;
   margin-top: 45px;
   margin-left: 20px;
   margin-right: 38px;
