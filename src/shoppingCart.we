@@ -1,0 +1,373 @@
+<!-- 收银台 -->
+<template>
+  <div class="total">
+    <div repeat="{{parentsList}}">
+      <div class="goods__title">
+      <div class="goods__title-left">
+        <img class="parentsCkecked" onclick="praCheck($index)" src="static/webApp/image/checked{{ischecked}}.png"></img>
+        <text class="title iconfont">{{goodsName}}&#xe631;</text>
+      </div>
+        <text class="order__type">{{orderType}}</text>
+          <!-- <div class="iconfont">&#xe601;</div> -->
+      </div>
+       <div repeat="{{sonList}}" class="goods__content" indexid="{{indexid}}" onclick="getRemove">
+       <div id="{{indexid}}" style="flex-direction:row;">
+       <div style="flex-direction:row;">
+          <img class="sonCkecked" src="static/webApp/image/checked{{ischecked}}.png" indexId="{{indexid}}" onclick="sonCheck"></img>
+          <img class="goods__iamge" src="{{goods__png}}"></img>
+          <div class="goods__right">
+            <div class="goods__detail">
+              <text class="goods__tip">{{goodsDetail}}...</text>
+              <div class="goods__price">
+                <text class="last__price">&#165;{{lastPrice}}</text>
+                <text class="pre__price">{{prePrice}}</text>
+              </div>
+            </div>
+            <div class="goods__footer">
+              <text class="goods__size">颜色：{{color}}&nbsp;尺码：{{size}}</text>
+              <div class="number__choose">
+                <text onclick="minus" indexid="{{indexid}}" class="number__left">-</text>
+                <text class="number">{{number}}</text>
+                <text onclick="plus" indexid="{{indexid}}" class="number__right">+</text>
+              </div>
+            </div>
+          </div>
+          </div>
+          <text class="remove" indexid="{{indexid}}" onclick="remove">删除</text>
+          </div>
+        </div>
+
+    </div>
+    <div class="footer">
+      <div class="footer__left">
+        <img class="all__check" onclick="all__check" src="static/webApp/image/checked{{ischecked}}.png"></img>
+        <text class="all__text">全选</text>
+      </div>
+      <div class="footer__right">
+        <div class="price">
+          <text class="footer__last-price">实际支付：&#165;0.00</text>
+          <text class="footer__pre-price">原价：&#165;0.00</text>
+        </div>
+        <text class="submit">去结算</text>
+      </div>
+    </div>
+  </div>
+
+</template>
+
+
+
+<script>
+module.exports = {
+    data: {
+      ischecked:1,
+      parentsList:[{
+        goodsName:"无尾熊和熊",
+        orderType:"定制订单",
+        ischecked:1,   //1为选中，2为非选中
+        sonList:[{
+          goods__png:"static/webApp/image/goods.png",
+          goodsDetail:"无袖白色雪纺修身裙子韩版休闲舒适",
+          lastPrice:"299.00",
+          prePrice:"349.00",
+          left:-160,
+          color:"白",
+          size:"S",
+          number:1,
+          ischecked:1,
+          indexid:"0_0"
+        },{
+          goods__png:"static/webApp/image/goods.png",
+          goodsDetail:"无袖白色雪纺修身裙子韩版休闲舒适",
+          lastPrice:"299.00",
+          prePrice:"349.00",
+          left:-160,
+          color:"白",
+          size:"S",
+          number:1,
+          ischecked:1,
+          indexid:"0_1"
+        }]
+      },
+      {
+        goodsName:"无尾熊和熊",
+        orderType:"",
+        ischecked:1,   //1为选中，2为非选中
+        sonList:[{
+          goods__png:"static/webApp/image/goods.png",
+          goodsDetail:"无袖白色雪纺修身裙子韩版休闲舒适",
+          lastPrice:"299.00",
+          prePrice:"349.00",
+          left:-160,
+          color:"白",
+          size:"S",
+          number:1,
+          ischecked:1,
+          indexid:"1_0"
+        },{
+          goods__png:"static/webApp/image/goods.png",
+          goodsDetail:"无袖白色雪纺修身裙子韩版休闲舒适",
+          lastPrice:"299.00",
+          prePrice:"349.00",
+          left:-160,
+          color:"白",
+          size:"S",
+          number:1,
+          ischecked:1,
+          indexid:"1_1"
+        }]
+      }
+      ]
+    },
+    ready:function(){
+          
+    },
+    methods: {
+      plus:function(e){
+        var pindex=e.target.attr.indexid.split("_")[0];
+        var sindex=e.target.attr.indexid.split("_")[1];
+        this.parentsList[pindex].sonList[sindex].number++;
+      },
+      getRemove:function(e){
+        var that=this;
+        var pindex=e.target.attr.indexid.split("_")[0];
+        var sindex=e.target.attr.indexid.split("_")[1];
+          var animation = require('@weex-module/animation');
+          var testEl = this.$el(e.target.attr.indexid);
+          console.log(pindex+","+sindex+","+that.parentsList[pindex].sonList[sindex].left);
+          animation.transition(testEl, {
+            styles: {
+              transform: 'translateX('+that.parentsList[pindex].sonList[sindex].left+'px)'
+            },
+            duration: 500, //ms
+            delay: 0 //ms
+          }, function () {
+            that.parentsList[pindex].sonList[sindex].left=-160-that.parentsList[pindex].sonList[sindex].left;
+          })
+      },
+      minus:function(e){
+        var pindex=e.target.attr.indexid.split("_")[0];
+        var sindex=e.target.attr.indexid.split("_")[1];
+        if(this.parentsList[pindex].sonList[sindex].number>1){
+          this.parentsList[pindex].sonList[sindex].number--;
+        }
+      },
+      praCheck:function(index){
+        this.parentsList[index].ischecked=1-this.parentsList[index].ischecked;
+        var ischecked=this.parentsList[index].ischecked;
+        this.parentsList[index].sonList.forEach(function(data,index){
+          data.ischecked=ischecked;
+        })
+      },
+      sonCheck:function(e){  //子选择
+        var pindex=e.target.attr.indexid.split("_")[0];
+        var sindex=e.target.attr.indexid.split("_")[1];
+        this.parentsList[pindex].sonList[sindex].ischecked=1-this.parentsList[pindex].sonList[sindex].ischecked;
+        var ischecked=this.parentsList[pindex].sonList[sindex].ischecked;
+        if(ischecked==0)  this.parentsList[pindex].ischecked=0;
+      },
+      remove:function(e){
+        var pindex=e.target.attr.indexid.split("_")[0];
+        var sindex=e.target.attr.indexid.split("_")[1];
+        this.parentsList[pindex].sonList.splice(sindex,1);
+      },
+      all__check:function(){      //全选
+        this.ischecked=1-this.ischecked;
+        for(var i=0;i<this.parentsList.length;i++){
+          this.parentsList[i].ischecked=this.ischecked;
+          for(var j=0;j<this.parentsList[i].sonList.length;j++){
+            this.parentsList[i].sonList[j].ischecked=this.ischecked;
+          }
+        }
+      }
+    }
+}
+</script>
+
+
+<style>
+.iconfont{
+    font-family:"buou-iconfont"}
+.total{
+  flex-direction: column;
+  background-color: #efefef;
+  position: relative;
+}
+.goods__title{
+  flex-direction: row;
+  height: 90px;
+  width: 750px;
+  margin-top: 20px;
+  background-color: #f8f8f8;
+  justify-content: space-between;
+}
+.goods__title-left{
+  flex-direction: row;
+}
+.parentsCkecked{
+  height: 42px;
+  width: 42px;
+  margin-left: 20px;
+  margin-top: 24px;
+}
+.title{
+  font-size: 26px;
+  line-height: 42px;
+  margin-top: 24px;
+  margin-left: 38px;
+}
+.order__type{
+  font-size: 26px;
+  line-height: 42px;
+  margin-top: 24px;
+  color: #999999;
+  margin-right: 20px;
+}
+.goods__content{
+  flex-direction: row;
+  height: 220px;
+  background-color: #fff;
+  width: 750px;
+  overflow-x: hidden;
+}
+.sonCkecked{
+  height: 42px;
+  width: 42px;
+  margin-left: 20px;
+  margin-top: 110px;  
+}
+.goods__iamge{
+  width: 160px;
+  height: 160px;
+  margin-top: 30px;
+  margin-left: 38px;
+}
+.goods__right{
+  width: 450px;
+  flex-direction: column;
+  margin-top: 34px;
+  margin-left: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.goods__detail{
+  flex-direction: row;
+  justify-content: space-between;
+}
+.goods__tip{
+  width: 280px;
+  font-size: 28px;
+  line-height: 42px;
+  color: #333333;
+}
+.goods__price{
+  flex-direction: column;
+}
+.last__price{
+  font-size: 28px;
+  line-height: 42px;
+  color: #ff555f;
+}
+.pre__price{
+  font-size: 24px;
+  text-align: right;
+  text-decoration: line-through;
+  margin-top: 6px;
+}
+.goods__footer{
+  flex-direction: row;
+  justify-content: space-between;
+}
+.goods__size{
+   font-size: 24px;
+   color: #999999;
+   margin-top: 10px;
+}
+.number__choose{
+  flex-direction: row;
+  height: 60px;
+  width: 200px;
+  border: 1px solid #cdcdcd;
+  border-radius: 6px;
+  margin-top: 15px;
+}
+.number__left{
+  width: 58px;
+  text-align: center;
+  color: #999999;
+  line-height: 58px;
+}
+.number{
+  width: 81px;
+  text-align: center;
+  color: #333333;
+  line-height: 58px;
+  border-left: 1px solid #cdcdcd;
+  border-right: 1px solid #cdcdcd;
+}
+.number__right{
+  width: 58px;
+  text-align: center;
+  color: #999999;
+  line-height: 58px;
+}
+.remove{
+  width: 160px;
+  height: 220px;
+  background-color: #fe575e;
+  color: #fff;
+  font-size: 28px;
+  text-align: center;
+  line-height: 220px;
+  margin-left: 20px;
+}
+.footer{
+  height: 120px;
+  margin-top: 20px;
+  background-color: #fff;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.footer__left{
+  flex-direction: row;
+}
+.all__check{
+  height: 42px;
+  width: 42px;
+  margin-top: 39px;
+  margin-left: 20px;
+}
+.all__text{
+  font-size: 28px;
+  color: #333;
+  line-height: 120px;
+  margin-left: 20px;
+}
+.footer__right{
+  flex-direction: row;
+}
+.price{
+  flex-direction: column;
+  margin-right: 40px;
+}
+.footer__last-price{
+  font-size: 28px;
+  color: #333;
+  margin-top: 25px;
+}
+.footer__pre-price{
+  font-size: 24px;
+  text-decoration: line-through;
+  color: #999;
+  margin-top: 10px;
+  text-align: right;
+}
+.submit{
+  width: 220px;
+  text-align: center;
+  line-height: 120px;
+  background-color: #e0e0e0;
+  color: #fff;
+  font-size: 32px;
+}
+</style>
+
