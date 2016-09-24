@@ -75,9 +75,9 @@
 	       		<text class="partIn" onclick="takepart">我要参与</text>
        		</div>
 
-       		<div class="goods_item" style="flex-direction: column;position:relative;background-color:#fff;" if="{{shown}}">
+       		<div class="goods_item" id="goods_item" style="flex-direction: column;position:fixed;background-color:#fff; bottom: -{{tabHeight}}" >
   				<div id="content" class="content" style="position:absolute">
-  					<div onclick="quit" if="{{shown}}">
+  					<div onclick="quit">
   						<img class="cancel" src="../cancel.png"></img>
 					</div>
     				<div repeat="{{content__list}}"  class="content__list">
@@ -106,6 +106,10 @@
     				</div>
   				</div>
   			</div>
+
+  			<!-- <text class="test" onclick="selectSpot">2222222222222222</text> -->
+
+  			<!-- <customSpot class= "spec" id="spot"></customSpot> -->
 		</cell>
 	</list>
 </template>
@@ -334,23 +338,41 @@ flex-direction: column;
   margin-bottom: 15px;
   background-color: #ccc;
 }
+
+.spec{
+	position: absolute;
+	width: 750;
+	height: 800;
+	top: 0;
+	left: 0;
+	background: #000;
+}
+.test{
+	position: absolute;
+	top: 900;
+	left: 0;
+}
+
 </style>
 <script>
   require('weex-components');
-  require('../buou_components/buou-tabbar-info.we');
+  // require('../components/buou-tabbar-info.we');
+  require('../customSpot.we');
 
 
-  function getBaseUrl(dir,page){
-    var dirs = dir.split('/');
-    dirs.forEach(function(dir, index) {
-      if (!dir) dirs.splice(index, 1);
-    });
-    var root = dirs.length > 0 ? dirs[0] : '';
-    var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
+  var animation = require('@weex-module/animation');
 
-    //return './index.html?page=./' + root + '/' + subRoot;
-    return "?page=./"+ root + '/' + subRoot + page;
-}
+	function getBaseUrl(dir,page){
+		var dirs = dir.split('/');
+		dirs.forEach(function(dir, index) {
+		  if (!dir) dirs.splice(index, 1);
+		});
+		var root = dirs.length > 0 ? dirs[0] : '';
+		var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
+
+		//return './index.html?page=./' + root + '/' + subRoot;
+		return "?page=./"+ root + '/' + subRoot + page;
+	}
   module.exports = {
 
   	 data: {
@@ -379,7 +401,6 @@ flex-direction: column;
 		}],//[{src: ""}, {src:""}]  	 	
           tabItems: [ ],
           selectedIndex: 0,
-          shown:false,
           selectedColor: '#ff0000',
           unselectedColor: '#000000',
           content__list:[{
@@ -387,9 +408,18 @@ flex-direction: column;
 	        daytime:15,
 	        pngsrc:"images/test.png",
 	        content:"谢谢大家的关注和支持！您将获得：由黑子亲自参与设计和打板的黑色T恤，潮感十足，特立而不独行轻松穿出入流范儿！"
-	      }]
+	      }],
+
+
+	     
+	    },
+	    computed: {
+	    	tabHeight: function(){
+	    		return 400 *this.content__list.length + 51;
+	    	}
 	    },
         created: function () {
+
           this.selected(this.selectedIndex);
 
           this.$on('tabItem.onClick',function(e){
@@ -407,47 +437,40 @@ flex-direction: column;
         methods: {
         	_getData:function(){
         		var that=this,
-	        			stream=__weex_require__('@weex-module/stream');
+	        		stream=__weex_require__('@weex-module/stream'),
+	        		baseUrl = that.$getConfig().bundleUrl.split('/index?')[0];
 	        		stream.fetch({
 	        			method:"get",
-	        			url:"/custom/getCustomDetails?customId=43",
+	        			url: baseUrl + "/custom/getCustomDetails?customId=43",
 	        			type:"json"
 	        		},function(response){
-	    				 if(response.status == 200){
-	                      //这里需要兼容web和Native，Native需要将传递的数据JSON化
-	                      var data = response.data;
-	                      try{
-	                        data = JSON.parse(response.data); 
-	                      }catch(e){}
-	                                                        
-	                      if(data){
+						if(response.status == 200){
+							//这里需要兼容web和Native，Native需要将传递的数据JSON化
+							var data = response.data;
+							try{
+								data = JSON.parse(response.data); 
+							}catch(e){}
+							                                
+							if(data){
 
-	                        var obj = data.data,
-	                        	customDetailBean=obj.customDetailBean,
-	                        	custom=customDetailBean.custom;
-	                        
-	                        var	memberDetailBean=customDetailBean.memberDetailBean,
-	                        	memberDetail=memberDetailBean.memberDetail;
-	                        console.log(obj)
-	                        that.mainPic=that.image+custom.mainPic;
-	                        that.name=custom.name;
-	                        that.leastPrice=custom.leastPrice;
-	                        that.avatar=that.image+memberDetail.avatar;
-	                        that.nickName=memberDetail.nickname;
-	                        that.fansNum=memberDetailBean.fansNum;
-	                        that.sponsorNum=memberDetailBean.sponsorNum;
-	                        
-	                       // that.imageList=custom.listPic.split(",");
-	                        custom.listPic.split(",").forEach(function(value,index){
-	                        	//that.imageList=that.image+this.value;
-	                        	//var arr=[],obj={that.src:this.value};
-	                        	
-	                        	arr.push(obj);
-	                        	that.imageList=that.image+this.value;
-	                        });
-	                      }else{
-	                       //TODO:
-	                      }
+								var obj = data.data,
+									customDetailBean=obj.customDetailBean,
+									custom=customDetailBean.custom;
+
+								var	memberDetailBean=customDetailBean.memberDetailBean,
+									memberDetail=memberDetailBean.memberDetail;
+								// console.log(obj)
+								that.mainPic=that.image+custom.mainPic;
+								that.name=custom.name;
+								that.leastPrice=custom.leastPrice;
+								that.avatar=that.image+memberDetail.avatar;
+								that.nickName=memberDetail.nickname;
+								that.fansNum=memberDetailBean.fansNum;
+								that.sponsorNum=memberDetailBean.sponsorNum;
+							
+	                    	}else{
+	                    		//TODO:
+	                    	}
 	                    }else{
 	                        //TODO:错误处理
 	                        //console.log('--response:-- ', response);
@@ -487,6 +510,7 @@ flex-direction: column;
 	                        //TODO:错误处理
 	                        //console.log('--response:-- ', response);
 	                    }
+	                    console.log(that.tabHeight, that.content__list,'------------------')
 	                },function(err){
 	                    //console.log('---err---', err);
 	                    //TODO:错误处理
@@ -509,12 +533,48 @@ flex-direction: column;
               }
             },
             takepart:function(){
-            	this.shown=!this.shown;
+            	var joinEl = this.$el('goods_item');
+				
+            	animation.transition(joinEl, {
+            		styles: {
+            			bottom: 0
+            		},
+            		duration: 500,
+            		timingFunction: 'ease',
+            	}, function(){
+            		// TOD
+            	})
             },
             quit:function(){
-            	this.shown=!this.shown;
+            	var joinEl = this.$el('goods_item'),
+            		that = this;
+				
+            	animation.transition(joinEl, {
+            		styles: {
+            			bottom: '-'+that.tabHeight
+            		},
+            		duration: 500,
+            		timingFunction: 'ease',
+            	}, function(){
+            		// TOD
+            	})
+            },
+            selectSpot: function(){
+            	
+            	// var spotEl = this.$el('spot');
+            	// animation.transition(spotEl, {
+            	// 	styles: {
+            	// 		top: '500'
+            	// 	},
+            	// 	duration: 500, //ms
+            	// 	timingFunction: 'ease',
+            	// 	delay: 0 //ms
+            	// }, function(){
+            	// 	nativeLog('animation finished.');
+            	// })
             },
             join:function(){
+
             	require('@weex-module/event').openURL(this.jump());
             },
             jump: function(page){
