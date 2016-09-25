@@ -1,6 +1,7 @@
 <template>
-	<list class="list" loadmoreoffset=2000>
-		<cell style="background-color: #ccc;">
+<!-- 	<list class="list" loadmoreoffset=2000>
+		<cell style="background-color: #ccc;"> -->
+		<div>
 			<div class="summary">
 				<div>
 					<image class="customImg" src="{{mainPic}}"></image>
@@ -98,7 +99,7 @@
 		             <text class="dispatch__content">项目结束后{{daytime}}天内</text>
 		           </div>
 		         </div>
-     				<text onclick="join" class="join">去参与</text>
+     				<text onclick="join($index)" class="join">去参与</text>
        			</div>
 		       		<div>
 		         		<text class="describe">{{content}}</text>
@@ -107,11 +108,43 @@
   				</div>
   			</div>
 
-  			<!-- <text class="test" onclick="selectSpot">2222222222222222</text> -->
+  			<div class= "spec"  id="spot">
+  				<div class="spec__head">
+  				  <image class="spec__btnClose" onclick="quitSpot"></image>
+  				</div>
 
-  			<!-- <customSpot class= "spec" id="spot"></customSpot> -->
-		</cell>
-	</list>
+  				<div class="contain">
+					<div class="member">
+						<image class="member__avatar" src="{{base}}/images/avatar.jpg" style="-webkit-background-size: contain;
+					background-size: contain;"></image>
+						<div class="price">
+							<text style="font-size: 32">256</text><text style="font-size: 24">元</text>
+						</div>
+
+						<text style="font-size: 24">经典大牌范儿 重工钉珠无袖连衣裙</text>
+					</div>
+
+					<div>
+						<text style="margin-bottom: 20; font-size: 26;">颜色</text>
+
+						<buou-singleselectbtn sign="color" data-list="{{colors}}" type="default" active="sure" size="small" height="100"></buou-singleselectbtn>
+
+						<text style="margin-bottom: 20; font-size: 26;">尺码</text>
+
+						<buou-singleselectbtn id="sizeSelect" sign="size" data-list="{{sizes}}" init-index={{sizeIndex}} type="default" active="sure" size="small" height="100"></buou-singleselectbtn>
+
+					</div>
+
+					<div class="submit">
+					  <buou-button type="sure" size="middle" value="确定" onclick="setStorage"></buou-button>
+					</div>
+
+					</div>
+  				</div>
+  			</div>
+  		</div>	
+<!-- 		</cell>
+	</list> -->
 </template>
 <style>
 	.customImg{
@@ -171,196 +204,288 @@
 	  line-height: 50px;
 	  color: #666666;
 	}
-.tip__png{
-  width: 30px;
-  height: 30px;
-  background-color: black;
-  margin-left: 10px;
-  margin-top: 10px;
-}
-.focus{
-  font-size: 22px;
-  color: #cccccc;
-  line-height: 50px;
-}
-.focus__center{
-  margin-left:11px;
-  margin-right: 12px;
-}
-.focus__right{
-  margin-right: 40px;
-}
-.isfocus{
-  font-size: 24px;
-  color: #3ba8fa;
-  line-height: 44px;
-  width: 100px;
-  height: 44px;
-  margin-right: 30px;
-  margin-top: 28px;
-  text-align: center;
-  border: 1px solid #3ba8fa;
-  border-radius: 22px;
-}
-.goods__tab{
-  flex-direction: row;
-  justify-content: space-between;
-  margin-top: 20;
-  height: 90;
-  border-bottom: 1 solid #efeff0;
-  background-color: #fff;
-}
-.tab__text{
-  width: 52px;
-  height: 90px;
-  line-height: 90px;
-  font-size: 26px;
-  color: #333333;
-}
-.active{
-  color: #ff404b;
-  border-bottom: 2px solid #ff404b;
-}
-.footer{
-  flex-direction: row;
-  justify-content: center;
-  height: 100;
-  background-color: #fff;
-}
-.service{
-  position: relative;
-}
-.service__png{
-  margin-top: 12px;
-  width: 42px;
-  height: 42px;
-  background-color: black;
-}
-.meg__number{
-  width: 26px;
-  height: 26px;
-  position: absolute;
-  background-color: red;
-  line-height: 26px;
-  text-align: center;
-  top: 6px;
-  left: 26px;
-  z-index: 9;
-  border-radius: 13px;
-  font-size: 20px;
-  color: #ffffff;
-}
-.custom{
-  font-size: 20px;
-  margin-top: 12px;
-  color: #8d8d8d;
-}
-.partIn{
-  height: 60;
-  width: 330;
-  font-size: 24px;
-  color: #FFFFFF;
-  background-color: #ff404b;
-  line-height: 60px;
-  border-radius: 30px;
-  text-align: center;
-  margin-top: 20px;
-}
+	.tip__png{
+	  width: 30px;
+	  height: 30px;
+	  background-color: black;
+	  margin-left: 10px;
+	  margin-top: 10px;
+	}
+	.focus{
+	  font-size: 22px;
+	  color: #cccccc;
+	  line-height: 50px;
+	}
+	.focus__center{
+	  margin-left:11px;
+	  margin-right: 12px;
+	}
+	.focus__right{
+	  margin-right: 40px;
+	}
+	.isfocus{
+	  font-size: 24px;
+	  color: #3ba8fa;
+	  line-height: 44px;
+	  width: 100px;
+	  height: 44px;
+	  margin-right: 30px;
+	  margin-top: 28px;
+	  text-align: center;
+	  border: 1px solid #3ba8fa;
+	  border-radius: 22px;
+	}
+	.goods__tab{
+	  flex-direction: row;
+	  justify-content: space-between;
+	  margin-top: 20;
+	  height: 90;
+	  border-bottom: 1 solid #efeff0;
+	  background-color: #fff;
+	}
+	.tab__text{
+	  width: 52px;
+	  height: 90px;
+	  line-height: 90px;
+	  font-size: 26px;
+	  color: #333333;
+	}
+	.active{
+	  color: #ff404b;
+	  border-bottom: 2px solid #ff404b;
+	}
+	.footer{
+	  flex-direction: row;
+	  justify-content: center;
+	  height: 100;
+	  background-color: #fff;
+	}
+	.service{
+	  position: relative;
+	}
+	.service__png{
+	  margin-top: 12px;
+	  width: 42px;
+	  height: 42px;
+	  background-color: black;
+	}
+	.meg__number{
+	  width: 26px;
+	  height: 26px;
+	  position: absolute;
+	  background-color: red;
+	  line-height: 26px;
+	  text-align: center;
+	  top: 6px;
+	  left: 26px;
+	  z-index: 9;
+	  border-radius: 13px;
+	  font-size: 20px;
+	  color: #ffffff;
+	}
+	.custom{
+	  font-size: 20px;
+	  margin-top: 12px;
+	  color: #8d8d8d;
+	}
+	.partIn{
+	  height: 60;
+	  width: 330;
+	  font-size: 24px;
+	  color: #FFFFFF;
+	  background-color: #ff404b;
+	  line-height: 60px;
+	  border-radius: 30px;
+	  text-align: center;
+	  margin-top: 20px;
+	}
 
 
-.content{
-bottom: 0;
-flex-direction: column;
-}
-.image{
-  width: 160px;
-  height: 160px;
-  background-color: #666666;
-}
-.content__detail{
-  flex-direction: row;
-  margin-top: 30px;
-  margin-left: 20px;
-  margin-bottom: 30px;
-  position: relative;
-}
-.pay__detail{
-  flex-direction: column;
-  margin-left: 20px;
-}
-.content__list{
- background-color: #FFFFFF;
- width: 750px;
-}
-.dispatch{
-  flex-direction: row;
-  margin-top: 10px;
-}
-.dispatch__content{
-  font-size: 22px;
-  color: #cccccc;
-}
-.pay{
-   font-size: 24px;
-   margin-top: 10px;
-}
-.cash{
-    font-size: 33px;
-    margin-left: 10px;
-    color: #ff555f;
-}
-.join{
-    font-size: 24px;
-    position: absolute;
-    right: 0;
-    width: 180px;
-    height: 60px;
-    line-height: 60px;
-    color: #ffffff;
-    background-color: #ff555f;
-    text-align: center;
-    border-radius: 30px;
-    margin-right: 30px;
-}
-.describe{
-  font-size: 24px;
-  color: #222222;
-  line-height: 42px;
-  margin-left: 20px;
-  margin-right: 20px;
-  height: 180px;
-  border-bottom: 1px solid #efeff0;
-}
-.cancel{
-  height: 36px;
-  width: 36px;
-  margin-left: 30px;
-  margin-bottom: 15px;
-  background-color: #ccc;
-}
+	.content{
+	bottom: 0;
+	flex-direction: column;
+	}
+	.image{
+	  width: 160px;
+	  height: 160px;
+	  background-color: #666666;
+	}
+	.content__detail{
+	  flex-direction: row;
+	  margin-top: 30px;
+	  margin-left: 20px;
+	  margin-bottom: 30px;
+	  position: relative;
+	}
+	.pay__detail{
+	  flex-direction: column;
+	  margin-left: 20px;
+	}
+	.content__list{
+	 background-color: #FFFFFF;
+	 width: 750px;
+	}
+	.dispatch{
+	  flex-direction: row;
+	  margin-top: 10px;
+	}
+	.dispatch__content{
+	  font-size: 22px;
+	  color: #cccccc;
+	}
+	.pay{
+	   font-size: 24px;
+	   margin-top: 10px;
+	}
+	.cash{
+	    font-size: 33px;
+	    margin-left: 10px;
+	    color: #ff555f;
+	}
+	.join{
+	    font-size: 24px;
+	    position: absolute;
+	    right: 0;
+	    width: 180px;
+	    height: 60px;
+	    line-height: 60px;
+	    color: #ffffff;
+	    background-color: #ff555f;
+	    text-align: center;
+	    border-radius: 30px;
+	    margin-right: 30px;
+	}
+	.describe{
+	  font-size: 24px;
+	  color: #222222;
+	  line-height: 42px;
+	  margin-left: 20px;
+	  margin-right: 20px;
+	  height: 180px;
+	  border-bottom: 1px solid #efeff0;
+	}
+	.cancel{
+	  height: 36px;
+	  width: 36px;
+	  margin-left: 30px;
+	  margin-bottom: 15px;
+	  background-color: #ccc;
+	}
 
-.spec{
-	position: absolute;
-	width: 750;
-	height: 800;
-	top: 0;
-	left: 0;
-	background: #000;
-}
-.test{
-	position: absolute;
-	top: 900;
-	left: 0;
-}
+	.spec{
+		position: fixed;
+		width: 750;
+		height: 800;
+		bottom: -800;
+		background: #eee;
+	}
+
+	.spec__head{
+		height: 75;
+		flex-direction: row;
+		justify-content: flex-end;
+		background: #123456;
+	}
+
+	.btnClose{
+		width: 36;
+		height: 36;
+		margin-top: 19;
+		margin-right: 30;
+		/*background: url(../images/close.png) no-repeat;*/
+		-webkit-background-size: contain;
+		background-size: contain;
+	}
+
+	/*= customSpot =*/
+	.contain{
+	  width: 750;
+	  background: #fff;
+	  height: 725;
+	  padding-left: 20;
+	}
+	.member{
+	  padding-left: 180;
+	  margin-bottom: 35;
+	}
+	.member__avatar{
+	  width: 160px;
+	  height: 160px;
+	  border-style: solid;
+	  border-color: #fff;
+	  border-width: 1;
+	  background: #000;
+	  position: absolute;
+	  left: 0;
+	  top: -40;
+	}
+	.price{
+	  flex-direction: row;
+	  align-items: flex-end;
+	  height: 90;
+	}
+
+	.btn{
+	  width: 100;
+	  height: 40;
+	  line-height: 28;
+	  border-style: solid;
+	  border-color: #fff;
+	  border-width: 2;
+	  border-radius: 5;
+	  text-align: center;
+	  font-size: 22;
+	}
+	.btn-black{
+	  color: #222222;
+	  border-color: #222222;
+	}
+	.btn-gray{
+	  color: #efeff0;
+	  border-color: #efeff0;
+	}
+	.btn-active{
+	  color: red;
+	}
+
+	.submit{
+	  width: 750;
+	  flex-direction: row;
+	  justify-content: center;
+	  position: absolute;
+	  bottom: 0;
+	  left: 0;
+	  padding-top: 20;
+	  padding-bottom: 20;
+	  border-top-width: 1;
+	  border-color: #efefef;
+	  border-style: solid;
+	}
 
 </style>
 <script>
-  require('weex-components');
-  // require('../components/buou-tabbar-info.we');
-  require('../customSpot.we');
+	require('weex-components');
+	// require('../components/buou-tabbar-info.we');
+	// require('../components/buou-customSpot.we');
+	require('../components/buou-singleselectbtn.we');
 
+	var animation = require('@weex-module/animation');
+	//数组去重 
+	!Array.prototype.unique && (Array.prototype.unique = function(fn){
+	  var res = [];
+	  var json = {};
+	  for(var i = 0; i < this.length; i++){
+	    var key = typeof fn==='function'?fn(this[i]):this[i]
+	      if(!json[key]){
+	         res.push(this[i]);
+	         json[key] = 1;
+	      }
+	  }
+	  return res;
+	});
 
-  var animation = require('@weex-module/animation');
+	// 本地存储
+	var storage = window.localStorage || require('@weex-module/storage');
 
 	function getBaseUrl(dir,page){
 		var dirs = dir.split('/');
@@ -373,49 +498,56 @@ flex-direction: column;
 		//return './index.html?page=./' + root + '/' + subRoot;
 		return "?page=./"+ root + '/' + subRoot + page;
 	}
-  module.exports = {
+	module.exports = {
 
-  	 data: {
-  	 	root:"dist",
-  	 	doc_name:"order.js",
-  	 	mainPic:"",
-  	 	name:"",
-  	 	description:"",
-  	 	cut:"",
-  	 	orignPrice:"",
-  	 	leastPrice:"",
-		sellNum:"",
-		targetNum:"",
-		time:"",
-		totalSell:"",
-		likeNum:"",
-		//用户信息
-		avatar:"",
-		nickName:"",
-		focus:"",
-		fansNum:"",
-		sponsorNum:"",
+	  	data: {
+	  	 	root:"static/webApp/view",
+	  	 	doc_name:"order/order.js",
+	  	 	mainPic:"",
+	  	 	name:"",
+	  	 	description:"",
+	  	 	cut:"",
+	  	 	orignPrice:"",
+	  	 	leastPrice:"",
+			sellNum:"",
+			targetNum:"",
+			time:"",
+			totalSell:"",
+			likeNum:"",
+			//用户信息
+			avatar:"",
+			nickName:"",
+			focus:"",
+			fansNum:"",
+			sponsorNum:"",
 
-		listPic: [{
-			src:""
-		}],//[{src: ""}, {src:""}]  	 	
-          tabItems: [ ],
-          selectedIndex: 0,
-          selectedColor: '#ff0000',
-          unselectedColor: '#000000',
-          content__list:[{
-	        pay:123,
-	        daytime:15,
-	        pngsrc:"images/test.png",
-	        content:"谢谢大家的关注和支持！您将获得：由黑子亲自参与设计和打板的黑色T恤，潮感十足，特立而不独行轻松穿出入流范儿！"
-	      }],
+			listPic: [{
+				src:""
+			}],//[{src: ""}, {src:""}]  	 	
+			tabItems: [ ],
+			selectedIndex: 0,
+			selectedColor: '#ff0000',
+			unselectedColor: '#000000',
+			content__list:[{
+			pay:123,
+			daytime:15,
+			pngsrc:"images/test.png",
+			content:"谢谢大家的关注和支持！您将获得：由黑子亲自参与设计和打板的黑色T恤，潮感十足，特立而不独行轻松穿出入流范儿！"
+			}],
 
-
-	     
+			base: '',
+			colors: [ ],
+			sizes: [ ],
+			currentColor: '',
+			currentSize: '',
+			sizeIndex: 1
 	    },
 	    computed: {
 	    	tabHeight: function(){
 	    		return 400 *this.content__list.length + 51;
+	    	},
+	    	speCombId: function(){
+	    	  return this.currentColor + '_' + this.currentSize;
 	    	}
 	    },
         created: function () {
@@ -433,6 +565,16 @@ flex-direction: column;
             this.$dispatch('tabBar.onClick', params);
           });
           this._getData();
+
+          var vm = this;
+          vm.$on('singleselectbtn.onClick', function(e){
+            if(e.detail.sign==="color"){
+              vm.currentColor = vm.colors[e.detail.index].comboId;
+              vm.setSizeData();
+            } else if(e.detail.sign ==="size") {
+               vm.currentSize = vm.sizes[e.detail.index].comboId;
+            }
+          })
         },
         methods: {
         	_getData:function(){
@@ -467,7 +609,8 @@ flex-direction: column;
 								that.nickName=memberDetail.nickname;
 								that.fansNum=memberDetailBean.fansNum;
 								that.sponsorNum=memberDetailBean.sponsorNum;
-							
+
+								
 	                    	}else{
 	                    		//TODO:
 	                    	}
@@ -484,33 +627,38 @@ flex-direction: column;
 	        			url:"/custom/supportCustom?customId=43",
 	        			type:"json"
 	        		},function(response){
-	    				 if(response.status == 200){
-	                      //这里需要兼容web和Native，Native需要将传递的数据JSON化
-	                      var data = response.data;
-	                      try{
-	                        data = JSON.parse(response.data); 
-	                      }catch(e){}
-	                                                        
-	                      if(data){
-	                        var dataList=[];
-	                          data.data.customItemAppList.forEach(function(value, index, array){
-	                            dataList.push({
-	                                  pay:array[index].price,
-	                                  daytime:data.data.sendDay,
-	                                  pngsrc:that.image+data.data.productMainPic,
-	                                  content:array[index].description
-	                                });
-	                            })
-	                            that.content__list=dataList;
-	                        
-	                      }else{
-	                       //TODO:
-	                      }
+						if(response.status == 200){
+							//这里需要兼容web和Native，Native需要将传递的数据JSON化
+							var data = response.data;
+							try{
+								data = JSON.parse(response.data); 
+							}catch(e){}
+						                                
+							if(data){
+								var dataList=[];
+								that.specBean = [];
+
+								data.data.customItemAppList.forEach(function(value, index, array){
+									dataList.push({
+										pay:array[index].price,
+										daytime:data.data.sendDay,
+										pngsrc:that.image+data.data.productMainPic,
+										content:array[index].description
+									});
+
+									// 存储颜色规格数据
+									that.specBean[index] = value.list
+								})
+								that.content__list=dataList;
+								
+								
+							}else{
+							//TODO:
+							}
 	                    }else{
 	                        //TODO:错误处理
 	                        //console.log('--response:-- ', response);
 	                    }
-	                    console.log(that.tabHeight, that.content__list,'------------------')
 	                },function(err){
 	                    //console.log('---err---', err);
 	                    //TODO:错误处理
@@ -545,7 +693,7 @@ flex-direction: column;
             		// TOD
             	})
             },
-            quit:function(){
+            quit:function(fn){
             	var joinEl = this.$el('goods_item'),
             		that = this;
 				
@@ -556,31 +704,119 @@ flex-direction: column;
             		duration: 500,
             		timingFunction: 'ease',
             	}, function(){
-            		// TOD
+            		fn && typeof fn === 'function' && fn()
             	})
             },
-            selectSpot: function(){
-            	
-            	// var spotEl = this.$el('spot');
-            	// animation.transition(spotEl, {
-            	// 	styles: {
-            	// 		top: '500'
-            	// 	},
-            	// 	duration: 500, //ms
-            	// 	timingFunction: 'ease',
-            	// 	delay: 0 //ms
-            	// }, function(){
-            	// 	nativeLog('animation finished.');
-            	// })
-            },
-            join:function(){
+            join:function(index){
+            	// console.log(index, 'index')
+            	var spotEl = this.$el('spot'),
+            		that = this;
 
-            	require('@weex-module/event').openURL(this.jump());
+            	this.quit(function(){
+	            	animation.transition(spotEl, {
+	            		styles: {
+	            			bottom: 0
+	            		},
+	            		duration: 500, //ms
+	            		timingFunction: 'ease',
+	            		delay: 0 //ms
+	            	}, function(){
+	            		// init data
+	            		var spec,
+	            			specValue;
+
+	            		that.spec = spec = that.specBean[index];
+	            		that.specValue = specValue = spec.map(function(item){
+							var result={},
+								arrVal = item.value.split('+'),
+								arrCob = item.comboId.split('_');
+
+							result.color = {
+								value: arrVal[1].trim(),
+								comboId: arrCob[1].trim()
+							},
+							result.size = {
+								value: arrVal[0].trim(),
+								comboId: arrCob[0].trim()
+							};
+							return result;
+	            		})
+
+	            		// 加载颜色列表
+	            		var dataColors = specValue.map(function(item){
+							var reg = new RegExp('码'),
+							  result={};
+
+							result.value = item.color.value.replace(reg,'');
+							result.comboId = item.color.comboId;
+
+							return result;
+							})
+							.unique(function(item){return item.value});
+
+	            		dataColors.forEach(function(item, i){
+	            		    item.index = i;
+	            		    i===0?item.bgColor = 'red':item.bgColor = 'none';
+	            		})
+	            		that.colors = dataColors;
+	            		that.currentColor = that.colors[0].comboId || '';
+
+	            		// 加载尺寸列表
+	            		that.setSizeData();
+
+	            	})  		
+            	});
+
+            	// require('@weex-module/event').openURL(this.jump());
+            },
+            quitSpot: function(){
+            	var spotEl = this.$el('spot');
+            	animation.transition(spotEl, {
+            		styles: {
+            			bottom: -800
+            		},
+            		duration: 500, //ms
+            		timingFunction: 'ease',
+            		delay: 0 //ms
+            	})
             },
             jump: function(page){
 		        return getBaseUrl(this.root,this.doc_name);
 		        //console.log(base + this.pages[page].name + '.js');
-	        } 
+	        },
+
+	        checked: function(index){
+	          this.colorChecked = index;
+	        },
+	        setSizeData: function(){
+	          var vm = this;
+	          var dataSizes = vm.specValue.map(function(item){
+	            var result={};
+	            if(item.color.comboId===vm.currentColor){
+	              result.comboId = item.size.comboId;
+	              result.value = item.size.value;
+	              return result;
+	            }else{
+	              return 0;
+	            }
+	          }).filter(function(item){return item!==0}).unique(function(item){return item.value});
+	          
+	          dataSizes.forEach(function(item, i){
+	            item.index = i;
+	            i===0?item.bgColor = 'red':item.bgColor = '';
+	          })
+	          vm.sizes = dataSizes;
+	          vm.currentSize = vm.sizes[0].comboId || '';
+	          var sizeEl = vm.$('sizeSelect');
+	          sizeEl.slected();
+	        },
+	        setStorage: function(){
+	            // console.log(this.speCombId);
+	            storage.setItem('speCombo', this.speCombId);
+	            require('@weex-module/event').openURL(this.jump());
+
+	        }
+
         }
   };
 </script>
