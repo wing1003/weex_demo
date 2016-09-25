@@ -1,7 +1,7 @@
 <!-- 确认订单 -->
 <template>
   <div class="total">
-     <a class="no__address" if="false">
+     <a class="no__address" if="{{is}}">
        <text class="no__address--text">请填写收货地址</text>
        <text class="address__right">></text>
      </a>
@@ -90,29 +90,204 @@
 <script>
 module.exports = {
     data: {
-      receipt__name:"panda",
-      receipt__phone:"13628670643",
-      isDefault:true,
-      receipt__address:"湖北省武汉市洪山区关山街道光谷软件园E2栋",
-      order__type:"定制订单",
-      goods__name:"DOUBLEMINT",
-      godds__png:"",
-      goods__tip:"简约纯棉黑色球心瘦上衣纯色T恤",
-      goods__color:"白",
-      goods__size:"S",
-      real__price:"159.00",
-      price:"225.00",
-      number:"2",
-      fare:"免运费",
-      total__price:"318.00",
-      remark__content:null,
-      before__price:"450.00"
+     image:"http://image.buoumall.com",
+        root:"static/webApp/view",
+        address_name:"/address/showAddress.js",
+        invoice_name:"invoice.js",
+        pay_name:"/pay/checkoutCounter.js",
+        receipt__name:"panda",
+        receipt__phone:"13628670643",
+        isDefault:true,
+        has__address:false,
+        receipt__address:"",
+        order__type:"定制订单",
+        goods__name:"DOUBLEMINT",
+        goods__png:"",
+        goods__tip:"简约纯棉黑色球心瘦上衣纯色T恤",
+        goods__color:"白",
+        goods__size:"S",
+        real__price:"159.00",
+        price:"225.00",
+        number:"1",
+        invoice__type:"默认(不开发票)",
+        fare:"免运费",
+        total__price:"318.00",
+        remark__content:"",
+        before__price:"450.00"
     },
-    methods: {
-      remark:function(data){
-        this.remark__content=data.value;
+    created: function () {
+        var that=this;
+        that.fare=localStorage.getItem("delFee") || "免运费";
+         customItemId=localStorage.getItem("customItemId") || 224;
+        //获取规格
+        var speCombo = localStorage.getItem("speCombo").split("_");
+        that.goods__color=speCombo[0];
+        that.goods__size=speCombo[1];
+        stream=__weex_require__('@weex-module/stream');
+        //获取地址
+        addressid = localStorage.getItem("addressid");
+        if(addressid){
+          this.ajaxGet("/address/list?memberToken=4834c3d2226e4a388f868401d75d4ecc",{
+            response:function(data){
+              if(data){
+                console.log(data);
+                      data.data.forEach(function(obj , index) {
+                               if(data.id=addressid){
+                               that.has__address=true;
+                             console.log(that.has__address);
+                             that.receipt__name=obj.addressee;
+                             that.receipt__phone=obj.mobile;
+                             that.receipt__address=obj.proviceName+obj.cityName+obj.countyName+obj.detail;
+                               }
+                      });
+                      }else{
+                       //TODO:
+                      }
+            }
+          })
+        }else{
+          this.ajaxGet("/address/getDefault?memberToken=4834c3d2226e4a388f868401d75d4ecc",{
+            response:function(data){
+              if(data){
+                      var obj=data.data;
+                        if(obj){
+                           that.has__address=true;
+                           console.log(that.has__address);
+                           that.receipt__name=obj.addressee;
+                           that.receipt__phone=obj.mobile;
+                           that.receipt__address=obj.areaCombo.province.placeZh+obj.areaCombo.city.placeZh+obj.areaCombo.county.placeZh+obj.detail;
+                           
+                         }else{
+                           this.has__address=false;
+                         }
+                      }else{
+                       //TODO:
+                      }
+            }
+          })
+        };
+        //获取商品信息
+         this.ajaxGet("/custom/getCustomDetails?customId=43",{
+          response:function(data){
+            if(data){
+                    var obj=data.data;
+                      that.goods__png=that.image+obj.customDetailBean.custom.mainPic;
+                      that.goods__tip=obj.customDetailBean.product.name;
+                      that.price=obj.customDetailBean.custom.mostPrice.toFixed(2);
+                      that.real__price=obj.customDetailBean.custom.leastPrice.toFixed(2);
+                      that.before__price=(that.price*that.number+(that.fare | 0)).toFixed(2);
+                    }else{
+                     //TODO:
+                    }
+          }
+        })
+        //计算价格
+        this.ajaxGet("/order/calculatePrice?memberToken=4834c3d2226e4a388f868401d75d4ecc&customItemId="+customItemId+"&num=1",{
+          response:function(data){
+            if(data){
+                    var obj=data.data;
+                      console.log(that.price);
+                      that.total__price=obj.toFixed(2);
+                    }else{ 
+                     //TODO:
+                    }
+          }
+        });
+        //获取发票信息
+         var invoiceStr = localStorage.getItem("invoiceObj");
+         if(invoiceStr){
+           invoiceObj=JSON.parse(invoiceStr);
+           console.log(invoiceObj);
+           var Arr=["默认(不开发票)","电子发票","普通发票(纸质)"];
+           this.invoice__type=Arr[invoiceObj.invoiceType];
+         }
+         
+//        if (window.addEventListener) {
+//              window.addEventListener("storage", handle_storage, false);
+//              } else {
+//              window.attachEvent("onstorage", handle_storage);
+//              };
+//              function handle_storage(e) {
+//                  if (!e) { e = window.event; }
+//                  //  e.key    e.newValue
+//                  console.log(e);
+//                  switch (e.key){
+//                  case "address":
+//                     that.getAddress();
+//                  break;
+//                  case "customeid":
+//                     that.getcustome();
+//                  break;
+//                  }
+//              //响应代码部分 ...
+//              }
+//        //console.log(this.LocalStorages);
+      },
+      methods: {
+        remark:function(data){
+          this.remark__content=data.value;
+        },
+        goAddress:function(){
+            __weex_require__('@weex-module/event').openURL(this.jump("address"));
+        },
+        goInvoice:function(){
+            __weex_require__('@weex-module/event').openURL(this.jump("invoice"));
+        },
+        jump: function(name){
+          return getBaseUrl(this.root,this[name+"_name"]);
+          //console.log(base + this.pages[page].name + '.js');
+        },
+        submit:function(){
+        //specoptionIdCombo=localStorage.getItem("speComboId");    规格
+        //customItemId=customItemId;    商品id
+        //addressId=addressid;    地址id
+        //invoiceType=    开票类型
+        //specoptionIdCombo=localStorage.getItem("speComboId");    规格
+          __weex_require__('@weex-module/event').openURL(this.jump("pay"));
+          stream.fetch({
+            method:"POST",
+            url:"/order/addOrder",
+            type:"json"
+          },function(response){
+            console.log(response);
+           if(response.data.msg == "OK"){
+                    //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                    var data = response.data;
+                    try{
+                      data = JSON.parse(response.data); 
+                    }catch(e){}
+                                   
+                    
+                  }else{
+                      //TODO:错误处理
+                  }
+              },function(response){
+                  //TODO:错误处理
+          });
+        },
+        ajaxGet:function(url,res){
+          stream.fetch({
+            method:"get",
+            url:url,
+            type:"json"
+          },function(response){
+            console.log(response);
+           if(response.data.msg == "OK"){
+                    //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                    var data = response.data;
+                    try{
+                      data = JSON.parse(response.data); 
+                    }catch(e){}
+                    res.response(data);                    
+                    
+                  }else{
+                      //TODO:错误处理
+                  }
+              },function(response){
+                  //TODO:错误处理
+          });
+        }
       }
-    }
 }
 </script>
 
