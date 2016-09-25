@@ -47,7 +47,7 @@
      <!-- 发票信息 -->
      <div class="invoice">
        <text class="left">发票信息</text>
-       <text class="right">默认(不开发票)></text>
+       <text class="right" onclick="goInvoice">默认(不开发票)></text>
      </div>
      <!-- 价格合计 -->
      <div class="total__price">
@@ -88,12 +88,25 @@
 
 
 <script>
+
+function getBaseUrl(dir,page){
+  var dirs = dir.split('/');
+  dirs.forEach(function(dir, index) {
+    if (!dir) dirs.splice(index, 1);
+  });
+  var root = dirs.length > 0 ? dirs[0] : '';
+  var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
+
+  //return './index.html?page=./' + root + '/' + subRoot;
+  return "?page=./"+ root + '/' + subRoot + page;
+}
+
 module.exports = {
     data: {
      image:"http://image.buoumall.com",
         root:"static/webApp/view",
         address_name:"/address/showAddress.js",
-        invoice_name:"invoice.js",
+        invoice_name:"/invoice/invoice.js",
         pay_name:"/pay/checkoutCounter.js",
         receipt__name:"panda",
         receipt__phone:"13628670643",
