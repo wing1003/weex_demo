@@ -8,14 +8,14 @@
 			</div>
 			<div style="flex-direction: column;width:550;">
 				<div style="flex-direction: row;margin-top: 50;">
-					<text style="margin-right: 75;font-size:24;font-weight: bold;line-height: 35;">收件人:{{name}}</text>
-					<text style="font-size:24;font-weight: bold;line-height: 35;margin-right: 18;">{{phone}}</text>
+					<text style="margin-right: 75;font-size:23;font-weight: bold;line-height: 35;">收件人:{{name}}</text>
+					<text style="font-size:23;font-weight: bold;line-height: 35;margin-right: 18;">{{phone}}</text>
 					<text class="default" if="{{default}}">默认</text>
 				</div>
-				<text style="color:#999;font-size:24;">收货地址: {{detail_address}}</text>
+				<text style="color:#999;font-size:23;margin-top: 15;">收货地址: {{detail_address}}</text>
 			</div>
 			<div class="edit">
-				<image style="width:45;height:45;" src="./static/webApp/image/bj_icon@3x.png" onclick="edit"></image>
+				<image style="width:45;height:45;" src="./static/webApp/image/bj_icon@3x.png" onclick="edit" id="edit_address" address_id="{{address_id}}"></image>
 			</div>
 		</div>
 		<div style="position: fixed;bottom:40;left:120;flex-direction: row;justify-content: center;">
@@ -47,6 +47,7 @@
 	.edit{
 		flex-direction:column;
 		justify-content:center;
+		width:120;
 		height:120;
 		border-left:2px solid #ccc;
 		margin-top:40;
@@ -82,6 +83,7 @@
 	    address_list:[{
 	        name:"",
 	        phone:1,
+	        address_id:11,
 	        default:1,
 	        checked:1,
 	        unchecked:0,
@@ -94,50 +96,48 @@
         },
         methods: {
         _getData:function(){
-        		var that=this,
-	        			stream=__weex_require__('@weex-module/stream');
-	        		stream.fetch({
-	        			method:"get",
-	        			url:"address/list?memberToken=4834c3d2226e4a388f868401d75d4ecc",
-	        			type:"json"
-	        		},function(response){
-	    				 if(response.status == 200){
-	                      //这里需要兼容web和Native，Native需要将传递的数据JSON化
-	                      var data = response.data;
-	                      try{
-	                        data = JSON.parse(response.data); 
-	                      }catch(e){}
-	                                                        
-	                      if(data){
-                      		//debugger;
-	                        var obj = data.data,list=[];                     
-				   			obj.forEach(function(value,index){
-				   				//console.log(value)
-				   				var address={
-				   						name:value.addressee,
-				   						phone:value.mobile,
-				   						default:value.isDefault,
-				   						checked:value.isDefault,
-				   						unchecked:!value.isDefault,
-				   						detail_address:value.proviceName+value.cityName+value.countyName+value.detail
-				   					};
-				   					
-				   				list.push(address);
-				   				that.address_list=list;
-				   			});
+    		var that=this,
+        			stream=__weex_require__('@weex-module/stream');
+        		stream.fetch({
+        			method:"get",
+        			url:"address/list?memberToken=4834c3d2226e4a388f868401d75d4ecc",
+        			type:"json"
+        		},function(response){
+    				 if(response.status == 200){
+                      //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                      var data = response.data;
+                      try{
+                        data = JSON.parse(response.data); 
+                      }catch(e){}
+                                                        
+                      if(data){
+                  		//debugger;
+                        var obj = data.data,list=[]; 
 
-	                      }else{
-	                       //TODO:
-	                      }
-	                    }else{
-	                        //TODO:错误处理
-	                        //console.log('--response:-- ', response);
-	                    }
-	                },function(err){
-	                    //console.log('---err---', err);
-	                    //TODO:错误处理
-	        		});
-	        		
+			   			obj.forEach(function(value,index){
+			   				var address={
+			   						name:value.addressee,
+			   						phone:value.mobile,
+			   						address_id:value.id,
+			   						default:value.isDefault,
+			   						checked:value.isDefault,
+			   						unchecked:!value.isDefault,
+			   						detail_address:value.proviceName+value.cityName+value.countyName+value.detail
+			   					};
+			   					//debugger
+			   				list.push(address);
+			   				that.address_list=list;
+			   				//debugger
+			   			});
+                      }else{
+                       //TODO:
+                      }
+                    }else{
+                        //TODO:错误处理
+                    }
+                },function(err){
+                    //TODO:错误处理
+        		});        		
         	},
         	check:function($index){
         		var that=this;
@@ -157,7 +157,12 @@
             	require('@weex-module/event').openURL(this.jump());
             },
             //编辑
-            edit:function(){
+            edit:function(e){
+            	var address_id=e.target.attr.address_id;
+            	if(window.localStorage){
+            		localStorage.setItem("AddressId",address_id);
+            		//localStorage.setItem("serialId",serial_id);
+            	}
             	require('@weex-module/event').openURL(this.jump(1));
             },
             //新增

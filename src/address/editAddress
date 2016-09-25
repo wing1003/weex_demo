@@ -1,0 +1,545 @@
+<template>
+	<div style="background-color:#efefef">
+		<div style="background-color: #fff;">
+			<div class="info">
+				<input
+					id='name'
+					class="input"
+				    type="text"
+				    oninput="name_change"
+				    placeholder=""
+				    value="{{name}}">
+				 </input>
+			</div>
+			<div class="info">
+				<input
+					id='mobile'
+					class="input"
+				    type="tel"
+				    oninput="mobile_change"
+				    placeholder=""
+				    value="{{mobile}}"
+				    style="placeholder-color: #666666;">
+				</input>
+			</div>
+			<div class="info">
+				<text style="font-size: 28;width:600;height:110;color:#999;" onclick="onclickshow">{{province}}&nbsp;{{city}}&nbsp;{{country}}</text>
+				<text if="{{hidden_areaId}}">{{comboAreaId}}</text>
+			</div>
+			<div class="info">
+				<input
+					id='detail'
+					class="input"
+				    type="text"
+				    oninput="detail_change"
+				    placeholder=""
+				    value="{{detail}}">
+				</input>
+			</div>
+			<div class="info" if="{{isDefault}}" style="flex-direction: row;justify-content: space-between;">
+				<text style="font-size: 28;color:#999;">设置为默认地址</text>
+				<div style="justify-content: center;margin-right: 20;">
+					<switch checked="{{checked}}" onchange="checkDefault"></switch>	
+				</div>
+			</div>
+		</div>
+		<div class="info" style="background-color:#fff;margin-top: 10;">
+			<div>
+				<text style="font-size:28;color:#ff414a;" onclick="confirm('','关闭','确认');">删除地址</text>
+			</div>
+		</div>
+		<text style="padding-left: 20;font-size: 23;margin-top: 10;color:#999;" if="{{Default}}">当前地址已为默认地址</text>
+		<div style="position:fixed;bottom:50;left:120;flex-direction: row;justify-content: center;">
+			<text onclick="save" class="btn">保存</text>
+		</div>
+
+		 <div class="foot" id="footer">
+		      <div class="title">
+		        <text class="area">所在地区</text>
+		        <text class="complete" onclick="complete">完成</text>
+		      </div>
+		      <div class="address__detail">
+		          <text class="address {{first__class}} " onclick="titleOnclick(1)">{{first}}</text>
+		          <text class="address {{second__class}}" onclick="titleOnclick(2)">{{second}}</text>
+		          <text class="address {{third__class}}" onclick="titleOnclick(3)">{{third}}</text>
+		      </div>
+		      <div class="address__list">
+		      <scroller style="height: 540;">
+		        <div repeat="{{view__list}}" track-by="placeZh" class="list" onclick="address__click($index)">
+		          <text class="list__text {{ischecked}}">{{placeZh}}</text>
+		        </div>
+		        </scroller>
+		      </div>
+	    </div>
+	</div>
+</template>
+<style>
+	.input{
+		border:none;
+		color:#999;
+		width:300;
+		height:50;
+		font-size:28;
+		placeholder-color: #666;
+	}
+
+	.info{
+		height:110;
+		line-height: 110;
+		border-bottom-style: solid;
+		border-bottom-color:#e0e0e0;
+		border-bottom-width: 1;
+		padding-left: 20;
+		flex-direction: row;
+		align-items: center;
+	}
+	.btn{
+		width: 530;
+		height: 90;
+		line-height: 90;
+		color:#fff;
+		background-color: #ff555f;
+		text-align: center;
+		border-radius: 45;
+	}
+
+	.foot{
+		  position: fixed;
+		  bottom: -730;
+		  height: 730;
+		  background-color: #ffffff;
+		  width: 750px;
+		}
+		.title{
+		  flex-direction: row;
+		  justify-content: space-between;
+		  height: 100px;
+		  border-bottom: 1px solid #efeff0;
+		}
+		.area{
+		   font-size: 32px;
+		   color: #333333;
+		   line-height: 100px;
+		   margin-left: 310px;
+		}
+		.complete{
+		  font-size: 28px;
+		  color: #1ea9e5;
+		  line-height: 100px;
+		  margin-right: 20px;
+		}
+		.address__detail{
+		  height: 90px;
+		  border-bottom: 1px solid #efeff0;
+		  flex-direction: row;
+		}
+		.address{
+		  line-height: 90px;
+		  color: #333333;
+		  font-size: 28px;
+		  height: 90px;
+		  padding-left: 20px;
+		  padding-right: 20px;
+		  margin-left: 20px;
+		}
+		.address__active{
+		  color: #fe424b;
+		  border-bottom: 2px solid #fe424b;
+		}
+		.address__noactive{
+		  color: #666666;
+		  border-bottom: none;
+		}
+		.list{
+		  margin-left: 40px;
+		  margin-top: 20px;
+		  margin-bottom: 20px;
+		}
+		.list__text{
+		  font-size: 28px;
+		  color: #666666;
+		}
+		.checked{
+		  color: #fe424b;
+		}
+</style>
+	
+
+<script>
+function getBaseUrl(dir,page){
+    var dirs = dir.split('/');
+    dirs.forEach(function(dir, index) {
+      if (!dir) dirs.splice(index, 1);
+    });
+    var root = dirs.length > 0 ? dirs[0] : '';
+    var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
+
+    //return './index.html?page=./' + root + '/' + subRoot;
+    return "?page=./"+ root + '/' + subRoot + page;
+}
+
+require('weex-components');
+module.exports = {
+	data: {
+  	 	root:"static/webApp/view",
+  	 	doc_name:["address/showAddress.js"],
+  	 	hidden_areaId:true,
+		comboAreaId:[],
+		name:"",
+		mobile:"",
+		province:"",
+		city:"",
+		country:"",
+		detail:"",
+		isDefault:0,//显示切换默认
+		Default:1,//显示地址已为默认
+		chkDefault:0,
+		checked:false,
+
+		first:"",
+  		second:"",
+      	third:"",
+      	first__class:"address__active",
+      	second__class:"address__noactive",
+      	third__class:"address__noactive",
+      	first__last__index:null,
+      	second__last__index:null,
+      	third__last__index:null,
+      	first__list:[],
+      	second__list:[],
+      	third__list:[],
+      	view__list:[]
+	    },
+        created:function(){
+	        stream=__weex_require__('@weex-module/stream');
+	        var that=this;
+	        this.ajaxGet("",{
+	          response:function(data){
+	            that.first__list = that.getList(data);
+	            that.view__list=that.first__list;
+	          }
+	        });
+
+          	this._getData();
+	     },
+    methods: {
+    	name_change:function(data){
+			this.name=data.value;
+		},
+		mobile_change:function(data){
+			this.mobile=data.value;
+		},
+		detail_change:function(data){
+			this.detail=data.value;
+		},
+		setDefault:function(data){
+			var checked=data.checked;
+			!!checked ? this.default=1 : this.default=0;
+			//console.log(this.default)
+		},
+		onclickshow:function(e){
+			var animation = require('@weex-module/animation'),
+				addressEl=this.$el("footer");
+				//debugger
+		          animation.transition(addressEl, {
+		            styles: {
+		              transform: 'translateY(-730px)'
+		              //('+that.parentsList[pindex].sonList[sindex].left+'px)'
+		            },
+		            duration: 500, //ms
+		            delay: 0 //ms
+		          }, function () {
+            });
+			//this.shown=!this.shown;
+		},
+		ajaxGet:function(areaCode,res){
+          stream.fetch({
+            method:"get",
+            url:"/area/list?areaCode="+areaCode,
+            type:"json"
+          },function(response){
+           if(response.data.msg == "OK"){
+                    //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                    var data = response.data;
+                    try{
+                      data = JSON.parse(response.data); 
+                    }catch(e){}
+                    res.response(data);                    
+                     
+                  }else{
+                      //TODO:错误处理
+                  }
+              },function(response){
+                  //TODO:错误处理
+          });
+        },	
+         titleOnclick:function(index){
+          var str_text="请选择";
+          switch (index){
+            case 1:
+              this.view__list=this.first__list;
+              this.second=str_text;
+              this.third=this.third;
+              this.first__class="address__active";
+              this.second__class="address__noactive"; 
+              this.third__class="address__noactive";
+            break;
+            case 2:
+              this.view__list=this.second__list;
+              this.third=str_text;
+              this.second__class="address__active"; 
+              this.third__class="address__noactive";
+            break;
+          }
+        },
+        _getData:function(){
+    		var that=this,
+    			address_id,
+    			stream=__weex_require__('@weex-module/stream');
+			//获取address_id
+        	if(window.localStorage){
+        		address_id=localStorage.getItem("AddressId");
+        	}
+    		stream.fetch({
+        			method:"get",
+        			url:"address/get?memberToken=4834c3d2226e4a388f868401d75d4ecc&id="+address_id,
+        			type:"json"
+        		},function(response){
+    				 if(response.status == 200){
+                      //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                      var data = response.data;
+                      try{
+                        data = JSON.parse(response.data); 
+                      }catch(e){}
+                                                        
+                      if(data){
+                        var obj = data.data;
+                        that.name=obj.addressee;
+                        that.mobile=obj.mobile;
+                    	that.province=obj.areaCombo.province.placeZh;
+                    	that.city=obj.areaCombo.city.placeZh;
+                    	that.country=obj.areaCombo.county.placeZh;
+                    	that.detail=obj.detail;
+                    	that.isDefault=!obj.isDefault;
+                    	that.Default=obj.isDefault;
+                        //debugger
+
+                      }else{
+                       //TODO:
+                      }
+                    }else{
+                        //TODO:错误处理
+                        //console.log('--response:-- ', response);
+                    }
+                },function(err){
+                    //console.log('---err---', err);
+                    //TODO:错误处理
+        		});
+	        		
+        	},
+        	address__click:function(index){
+		          var that=this;
+		          //console.log(that.view__list[index]);
+		          
+		          that.view__list[index].ischecked="checked";
+		          //
+		          switch (that.view__list[index].level){
+		            case 1:
+		            that.ajaxGet(that.view__list[index].id,{
+		              response:function(data){
+		                if(that.first__last__index!=null ){
+		                      that.view__list[that.first__last__index].ischecked=null;
+		                    }
+		                    that.first__last__index=index;
+		                    that.first=that.view__list[index].placeZh;
+		                    that.second="请选择";
+		                    //
+		                    that.province=that.view__list[index].placeZh;
+		                    that.city="请选择";
+		                    that.country="";
+
+		                    that.first__class="address__noactive";
+		                    that.second__class="address__active";
+		                    that.second__list=that.getList(data);
+		                    that.view__list=[];
+		                    that.view__list=that.second__list;
+		              }
+		          	});
+		  		    this.comboAreaId.push(this.view__list[index].id);
+		            break;
+		              
+		            case 2:
+		              that.ajaxGet(that.view__list[index].id,{
+		              response:function(data){
+		                if(that.second__last__index!=null && that.view__list.length>that.second__last__index){
+		                      that.view__list[that.second__last__index].ischecked=null;
+		                    }
+		                    that.second__last__index=index;
+		                    that.second=that.view__list[index].placeZh;
+		                    that.third="请选择";
+	                    	//
+		                    that.city=that.view__list[index].placeZh;
+		                    that.country="请选择";
+
+		                    that.second__class="address__noactive";
+		                    that.third__class="address__active";
+		                    that.third__list=that.getList(data);
+		                    that.view__list=[];
+		                    that.view__list=that.third__list;
+		              }
+		          	});
+		             this.comboAreaId.push(this.view__list[index].id);
+		            break;
+		             
+		              
+		            case 3:
+		              if(that.third__last__index==index){
+		                break;
+		              }
+		              if(that.third__last__index!=null && that.view__list.length>that.third__last__index){
+		                that.view__list[that.third__last__index].ischecked=null;
+		              }
+		              that.third__last__index=index;
+		              that.third=that.view__list[index].placeZh;
+
+		              //
+		              that.country=that.view__list[index].placeZh;
+		             this.comboAreaId.push(this.view__list[index].id);
+		             // console.log(this.comboAreaId)
+		            break;
+		          }
+
+		        },
+        	getList:function(mm){
+	          var Arr=[];
+	          for(var i=0;i<mm.data.length;i++){
+	              //console.log(i);
+	              Arr.push({
+	                id:mm.data[i].id,
+	                placeZh:mm.data[i].placeZh,
+	                ischecked:null,
+	                level:mm.data[i].level
+	              });
+	            };
+	            return Arr;
+	        },
+	        complete:function(){
+	          	var animation = require('@weex-module/animation'),
+				addressEl=this.$el("footer");
+				//debugger
+			          animation.transition(addressEl, {
+			            styles: {
+			              transform: 'translateY(730px)'
+			              //('+that.parentsList[pindex].sonList[sindex].left+'px)'
+			            },
+			            duration: 500, //ms
+			            delay: 0 //ms
+			          }, function () {
+		        });
+	        },
+        	checkDefault:function(data){
+				var checked=data.checked;
+				//debugger
+				!!checked ? this.chkDefault=1 : this.chkDefault=0;
+			},	
+     		//删除
+        	deleteAddress:function(){
+        		var that=this,
+            		address_id;
+
+	 			window.localStorage && (address_id=localStorage.getItem("AddressId"));
+	        	var form=new FormData();
+	        	form.append("id",address_id);
+	        	//debugger;
+	        	stream.fetch({
+	        		method:"post",
+		            url:"/address/delete?memberToken=4834c3d2226e4a388f868401d75d4ecc",
+		            type:"json",
+		            body:form
+		          },function(response){
+		           if(200===response.status){
+		                    //这里需要兼容web和Native，Native需要将传递的数据JSON化
+		                    var data = response.data;
+		                    try{
+		                      data = JSON.parse(response.data); 
+		                    }catch(e){}
+		                    if(data){
+		                    	that.backToList();
+		                    }                     
+		                  }else{
+		                      //TODO:错误处理
+		                  }
+		              },function(response){
+		                  //TODO:错误处理
+		        });
+        	},
+        	//回到列表页
+            backToList:function(){
+	        	require('@weex-module/event').openURL(this.jump(0));
+	        },
+            //更新
+            save:function(){
+            	var that=this,
+            		address_id;
+	 			window.localStorage && (address_id=localStorage.getItem("AddressId"));
+	        	var form=new FormData();
+	        	form.append("addressee",this.name);
+	        	form.append("mobile",this.mobile);
+	        	form.append("areaIdCombo",this.comboAreaId.join(","));
+	        	form.append("detail",this.detail);
+	        	form.append("isDefault",this.chkDefault);
+	        	form.append("type",2);
+	        	form.append("id",address_id);
+	        	//debugger;
+	        	stream.fetch({
+	        		method:"post",
+		            url:"/address/update?memberToken=4834c3d2226e4a388f868401d75d4ecc",
+		            type:"json",
+		            body:form
+		          },function(response){
+		           if(200===response.status){
+		                    //这里需要兼容web和Native，Native需要将传递的数据JSON化
+		                    var data = response.data;
+		                    try{
+		                      data = JSON.parse(response.data); 
+		                    }catch(e){}
+		                    if(data){
+		                    	that.backToList();
+		                    }                   
+		                     
+		                  }else{
+		                      //TODO:错误处理
+		                  }
+		              },function(response){
+		                  //TODO:错误处理
+		        });
+            },
+            jump: function(index){
+		        return getBaseUrl(this.root,this.doc_name[index]);
+		        //console.log(base + this.pages[page].name + '.js');
+	        },
+	        confirm: function(msg, okTitle, cancelTitle) {
+		        var that = this;
+		        if (!msg || typeof msg !== 'string') {
+		          msg = "确定删除此地址吗!";
+		        }
+		       var modal = require('@weex-module/modal');
+		        okTitle = okTitle || "OK";
+		        cancelTitle = cancelTitle || "Cancel";
+		        modal.confirm({
+		          'message': msg,
+		          'okTitle': okTitle,
+		          'cancelTitle': cancelTitle
+		        }, function(result) {
+		           if (typeof result === 'string' && result ==="确认") {
+		           		that.deleteAddress();
+			        }
+			        else if(result ==="关闭"){
+			        	return;
+			        }
+		        });
+
+		      }
+        }
+  };
+</script>

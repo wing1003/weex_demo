@@ -8,7 +8,6 @@
 					class="input"
 				    type="text"
 				    oninput="name_change"
-				    autofocus="false"
 				    placeholder=""
 				    value="{{name}}">
 				 </input>
@@ -20,7 +19,6 @@
 					class="input"
 				    type="tel"
 				    oninput="mobile_change"
-				    autofocus="false"
 				    placeholder=""
 				    value="{{mobile}}"
 				    style="placeholder-color: #666666;">
@@ -39,7 +37,6 @@
 					class="input"
 				    type="text"
 				    oninput="detail_change"
-				    autofocus="false"
 				    placeholder=""
 				    value="{{detail}}">
 				</input>
@@ -54,7 +51,7 @@
 		<div style="position:fixed;bottom:50;left:120;flex-direction: row;justify-content: center;">
 			<text onclick="save" class="btn">保存</text>
 		</div>
-	    <div class="foot" if="{{shown}}">
+	 	<div class="foot" id="footer">
 		      <div class="title">
 		        <text class="area">所在地区</text>
 		        <text class="complete" onclick="complete">完成</text>
@@ -103,65 +100,65 @@
 	}
 	
 
- .foot{
-  position: fixed;
-  bottom: 0;
-  height: 730px;
-  background-color: #ffffff;
-  width: 750px;
-}
-.title{
-  flex-direction: row;
-  justify-content: space-between;
-  height: 100px;
-  border-bottom: 1px solid #efeff0;
-}
-.area{
-   font-size: 32px;
-   color: #333333;
-   line-height: 100px;
-   margin-left: 310px;
-}
-.complete{
-  font-size: 28px;
-  color: #1ea9e5;
-  line-height: 100px;
-  margin-right: 20px;
-}
-.address__detail{
-  height: 90px;
-  border-bottom: 1px solid #efeff0;
-  flex-direction: row;
-}
-.address{
-  line-height: 90px;
-  color: #333333;
-  font-size: 28px;
-  height: 90px;
-  padding-left: 20px;
-  padding-right: 20px;
-  margin-left: 20px;
-}
-.address__active{
-  color: #fe424b;
-  border-bottom: 2px solid #fe424b;
-}
-.address__noactive{
-  color: #666666;
-  border-bottom: none;
-}
-.list{
-  margin-left: 40px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-.list__text{
-  font-size: 28px;
-  color: #666666;
-}
-.checked{
-  color: #fe424b;
-}
+	.foot{
+	  position: fixed;
+	  bottom: -730;
+	  height: 730;
+	  background-color: #ffffff;
+	  width: 750px;
+	}
+	.title{
+	  flex-direction: row;
+	  justify-content: space-between;
+	  height: 100px;
+	  border-bottom: 1px solid #efeff0;
+	}
+	.area{
+	   font-size: 32px;
+	   color: #333333;
+	   line-height: 100px;
+	   margin-left: 310px;
+	}
+	.complete{
+	  font-size: 28px;
+	  color: #1ea9e5;
+	  line-height: 100px;
+	  margin-right: 20px;
+	}
+	.address__detail{
+	  height: 90px;
+	  border-bottom: 1px solid #efeff0;
+	  flex-direction: row;
+	}
+	.address{
+	  line-height: 90px;
+	  color: #333333;
+	  font-size: 28px;
+	  height: 90px;
+	  padding-left: 20px;
+	  padding-right: 20px;
+	  margin-left: 20px;
+	}
+	.address__active{
+	  color: #fe424b;
+	  border-bottom: 2px solid #fe424b;
+	}
+	.address__noactive{
+	  color: #666666;
+	  border-bottom: none;
+	}
+	.list{
+	  margin-left: 40px;
+	  margin-top: 20px;
+	  margin-bottom: 20px;
+	}
+	.list__text{
+	  font-size: 28px;
+	  color: #666666;
+	}
+	.checked{
+	  color: #fe424b;
+	}
 </style>
 <script>
 function getBaseUrl(dir,page){
@@ -180,7 +177,6 @@ function getBaseUrl(dir,page){
 		data:{
 			root:"static/webApp/view",
   	 		doc_name:["address/showAddress.js"],
-			shown:false,
 			hidden_areaId:true,
 			comboAreaId:[],
 			checked:false,
@@ -291,10 +287,32 @@ function getBaseUrl(dir,page){
             return Arr;
         },
         onclickshow:function(){
-			this.shown=!this.shown;
+			var animation = require('@weex-module/animation'),
+				addressEl=this.$el("footer");
+				//debugger
+		          animation.transition(addressEl, {
+		            styles: {
+		              transform: 'translateY(-730px)'
+		              //('+that.parentsList[pindex].sonList[sindex].left+'px)'
+		            },
+		            duration: 500, //ms
+		            delay: 0 //ms
+		          }, function () {
+            });
 		},
-        complete:function(){
-          	this.onclickshow();
+       complete:function(){
+          	var animation = require('@weex-module/animation'),
+			addressEl=this.$el("footer");
+			//debugger
+		          animation.transition(addressEl, {
+		            styles: {
+		              transform: 'translateY(730px)'
+		              //('+that.parentsList[pindex].sonList[sindex].left+'px)'
+		            },
+		            duration: 500, //ms
+		            delay: 0 //ms
+		          }, function () {
+	        });
         },
         address__click:function(index){
           var that=this;
