@@ -1,12 +1,15 @@
 <!-- 确认订单 -->
 <template>
+<list style="height: {{dheight}}">
+<cell>
   <div class="total">
-     <a class="no__address" if="{{is}}">
+    
+     <a class="no__address" onclick="goAddress" if="{{is}}">
        <text class="no__address--text">请填写收货地址</text>
        <text class="address__right">></text>
      </a>
      <!-- 收货地址 -->
-     <a class="address">
+     <a class="address" onclick="goAddress">
        <div class="address__left">
          <div class="receipt">
            <text class="receipt__name">收件人：{{receipt__name}}</text>
@@ -25,7 +28,7 @@
      </div>
      <div class="goods__content">
        <div class="goods__left">
-         <img class="goods__png" src="{{godds__png}}"></img>
+         <img class="goods__png" src="{{goods__png}}"></img>
          <div class="goods__detail">
            <text class="goods__tip">
            {{goods__tip}}...</text>
@@ -80,9 +83,10 @@
        </div>
        <text class="submit" onclick="submit">提交订单</text>
      </div>
+     
   </div>
-
-  
+   </cell>
+  </list>
 </template>
 
 
@@ -105,11 +109,12 @@ var storage = "undefined"!== typeof window ? window.localStorage : require('@wee
 
 module.exports = {
     data: {
+      dheight:"",
      image:"http://image.buoumall.com",
         root:"static/webApp/view",
-        address_name:"/address/showAddress.js",
-        invoice_name:"/invoice/invoice.js",
-        pay_name:"/pay/checkoutCounter.js",
+        address_name:"address/showAddress.js",
+        invoice_name:"invoice/invoice.js",
+        pay_name:"pay/checkoutCounter.js",
         receipt__name:"panda",
         receipt__phone:"13628670643",
         isDefault:true,
@@ -131,6 +136,37 @@ module.exports = {
         before__price:"450.00"
     },
     created: function () {
+      var that=this;
+      if(this.$getConfig().env.platform==='iOS' || this.$getConfig().env.platform==='android'){
+            baseUrl = this.$getConfig().openUrl;
+            resourcePath = this.$getConfig().bundleUrl;
+            customId = this.$getConfig().customId;
+            that.dheight=this.$getConfig().env.deviceHeight;
+          }else{
+            var homeParams = params(window.location.search.split('?')[1]);
+
+            baseUrl = "/";
+            resourcePath = this.$getConfig().bundleUrl;
+            customId = homeParams.customId;
+            that.dheight=this.$getConfig().env.deviceHeight;
+          }
+
+          function params(str){
+              var arr = str.split('&'),
+                obj = {};
+
+              arr.forEach(function(item){
+                var sourArr = item.split('='),
+                  key = sourArr[0],
+                  value = sourArr[1];
+                if(!obj.hasOwnProperty(key)){
+                  obj[key] = value;
+                } 
+              })
+              return obj
+            }
+
+
         var that=this;
         that.fare=storage.getItem("delFee") || "免运费";
          customItemId=storage.getItem("customItemId") || 224;
@@ -142,7 +178,7 @@ module.exports = {
         //获取地址
         addressid = storage.getItem("addressid");
         if(addressid){
-          this.ajaxGet("/address/list?memberToken=4834c3d2226e4a388f868401d75d4ecc",{
+          this.ajaxGet("address/list?memberToken=4834c3d2226e4a388f868401d75d4ecc",{
             response:function(data){
               if(data){
                 console.log(data);
@@ -161,7 +197,7 @@ module.exports = {
             }
           })
         }else{
-          this.ajaxGet("/address/getDefault?memberToken=4834c3d2226e4a388f868401d75d4ecc",{
+          this.ajaxGet("address/getDefault?memberToken=4834c3d2226e4a388f868401d75d4ecc",{
             response:function(data){
               if(data){
                       var obj=data.data;
@@ -182,11 +218,15 @@ module.exports = {
           })
         };
         //获取商品信息
-         this.ajaxGet("/custom/getCustomDetails?customId=43",{
+         this.ajaxGet("custom/getCustomDetails?customId=43",{
           response:function(data){
             if(data){
+              console.log(data);
                     var obj=data.data;
+                    that.order__type=obj.customDetailBean.product.saleType==0?"定制商品":"";
+                    that.goods__name=obj.customDetailBean.memberDetailBean.memberDetail.nickname;
                       that.goods__png=that.image+obj.customDetailBean.custom.mainPic;
+                      //console.log(that.goods__png);
                       that.goods__tip=obj.customDetailBean.product.name;
                       that.price=obj.customDetailBean.custom.mostPrice.toFixed(2);
                       that.real__price=obj.customDetailBean.custom.leastPrice.toFixed(2);
@@ -197,7 +237,7 @@ module.exports = {
           }
         })
         //计算价格
-        this.ajaxGet("/order/calculatePrice?memberToken=4834c3d2226e4a388f868401d75d4ecc&customItemId="+customItemId+"&num=1",{
+        this.ajaxGet("order/calculatePrice?memberToken=4834c3d2226e4a388f868401d75d4ecc&customItemId="+customItemId+"&num=1",{
           response:function(data){
             if(data){
                     var obj=data.data;
@@ -261,7 +301,7 @@ module.exports = {
           require('@weex-module/event').openURL(this.jump("pay"));
           stream.fetch({
             method:"POST",
-            url:"/order/addOrder",
+            url:baseUrl+"order/addOrder",
             type:"json"
           },function(response){
             console.log(response);
@@ -283,7 +323,7 @@ module.exports = {
         ajaxGet:function(url,res){
           stream.fetch({
             method:"get",
-            url:url,
+            url:baseUrl+url,
             type:"json"
           },function(response){
             console.log(response);
@@ -398,7 +438,6 @@ module.exports = {
 .goods__png{
   width: 160px;
   height: 160px;
-  background-color: green;
 }
 .goods__detail{
    margin-left: 20px;
