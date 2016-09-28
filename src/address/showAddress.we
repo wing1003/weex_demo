@@ -167,7 +167,8 @@
             },
             //新增
             save:function(){
-            	require('@weex-module/event').openURL(this.jump(2));
+            	//require('@weex-module/event').openURL(this.jump(2));
+		__weex_require__('@weex-module/navigator').push(this.jump(2));
             },
             jump: function(index){
 		        return getBaseUrl(this.root,this.doc_name[index]);
