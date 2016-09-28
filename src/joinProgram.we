@@ -1,0 +1,586 @@
+<template>
+	<div>
+
+		<div class="goods_item" id="goods_item" style="background-color:#fff;" >
+
+			<div id="content" class="content">
+
+				<div repeat="{{content__list}}"  class="content__list">
+					<div  class="content__detail">
+						<image class="image" src="{{pngsrc}}"></image>
+						<div class="pay__detail">
+
+							<div style="flex-direction: row;margin-bottom:50px;">
+								<text class="pay">支付金额</text>
+								<text class="cash">{{pay}}</text>
+								<text class="pay">元</text>
+							</div>
+
+							<div class="dispatch">
+							 <text class="dispatch__content">配送费用：</text>
+							 <text class="dispatch__content">免运费</text>
+							</div>
+							<div class="dispatch">
+							 <text class="dispatch__content">发货时间：</text>
+							 <text class="dispatch__content">项目结束后{{daytime}}天内</text>
+							</div>
+				    	</div>
+						<text onclick="join($index)" class="join">去参与</text>
+					</div>
+	   			<div>
+		     		<text class="describe">{{content}}</text>
+				</div>
+			</div>
+		</div>
+
+
+		<div class= "spec"  id="spot">
+			<div class="spec__head">
+			  <image class="spec__btnClose" onclick="quitSpot" src="{{iconUrl}}/cancel.png"></image>
+			</div>
+
+			<div class="contain">
+			<div class="spotItem">
+				<image class="spotItem__img" src="{{pngsrc}}" resize="contain"></image>
+				<div class="spec__price">
+					<text style="font-size: 32">{{spotPrice}}</text>
+					<text style="font-size: 24">元</text>
+				</div>
+
+				<text style="font-size: 24">经典大牌范儿 重工钉珠无袖连衣裙</text>
+			</div>
+
+			<div>
+				<text style="margin-bottom: 20; font-size: 26;">颜色</text>
+
+				<buou-singleselectbtn sign="color" data-list="{{colors}}" type="default" active="sure" size="small" height="100"></buou-singleselectbtn>
+
+				<text style="margin-bottom: 20; font-size: 26;">尺码</text>
+
+				<buou-singleselectbtn id="sizeSelect" sign="size" data-list="{{sizes}}" init-index={{sizeIndex}} type="default" active="sure" size="small" height="100"></buou-singleselectbtn>
+
+			</div>
+
+			<div class="submit">
+			  <buou-button type="sure" size="middle" value="确定" onclick="setStorage"></buou-button>
+			</div>
+
+			</div>
+			</div>
+		</div>
+		
+	</div>
+
+
+</template>
+
+<script>
+	require('weex-components');
+	// require('../components/buou-tabbar-info.we');
+	// require('../components/buou-customSpot.we');
+	require('../components/buou-singleselectbtn.we');
+
+
+	//数组去重 
+	!Array.prototype.unique && (Array.prototype.unique = function(fn){
+	  var res = [];
+	  var json = {};
+	  for(var i = 0; i < this.length; i++){
+	    var key = typeof fn==='function'?fn(this[i]):this[i]
+	      if(!json[key]){
+	         res.push(this[i]);
+	         json[key] = 1;
+	      }
+	  }
+	  return res;
+	});
+
+
+	// stream
+	var stream = require('@weex-module/stream');
+	// 本地存储
+	var storage = "undefined"!== typeof window ? window.localStorage : require('@weex-module/storage');
+	// 跳转
+	var navigator = require('@weex-module/navigator');
+	// 动画
+	var animation = require('@weex-module/animation');
+
+
+	var baseUrl,		// 根域名
+		resoucePath,	// 图片资源根路径
+		customId;	// 定制id
+
+
+	function getBaseUrl(dir,page){
+		var dirs = dir.split('/');
+		dirs.forEach(function(dir, index) {
+		  if (!dir) dirs.splice(index, 1);
+		});
+		var root = dirs.length > 0 ? dirs[0] : '';
+		var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
+
+		//return './index.html?page=./' + root + '/' + subRoot;
+		return "?page=./"+ root + '/' + subRoot + page;
+	}
+
+	function log(arg1){
+		var modal = require('@weex-module/modal');
+		modal.alert({
+			message: arg1,
+			okTitle: "OK"
+			}, function() {
+			// TODO after the alert is complete.
+		})
+	}
+
+
+
+
+	module.exports ={
+		data: {
+			root: 'static/webApp/view',
+			doc_name:'order/order.js',
+
+			tabItems: [ ],
+			selectedIndex: 0, 
+			selectedColor: '#ff0000',
+			unselectedColor: '#000000',
+			content__list:[{
+			pay:123,
+			daytime:15,
+			pngsrc:"static/webApp/image/test.png",
+			content:"谢谢大家的关注和支持！您将获得：由黑子亲自参与设计和打板的黑色T恤，潮感十足，特立而不独行轻松穿出入流范儿！"
+			}],
+
+			// customSpot
+			base: '',
+			colors: [ ],
+			sizes: [ ],
+			currentColorId: '',
+			currentColor: '',
+			currentSizeId: '',
+			currentSize: '',
+			sizeIndex: 1,
+			spotPrice: 0
+		},
+		computed: {
+			iconUrl: function(){
+				return baseUrl + 'static/webApp/image';
+			},
+
+			// 网络图片根路径
+			image: function(){
+				return this.$getConfig().imgUrl || 'http://image.buoumall.com/';
+			},
+			tabHeight: function(){
+				return 400 *this.content__list.length + 51;
+			},
+			speCombId: function(){
+			  return this.currentColorId + '_' + this.currentSizeId;
+			},
+			speText: function(){
+				return this.currentColor + '_' + this.currentSize;
+			}
+		},
+		methods: {
+			_getData: function(){
+				var that = this;
+        		stream.fetch({
+        			method:"get",
+        			url:baseUrl + "/custom/supportCustom?customId="+ customId,
+        			type:"json"
+        		},function(response){
+					if(response.status == 200){
+						//这里需要兼容web和Native，Native需要将传递的数据JSON化
+						var data = response.data;
+						try{
+							data = JSON.parse(response.data); 
+						}catch(e){}
+					                                
+						if(data){
+							var dataList=[];
+							that.specBean = [];
+							
+							data.data.customItemAppList.forEach(function(value, index, array){
+								dataList.push({
+									pay:array[index].price,
+									daytime:data.data.sendDay,
+									pngsrc:that.image+data.data.productMainPic,
+									content:array[index].description
+								});
+
+								// 存储颜色规格数据
+								that.specBean[index] = {};
+								that.specBean[index].list = value.list
+								that.specBean[index].price = value.price
+								
+							})
+							that.content__list=dataList;
+							
+
+							
+						}else{
+						//TODO:
+						}
+                    }else{
+                        //TODO:错误处理
+                        //console.log('--response:-- ', response);
+                    }
+                },function(err){
+                    //console.log('---err---', err);
+                    //TODO:错误处理
+        		});
+			},
+
+            join:function(index){
+
+            	var spotEl = this.$el('spot'),
+            		that = this;
+            	
+            	// this.spotPrice = that.specBean[index].
+            	console.log(that.specBean[index])
+            	animation.transition(spotEl, {
+            		styles: {
+            			bottom: 0
+            		},
+            		duration: 500, //ms
+            		timingFunction: 'ease',
+            		delay: 0 //ms
+            	}, function(){
+            		// init data
+            		var spec,
+            			specValue;
+
+            		that.spec = spec = that.specBean[index].list;
+
+            		that.specValue = specValue = spec.map(function(item){
+						var result={},
+							arrVal = item.value.split('+'),
+							arrCob = item.comboId.split('_');
+
+						result.color = {
+							value: arrVal[1].trim(),
+							comboId: arrCob[1].trim()
+						},
+						result.size = {
+							value: arrVal[0].trim(),
+							comboId: arrCob[0].trim()
+						};
+						return result;
+            		})
+
+            		// 加载颜色列表
+            		var dataColors = specValue.map(function(item){
+						var reg = new RegExp('码'),
+						  result={};
+
+						result.value = item.color.value.replace(reg,'');
+						result.comboId = item.color.comboId;
+
+						return result;
+						})
+						.unique(function(item){return item.value});
+
+            		dataColors.forEach(function(item, i){
+            		    item.index = i;
+            		    i===0?item.bgColor = 'red':item.bgColor = 'none';
+            		})
+            		that.colors = dataColors;
+            		that.currentColorId = that.colors[0].comboId || '';
+
+            		// 加载尺寸列表
+            		that.setSizeData();
+
+            	})  		
+
+            	// require('@weex-module/event').openURL(this.jump());
+            },
+            quitSpot: function(){
+            	var spotEl = this.$el('spot');
+            	animation.transition(spotEl, {
+            		styles: {
+            			bottom: -800
+            		},
+            		duration: 500, //ms
+            		timingFunction: 'ease',
+            		delay: 0 //ms
+            	}, function(){});
+            },  
+        	jump: function(page){
+
+            	if(this.$getConfig().env.platform==='Web'){
+            		
+            		return  getBaseUrl(this.root,this.doc_name);
+            	}else{
+            		// return 'http://192.168.1.31:12580/static/webApp/view/' + this.doc_name;
+            		return baseUrl+ this.root + this.doc_name; 
+            	}	        
+	        },
+
+	        checked: function(index){
+	          this.colorChecked = index;
+	        },
+	        setSizeData: function(){
+				var vm = this;
+				
+				var dataSizes = vm.specValue.map(function(item){
+					var result={};
+					if(item.color.comboId===vm.currentColorId){
+						result.comboId = item.size.comboId;
+						result.value = item.size.value;
+						return result;
+					}else{
+						return 0;
+					}
+				}).filter(function(item){return item!==0}).unique(function(item){return item.value});
+
+				dataSizes.forEach(function(item, i){
+					item.index = i;
+					i===0?item.bgColor = 'red':item.bgColor = '';
+				})
+
+				vm.sizes = dataSizes;
+				vm.currentSizeId = vm.sizes[0].comboId || '';
+				vm.currentSize = vm.sizes[0].value || '';
+
+				var sizeEl = vm.$('sizeSelect');
+				sizeEl.slected();
+	        },
+	        setStorage: function(){
+	            // storage.setItem('speCombo', this.speCombId);
+
+	            navigator.push({
+	            	url: this.jump(),
+	            	animated: 'true' 
+	            },function(){});
+	            // this.test = this.jump();
+	        }
+
+		},
+		created: function () {
+
+			// **************************************************************************************************************
+			// 取native数据
+			if(this.$getConfig().env.platform==='iOS' || this.$getConfig().env.platform==='android'){
+				// baseUrl = this.$getConfig().openUrl;
+				baseUrl = 'http://192.168.1.31:12580'
+				resourcePath = this.$getConfig().bundleUrl;
+				customId = this.$getConfig().customId;
+			}else{
+				var homeParams = params(window.location.search.split('?')[1]);
+				var reg = /(.+)\/index(.*)/;
+				baseUrl = window.location.href.replace(reg,'$1');
+				resourcePath = this.$getConfig().bundleUrl;
+				customId = homeParams.customId;
+			}
+
+			function params(str){
+				var arr = str.split('&'),
+					obj = {};
+
+				arr.forEach(function(item){
+					var sourArr = item.split('='),
+						key = sourArr[0],
+						value = sourArr[1];
+					if(!obj.hasOwnProperty(key)){
+						obj[key] = value;
+					}	
+				})
+				return obj;
+			}
+			// 兼容三方配置
+			// baseUrl: ios:'0.0.0.1:8080/static/webApp/view' ; web:'127.0.0.1:8080/index?page=./static/webApp/view'
+			// *************************************************************************************************************
+
+
+			// 评论，详情选择事件
+			this.$on('tabItem.onClick',function(e){
+				var detail= e.detail;
+				this.selectedIndex = detail.index;
+				this.selected(detail.index);
+
+				var params = {
+					index: detail.index
+				};
+				this.$dispatch('tabBar.onClick', params);
+			});
+
+			this._getData();
+
+			var vm = this;
+			vm.$on('singleselectbtn.onClick', function(e){	
+				if(e.detail.sign==="color"){
+					vm.currentColorId = vm.colors[e.detail.index].comboId;
+					vm.currentColor = vm.colors[e.detail.index].value;
+					vm.setSizeData();
+				} else if(e.detail.sign ==="size") {
+					vm.currentSizeId = vm.sizes[e.detail.index].comboId;
+					vm.currentSize = vm.sizes[e.detail.index].value;
+				}
+			})
+
+			// do something....
+		}
+	}
+</script>
+
+
+
+<style>
+
+	.content{
+		flex-direction: column;
+	}
+	.image{
+	  width: 160px;
+	  height: 160px;
+	  background-color: #666666;
+	}
+	.content__detail{
+	  flex-direction: row;
+	  margin-top: 30px;
+	  margin-left: 20px;
+	  margin-bottom: 30px;
+	  position: relative;
+	}
+	.pay__detail{
+	  flex-direction: column;
+	  margin-left: 20px;
+	}
+	.content__list{
+	 background-color: #FFFFFF;
+	 width: 750px;
+	}
+	.dispatch{
+	  flex-direction: row;
+	  margin-top: 10px;
+	}
+	.dispatch__content{
+	  font-size: 22px;
+	  color: #cccccc;
+	}
+	.pay{
+	   font-size: 24px;
+	   margin-top: 10px;
+	}
+	.cash{
+	    font-size: 33px;
+	    margin-left: 10px;
+	    color: #ff555f;
+	}
+	.join{
+	    font-size: 24px;
+	    position: absolute;
+	    right: 0;
+	    width: 180px;
+	    height: 60px;
+	    line-height: 60px;
+	    color: #ffffff;
+	    background-color: #ff555f;
+	    text-align: center;
+	    border-radius: 30px;
+	    margin-right: 30px;
+	}
+	.describe{
+	  font-size: 24px;
+	  color: #222222;
+	  line-height: 42px;
+	  margin-left: 20px;
+	  margin-right: 20px;
+	  height: 180px;
+	  border-bottom: 1px solid #efeff0;
+	}
+	.cancel{
+	  height: 36px;
+	  width: 36px;
+	  margin-left: 30px;
+	  margin-bottom: 15px;
+	  background-color: #ccc;
+	}
+
+	.spec{
+		position: fixed;
+		width: 750;
+		height: 800;
+		bottom: -800;
+	}
+
+	.spec__head{
+		height: 75;
+		flex-direction: row;
+		justify-content: flex-end;
+		background: #000;
+		opacity: .5;
+	}
+
+	.spec__btnClose{
+		width: 36;
+		height: 36;
+		margin-top: 19;
+		margin-right: 30;
+	}
+
+	/*= customSpot =*/
+	.contain{
+	  width: 750;
+	  height: 725;
+	  padding-left: 20;
+	}
+	.spotItem{
+	  padding-left: 180;
+	  margin-bottom: 35;
+	}
+	.spotItem__img{
+	  width: 160px;
+	  height: 160px;
+	  border-style: solid;
+	  border-color: #fff;
+	  border-width: 1;
+	  background: #000;
+	  position: absolute;
+	  left: 0;
+	  top: -40;
+	}
+	.spec__price{
+	  flex-direction: row;
+	  align-items: flex-end;
+	  height: 90;
+	}
+
+	.btn{
+	  width: 100;
+	  height: 40;
+	  line-height: 28;
+	  border-style: solid;
+	  border-color: #fff;
+	  border-width: 2;
+	  border-radius: 5;
+	  text-align: center;
+	  font-size: 22;
+	}
+	.btn-black{
+	  color: #222222;
+	  border-color: #222222;
+	}
+	.btn-gray{
+	  color: #efeff0;
+	  border-color: #efeff0;
+	}
+	.btn-active{
+	  color: red;
+	}
+
+	.submit{
+	  width: 750;
+	  flex-direction: row;
+	  justify-content: center;
+	  position: absolute;
+	  bottom: 0;
+	  left: 0;
+	  padding-top: 20;
+	  padding-bottom: 20;
+	  border-top-width: 1;
+	  border-color: #efefef;
+	  border-style: solid;
+	}
+</style>

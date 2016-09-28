@@ -1,7 +1,9 @@
 <template>
-<!-- 	<list class="list" loadmoreoffset=2000>
-		<cell style="background-color: #ccc;"> -->
-		<div>
+<div>
+	<list class="list" style="height:1334;">
+		<cell style="background-color: #ccc;">
+			
+		<div style="flex-direction: column;">
 			<div class="summary">
 				<div>
 					<image class="customImg" src="{{mainPic}}"></image>
@@ -34,20 +36,13 @@
 					<text style="font-size:20;color:#ccc;">包邮</text>
 				</div>
 			</div>
-<!-- 			<div class="detail">
-	<div class="wrapper">
-        <embed class="content" style="visibility:{{visibility}}" repeat={{tabItems}} src={{src}} type="weex"></embed>
-        <div class="tabbar" append = "tree">
-            <wxc-tabitem repeat={{tabItems}} index={{index}} icon={{icon}} title={{title}} title-color={{titleColor}}></wxc-tabItem>
-        </div>
-    </div>
-</div> -->
-			<div class="detail">
+
+			<div class="detail" style="flex-direction: column;">
 		     	<img class="head__png" src="{{avatar}}"></img>
 	      		<div style="margin-left:20;">
 			        <div style="flex-direction:row">
 			            <text class="name">{{nickName}}</text>
-		            	<image class="tip__png" src="../"></image>
+		            	<image class="tip__png" src="{{iconUrl}}/pay2.png"></image>
 			        </div>
 			        <div style="flex-direction:row">
 		          		<text class="focus">关注</text>
@@ -62,90 +57,257 @@
 			        </div>
 		        </div>			      
 	     	</div>
-	     	<div class="goods__tab">
+	     	<div class="goods__tab"  style="flex-direction: column;">
 	       		<text style="margin-left: 120px;" class="tab__text active">详情</text>
 	       		<text style="margin-right: 120px;" class="tab__text">评价</text>
 	     	</div>
-	     	<div style="min-height: 770px;background-color: black">
-	        	<slider auto-play="false" onchange="change" style="...">
-	          		<image repeat="{{listPic}}" src="{{src}}" style="..."></image>
-	      			<indicator></indicator>
-        		</slider>
-	     	</div>
+	     
 	     	<div class="footer">
 	       		<text class="partIn" onclick="takepart">我要参与</text>
        		</div>
 
-       		<div class="goods_item" id="goods_item" style="flex-direction: column;position:fixed;background-color:#fff; bottom: -{{tabHeight}}" >
-  				<div id="content" class="content" style="position:absolute">
-  					<div onclick="quit">
-  						<img class="cancel" src="../cancel.png"></img>
-					</div>
-    				<div repeat="{{content__list}}"  class="content__list">
-       					<div  class="content__detail">
-         				<image class="image" src="{{pngsrc}}"></image>
-         			<div class="pay__detail">
-		           <div style="flex-direction: row;margin-bottom:50px;">
-		             <text class="pay">支付金额</text>
-		             <text class="cash">{{pay}}</text>
-		             <text class="pay">元</text>
-		           </div>
-		           <div class="dispatch">
-		             <text class="dispatch__content">配送费用：</text>
-		             <text class="dispatch__content">免运费</text>
-		           </div>
-		           <div class="dispatch">
-		             <text class="dispatch__content">发货时间：</text>
-		             <text class="dispatch__content">项目结束后{{daytime}}天内</text>
-		           </div>
-		         </div>
-     				<text onclick="join($index)" class="join">去参与</text>
-       			</div>
-		       		<div>
-		         		<text class="describe">{{content}}</text>
-    				</div>
-    				</div>
-  				</div>
-  			</div>
-
-  			<div class= "spec"  id="spot">
-  				<div class="spec__head">
-  				  <image class="spec__btnClose" onclick="quitSpot"></image>
-  				</div>
-
-  				<div class="contain">
-					<div class="member">
-						<image class="member__avatar" src="{{base}}/images/avatar.jpg" style="-webkit-background-size: contain;
-					background-size: contain;"></image>
-						<div class="price">
-							<text style="font-size: 32">256</text><text style="font-size: 24">元</text>
-						</div>
-
-						<text style="font-size: 24">经典大牌范儿 重工钉珠无袖连衣裙</text>
-					</div>
-
-					<div>
-						<text style="margin-bottom: 20; font-size: 26;">颜色</text>
-
-						<buou-singleselectbtn sign="color" data-list="{{colors}}" type="default" active="sure" size="small" height="100"></buou-singleselectbtn>
-
-						<text style="margin-bottom: 20; font-size: 26;">尺码</text>
-
-						<buou-singleselectbtn id="sizeSelect" sign="size" data-list="{{sizes}}" init-index={{sizeIndex}} type="default" active="sure" size="small" height="100"></buou-singleselectbtn>
-
-					</div>
-
-					<div class="submit">
-					  <buou-button type="sure" size="middle" value="确定" onclick="setStorage"></buou-button>
-					</div>
-
-					</div>
-  				</div>
-  			</div>
-  		</div>	
-<!-- 		</cell>
-	</list> -->
+		</div>
+		</cell>
+	</list>
+</div>
 </template>
+<script>
+	require('weex-components');
+	// require('../components/buou-tabbar-info.we');
+	// require('../components/buou-customSpot.we');
+	require('../components/buou-singleselectbtn.we');
+
+	
+	//数组去重 
+	!Array.prototype.unique && (Array.prototype.unique = function(fn){
+	  var res = [];
+	  var json = {};
+	  for(var i = 0; i < this.length; i++){
+	    var key = typeof fn==='function'?fn(this[i]):this[i]
+	      if(!json[key]){
+	         res.push(this[i]);
+	         json[key] = 1;
+	      }
+	  }
+	  return res;
+	});
+
+
+	var animation = require('@weex-module/animation');
+	// 本地存储
+	var storage = "undefined"!== typeof window ? window.localStorage : require('@weex-module/storage');
+	// 跳转
+	var navigator = require('@weex-module/navigator')
+
+	var baseUrl,		// 根域名
+		resoucePath,	// 图片资源根路径
+		customId;	// 定制id
+
+
+	function getBaseUrl(dir,page){
+		var dirs = dir.split('/');
+		dirs.forEach(function(dir, index) {
+		  if (!dir) dirs.splice(index, 1);
+		});
+		var root = dirs.length > 0 ? dirs[0] : '';
+		var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
+
+		//return './index.html?page=./' + root + '/' + subRoot;
+		return "?page=./"+ root + subRoot + page;
+	}
+
+	function log(arg1){
+		var modal = require('@weex-module/modal');
+		modal.alert({
+			message: arg1,
+			okTitle: "OK"
+			}, function() {
+			// TODO after the alert is complete.
+		})
+	}
+
+	module.exports = {
+
+	  	data: {
+	  	 	root:"static/webApp/view/",
+	  	 	doc_name:"detail/joinProgram.js",
+	  	 	mainPic:"",
+	  	 	name:"",
+	  	 	description:"",
+	  	 	cut:"",
+	  	 	orignPrice:"",
+	  	 	leastPrice:"",
+			sellNum:"",
+			targetNum:"",
+			time:"",
+			totalSell:"",
+			likeNum:"",
+			//用户信息
+			avatar:"",
+			nickName:"",
+			focus:"",
+			fansNum:"",
+			sponsorNum:"",
+
+			listPic: [{
+				src:""
+			}],//[{src: ""}, {src:""}]
+
+
+
+	    },
+	    computed: {
+	    	iconUrl: function(){
+	    		return baseUrl + 'static/webApp/image';
+	    	},
+
+	    	// 网络图片根路径
+	    	image: function(){
+	    		return this.$getConfig().imgUrl || 'http://image.buoumall.com';
+	    	},
+	    	tabHeight: function(){
+	    		return 400 *this.content__list.length + 51;
+	    	},
+	    	speCombId: function(){
+	    	  return this.currentColorId + '_' + this.currentSizeId;
+	    	},
+	    	speText: function(){
+	    		return this.currentColor + '_' + this.currentSize;
+	    	}
+	    },
+        created: function () {
+
+        	// **************************************************************************************************************
+        	// 取native数据
+        	if(this.$getConfig().env.platform==='iOS' || this.$getConfig().env.platform==='android'){
+        		// baseUrl = this.$getConfig().openUrl;
+        		baseUrl = 'http://192.168.1.31:12580'
+        		resourcePath = this.$getConfig().bundleUrl;
+        		customId = this.$getConfig().customId;
+        	}else{
+        		var homeParams = params(window.location.search.split('?')[1]);
+        		var reg = /(.+)\/index(.*)/;
+        		baseUrl = window.location.href.replace(reg,'$1');
+        		resourcePath = this.$getConfig().bundleUrl;
+        		customId = homeParams.customId;
+        	}
+
+        	function params(str){
+        		var arr = str.split('&'),
+        			obj = {};
+
+        		arr.forEach(function(item){
+        			var sourArr = item.split('='),
+        				key = sourArr[0],
+        				value = sourArr[1];
+        			if(!obj.hasOwnProperty(key)){
+        				obj[key] = value;
+        			}
+        		})
+        		return obj;
+        	}
+        	// 兼容三方配置
+        	// baseUrl: ios:'0.0.0.1:8080/static/webApp/view' ; web:'127.0.0.1:8080/index?page=./static/webApp/view'
+        	// *************************************************************************************************************
+
+			// this.selected(this.selectedIndex);
+
+			this.$on('tabItem.onClick',function(e){
+				var detail= e.detail;
+				this.selectedIndex = detail.index;
+				this.selected(detail.index);
+
+				var params = {
+				  index: detail.index
+				};
+				this.$dispatch('tabBar.onClick', params);
+			});
+			this._getData();
+
+        },
+        methods: {
+        	_getData:function(){
+        		var that=this,
+	        		stream=require('@weex-module/stream');
+
+        		stream.fetch({
+        			method:"get",
+        			url: baseUrl + "/custom/getCustomDetails?customId="+customId,
+        			type:"json"
+        		},function(response){
+					if(response.status == 200){
+						//这里需要兼容web和Native，Native需要将传递的数据JSON化
+						var data = response.data;
+						try{
+							data = JSON.parse(response.data); 
+						}catch(e){}
+						                                
+						if(data){
+
+							var obj = data.data,
+								customDetailBean=obj.customDetailBean,
+								custom=customDetailBean.custom;
+
+							var	memberDetailBean=customDetailBean.memberDetailBean,
+								memberDetail=memberDetailBean.memberDetail;
+							
+							that.mainPic=that.image+custom.mainPic;
+							that.name=custom.name;
+							that.leastPrice=custom.leastPrice;
+							that.avatar=that.image+memberDetail.avatar;
+							that.nickName=memberDetail.nickname;
+							that.fansNum=memberDetailBean.fansNum;
+							that.sponsorNum=memberDetailBean.sponsorNum;
+
+                    	}else{
+                    		//TODO:
+                    	}
+                    }else{
+                        //TODO:错误处理
+                        //console.log('--response:-- ', response);
+                    }
+                },function(err){
+                    //console.log('---err---', err);
+                    //TODO:错误处理
+        		});
+	        		
+        	},
+        	selected: function(index) {
+        	  for(var i = 0; i < this.tabItems.length; i++) {
+        	    var tabItem = this.tabItems[i];
+        	    if(i == index){
+        	      tabItem.icon = tabItem.selectedImage;
+        	      tabItem.titleColor = this.selectedColor;
+        	      tabItem.visibility = 'visible';
+        	    }
+        	    else {
+        	      tabItem.icon = tabItem.image;
+        	      tabItem.titleColor = this.unselectedColor;
+        	      tabItem.visibility = 'hidden';
+        	    }
+        	  }
+        	},
+        	jump: function(page){
+            	if(this.$getConfig().env.platform==='web'){
+            		return  getBaseUrl(this.root,this.doc_name);
+            	}else{
+            		// return 'http://192.168.1.31:12580/static/webApp/view/' + this.doc_name;
+            		return baseUrl + '/index?page='+ this.root + this.doc_name; 
+            	}	        
+	        },
+        	takepart:function(){
+        		var params = {
+        			url: this.jump()+ '&customId='+customId,
+        			animated: 'true'
+        		}
+        		navigator.push(params, function(){
+        			log('to selected');
+        		})
+        	}
+        }
+  };
+</script>
+
 <style>
 	.customImg{
 		width: 750;
@@ -153,6 +315,8 @@
 	}
 	.summary{
 		background-color: #fff;
+		height: 1181;
+		flex-direction: column;
 	}
 	.title{
 		color:#ff555f;
@@ -207,7 +371,7 @@
 	.tip__png{
 	  width: 30px;
 	  height: 30px;
-	  background-color: black;
+	  /*background-color: black;*/
 	  margin-left: 10px;
 	  margin-top: 10px;
 	}
@@ -235,6 +399,7 @@
 	  border: 1px solid #3ba8fa;
 	  border-radius: 22px;
 	}
+
 	.goods__tab{
 	  flex-direction: row;
 	  justify-content: space-between;
@@ -244,7 +409,6 @@
 	  background-color: #fff;
 	}
 	.tab__text{
-	  width: 52px;
 	  height: 90px;
 	  line-height: 90px;
 	  font-size: 26px;
@@ -257,9 +421,11 @@
 	.footer{
 	  flex-direction: row;
 	  justify-content: center;
-	  height: 100;
+	  height: 200;
 	  background-color: #fff;
 	}
+
+
 	.service{
 	  position: relative;
 	}
@@ -300,523 +466,4 @@
 	  margin-top: 20px;
 	}
 
-
-	.content{
-	bottom: 0;
-	flex-direction: column;
-	}
-	.image{
-	  width: 160px;
-	  height: 160px;
-	  background-color: #666666;
-	}
-	.content__detail{
-	  flex-direction: row;
-	  margin-top: 30px;
-	  margin-left: 20px;
-	  margin-bottom: 30px;
-	  position: relative;
-	}
-	.pay__detail{
-	  flex-direction: column;
-	  margin-left: 20px;
-	}
-	.content__list{
-	 background-color: #FFFFFF;
-	 width: 750px;
-	}
-	.dispatch{
-	  flex-direction: row;
-	  margin-top: 10px;
-	}
-	.dispatch__content{
-	  font-size: 22px;
-	  color: #cccccc;
-	}
-	.pay{
-	   font-size: 24px;
-	   margin-top: 10px;
-	}
-	.cash{
-	    font-size: 33px;
-	    margin-left: 10px;
-	    color: #ff555f;
-	}
-	.join{
-	    font-size: 24px;
-	    position: absolute;
-	    right: 0;
-	    width: 180px;
-	    height: 60px;
-	    line-height: 60px;
-	    color: #ffffff;
-	    background-color: #ff555f;
-	    text-align: center;
-	    border-radius: 30px;
-	    margin-right: 30px;
-	}
-	.describe{
-	  font-size: 24px;
-	  color: #222222;
-	  line-height: 42px;
-	  margin-left: 20px;
-	  margin-right: 20px;
-	  height: 180px;
-	  border-bottom: 1px solid #efeff0;
-	}
-	.cancel{
-	  height: 36px;
-	  width: 36px;
-	  margin-left: 30px;
-	  margin-bottom: 15px;
-	  background-color: #ccc;
-	}
-
-	.spec{
-		position: fixed;
-		width: 750;
-		height: 800;
-		bottom: -800;
-		background: #eee;
-	}
-
-	.spec__head{
-		height: 75;
-		flex-direction: row;
-		justify-content: flex-end;
-		background: #123456;
-	}
-
-	.btnClose{
-		width: 36;
-		height: 36;
-		margin-top: 19;
-		margin-right: 30;
-		/*background: url(../images/close.png) no-repeat;*/
-		-webkit-background-size: contain;
-		background-size: contain;
-	}
-
-	/*= customSpot =*/
-	.contain{
-	  width: 750;
-	  background: #fff;
-	  height: 725;
-	  padding-left: 20;
-	}
-	.member{
-	  padding-left: 180;
-	  margin-bottom: 35;
-	}
-	.member__avatar{
-	  width: 160px;
-	  height: 160px;
-	  border-style: solid;
-	  border-color: #fff;
-	  border-width: 1;
-	  background: #000;
-	  position: absolute;
-	  left: 0;
-	  top: -40;
-	}
-	.price{
-	  flex-direction: row;
-	  align-items: flex-end;
-	  height: 90;
-	}
-
-	.btn{
-	  width: 100;
-	  height: 40;
-	  line-height: 28;
-	  border-style: solid;
-	  border-color: #fff;
-	  border-width: 2;
-	  border-radius: 5;
-	  text-align: center;
-	  font-size: 22;
-	}
-	.btn-black{
-	  color: #222222;
-	  border-color: #222222;
-	}
-	.btn-gray{
-	  color: #efeff0;
-	  border-color: #efeff0;
-	}
-	.btn-active{
-	  color: red;
-	}
-
-	.submit{
-	  width: 750;
-	  flex-direction: row;
-	  justify-content: center;
-	  position: absolute;
-	  bottom: 0;
-	  left: 0;
-	  padding-top: 20;
-	  padding-bottom: 20;
-	  border-top-width: 1;
-	  border-color: #efefef;
-	  border-style: solid;
-	}
-
 </style>
-<script>
-	require('weex-components');
-	// require('../components/buou-tabbar-info.we');
-	// require('../components/buou-customSpot.we');
-	require('../components/buou-singleselectbtn.we');
-
-	var animation = require('@weex-module/animation');
-	//数组去重 
-	!Array.prototype.unique && (Array.prototype.unique = function(fn){
-	  var res = [];
-	  var json = {};
-	  for(var i = 0; i < this.length; i++){
-	    var key = typeof fn==='function'?fn(this[i]):this[i]
-	      if(!json[key]){
-	         res.push(this[i]);
-	         json[key] = 1;
-	      }
-	  }
-	  return res;
-	});
-
-	// 本地存储
-	var storage = window.localStorage || require('@weex-module/storage');
-
-	function getBaseUrl(dir,page){
-		var dirs = dir.split('/');
-		dirs.forEach(function(dir, index) {
-		  if (!dir) dirs.splice(index, 1);
-		});
-		var root = dirs.length > 0 ? dirs[0] : '';
-		var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
-
-		//return './index.html?page=./' + root + '/' + subRoot;
-		return "?page=./"+ root + '/' + subRoot + page;
-	}
-	module.exports = {
-
-	  	data: {
-	  	 	root:"static/webApp/view",
-	  	 	doc_name:"order/order.js",
-	  	 	mainPic:"",
-	  	 	name:"",
-	  	 	description:"",
-	  	 	cut:"",
-	  	 	orignPrice:"",
-	  	 	leastPrice:"",
-			sellNum:"",
-			targetNum:"",
-			time:"",
-			totalSell:"",
-			likeNum:"",
-			//用户信息
-			avatar:"",
-			nickName:"",
-			focus:"",
-			fansNum:"",
-			sponsorNum:"",
-
-			listPic: [{
-				src:""
-			}],//[{src: ""}, {src:""}]  	 	
-			tabItems: [ ],
-			selectedIndex: 0,
-			selectedColor: '#ff0000',
-			unselectedColor: '#000000',
-			content__list:[{
-			pay:123,
-			daytime:15,
-			pngsrc:"images/test.png",
-			content:"谢谢大家的关注和支持！您将获得：由黑子亲自参与设计和打板的黑色T恤，潮感十足，特立而不独行轻松穿出入流范儿！"
-			}],
-
-			base: '',
-			colors: [ ],
-			sizes: [ ],
-			currentColor: '',
-			currentSize: '',
-			sizeIndex: 1
-	    },
-	    computed: {
-	    	tabHeight: function(){
-	    		return 400 *this.content__list.length + 51;
-	    	},
-	    	speCombId: function(){
-	    	  return this.currentColor + '_' + this.currentSize;
-	    	}
-	    },
-        created: function () {
-
-          this.selected(this.selectedIndex);
-
-          this.$on('tabItem.onClick',function(e){
-            var detail= e.detail;
-            this.selectedIndex = detail.index;
-            this.selected(detail.index);
-
-            var params = {
-              index: detail.index
-            };
-            this.$dispatch('tabBar.onClick', params);
-          });
-          this._getData();
-
-          var vm = this;
-          vm.$on('singleselectbtn.onClick', function(e){
-            if(e.detail.sign==="color"){
-              vm.currentColor = vm.colors[e.detail.index].comboId;
-              vm.setSizeData();
-            } else if(e.detail.sign ==="size") {
-               vm.currentSize = vm.sizes[e.detail.index].comboId;
-            }
-          })
-        },
-        methods: {
-        	_getData:function(){
-        		var that=this,
-	        		stream=__weex_require__('@weex-module/stream'),
-	        		baseUrl = that.$getConfig().bundleUrl.split('/index?')[0];
-	        		stream.fetch({
-	        			method:"get",
-	        			url: baseUrl + "/custom/getCustomDetails?customId=43",
-	        			type:"json"
-	        		},function(response){
-						if(response.status == 200){
-							//这里需要兼容web和Native，Native需要将传递的数据JSON化
-							var data = response.data;
-							try{
-								data = JSON.parse(response.data); 
-							}catch(e){}
-							                                
-							if(data){
-
-								var obj = data.data,
-									customDetailBean=obj.customDetailBean,
-									custom=customDetailBean.custom;
-
-								var	memberDetailBean=customDetailBean.memberDetailBean,
-									memberDetail=memberDetailBean.memberDetail;
-								// console.log(obj)
-								that.mainPic=that.image+custom.mainPic;
-								that.name=custom.name;
-								that.leastPrice=custom.leastPrice;
-								that.avatar=that.image+memberDetail.avatar;
-								that.nickName=memberDetail.nickname;
-								that.fansNum=memberDetailBean.fansNum;
-								that.sponsorNum=memberDetailBean.sponsorNum;
-
-								
-	                    	}else{
-	                    		//TODO:
-	                    	}
-	                    }else{
-	                        //TODO:错误处理
-	                        //console.log('--response:-- ', response);
-	                    }
-	                },function(err){
-	                    //console.log('---err---', err);
-	                    //TODO:错误处理
-	        		});
-	        		stream.fetch({
-	        			method:"get",
-	        			url:"/custom/supportCustom?customId=43",
-	        			type:"json"
-	        		},function(response){
-						if(response.status == 200){
-							//这里需要兼容web和Native，Native需要将传递的数据JSON化
-							var data = response.data;
-							try{
-								data = JSON.parse(response.data); 
-							}catch(e){}
-						                                
-							if(data){
-								var dataList=[];
-								that.specBean = [];
-
-								data.data.customItemAppList.forEach(function(value, index, array){
-									dataList.push({
-										pay:array[index].price,
-										daytime:data.data.sendDay,
-										pngsrc:that.image+data.data.productMainPic,
-										content:array[index].description
-									});
-
-									// 存储颜色规格数据
-									that.specBean[index] = value.list
-								})
-								that.content__list=dataList;
-								
-								
-							}else{
-							//TODO:
-							}
-	                    }else{
-	                        //TODO:错误处理
-	                        //console.log('--response:-- ', response);
-	                    }
-	                },function(err){
-	                    //console.log('---err---', err);
-	                    //TODO:错误处理
-	        		});
-
-        	},
-            selected: function(index) {
-              for(var i = 0; i < this.tabItems.length; i++) {
-                var tabItem = this.tabItems[i];
-                if(i == index){
-                  tabItem.icon = tabItem.selectedImage;
-                  tabItem.titleColor = this.selectedColor;
-                  tabItem.visibility = 'visible';
-                }
-                else {
-                  tabItem.icon = tabItem.image;
-                  tabItem.titleColor = this.unselectedColor;
-                  tabItem.visibility = 'hidden';
-                }
-              }
-            },
-            takepart:function(){
-            	var joinEl = this.$el('goods_item');
-				
-            	animation.transition(joinEl, {
-            		styles: {
-            			bottom: 0
-            		},
-            		duration: 500,
-            		timingFunction: 'ease',
-            	}, function(){
-            		// TOD
-            	})
-            },
-            quit:function(fn){
-            	var joinEl = this.$el('goods_item'),
-            		that = this;
-				
-            	animation.transition(joinEl, {
-            		styles: {
-            			bottom: '-'+that.tabHeight
-            		},
-            		duration: 500,
-            		timingFunction: 'ease',
-            	}, function(){
-            		fn && typeof fn === 'function' && fn()
-            	})
-            },
-            join:function(index){
-            	// console.log(index, 'index')
-            	var spotEl = this.$el('spot'),
-            		that = this;
-
-            	this.quit(function(){
-	            	animation.transition(spotEl, {
-	            		styles: {
-	            			bottom: 0
-	            		},
-	            		duration: 500, //ms
-	            		timingFunction: 'ease',
-	            		delay: 0 //ms
-	            	}, function(){
-	            		// init data
-	            		var spec,
-	            			specValue;
-
-	            		that.spec = spec = that.specBean[index];
-	            		that.specValue = specValue = spec.map(function(item){
-							var result={},
-								arrVal = item.value.split('+'),
-								arrCob = item.comboId.split('_');
-
-							result.color = {
-								value: arrVal[1].trim(),
-								comboId: arrCob[1].trim()
-							},
-							result.size = {
-								value: arrVal[0].trim(),
-								comboId: arrCob[0].trim()
-							};
-							return result;
-	            		})
-
-	            		// 加载颜色列表
-	            		var dataColors = specValue.map(function(item){
-							var reg = new RegExp('码'),
-							  result={};
-
-							result.value = item.color.value.replace(reg,'');
-							result.comboId = item.color.comboId;
-
-							return result;
-							})
-							.unique(function(item){return item.value});
-
-	            		dataColors.forEach(function(item, i){
-	            		    item.index = i;
-	            		    i===0?item.bgColor = 'red':item.bgColor = 'none';
-	            		})
-	            		that.colors = dataColors;
-	            		that.currentColor = that.colors[0].comboId || '';
-
-	            		// 加载尺寸列表
-	            		that.setSizeData();
-
-	            	})  		
-            	});
-
-            	// require('@weex-module/event').openURL(this.jump());
-            },
-            quitSpot: function(){
-            	var spotEl = this.$el('spot');
-            	animation.transition(spotEl, {
-            		styles: {
-            			bottom: -800
-            		},
-            		duration: 500, //ms
-            		timingFunction: 'ease',
-            		delay: 0 //ms
-            	})
-            },
-            jump: function(page){
-		        return getBaseUrl(this.root,this.doc_name);
-		        //console.log(base + this.pages[page].name + '.js');
-	        },
-
-	        checked: function(index){
-	          this.colorChecked = index;
-	        },
-	        setSizeData: function(){
-	          var vm = this;
-	          var dataSizes = vm.specValue.map(function(item){
-	            var result={};
-	            if(item.color.comboId===vm.currentColor){
-	              result.comboId = item.size.comboId;
-	              result.value = item.size.value;
-	              return result;
-	            }else{
-	              return 0;
-	            }
-	          }).filter(function(item){return item!==0}).unique(function(item){return item.value});
-	          
-	          dataSizes.forEach(function(item, i){
-	            item.index = i;
-	            i===0?item.bgColor = 'red':item.bgColor = '';
-	          })
-	          vm.sizes = dataSizes;
-	          vm.currentSize = vm.sizes[0].comboId || '';
-	          var sizeEl = vm.$('sizeSelect');
-	          sizeEl.slected();
-	        },
-	        setStorage: function(){
-	            // console.log(this.speCombId);
-	            storage.setItem('speCombo', this.speCombId);
-	            require('@weex-module/event').openURL(this.jump());
-
-	        }
-
-        }
-  };
-</script>
