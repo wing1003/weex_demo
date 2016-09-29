@@ -396,13 +396,14 @@ module.exports = {
                 try{
                   data = JSON.parse(response.data); 
                 }catch(e){}
-
+                
                 var params = {
                   url: that.jump("pay"),
                   animated: 'true'
                 };
+                storage.setItem('orderId',data.orderId);
                 navigator.push(params, function(){});
-                // storage.setItem('orderId',data.orderId)
+                 
                 // navigator.push(params, function(){});
 
               }else{
