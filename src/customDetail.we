@@ -2,8 +2,6 @@
 <div>
 	<list class="list" style="height:1334;">
 		<cell style="background-color: #ccc;">
-			
-		<div style="flex-direction: column;">
 			<div class="summary">
 				<div>
 					<image class="customImg" src="{{mainPic}}"></image>
@@ -66,7 +64,6 @@
 	       		<text class="partIn" onclick="takepart">我要参与</text>
        		</div>
 
-		</div>
 		</cell>
 	</list>
 </div>
@@ -77,7 +74,7 @@
 	// require('../components/buou-customSpot.we');
 	require('../components/buou-singleselectbtn.we');
 
-	
+
 	//数组去重 
 	!Array.prototype.unique && (Array.prototype.unique = function(fn){
 	  var res = [];
@@ -131,6 +128,8 @@
 	  	data: {
 	  	 	root:"static/webApp/view/",
 	  	 	doc_name:"detail/joinProgram.js",
+	  	 	devHeight:0,
+
 	  	 	mainPic:"",
 	  	 	name:"",
 	  	 	description:"",
@@ -210,7 +209,12 @@
         	// baseUrl: ios:'0.0.0.1:8080/static/webApp/view' ; web:'127.0.0.1:8080/index?page=./static/webApp/view'
         	// *************************************************************************************************************
 
+        	// 
+
 			// this.selected(this.selectedIndex);
+
+			storage.setItem('memberToken', this.$getConfig().memberToken,function(){});
+
 
 			this.$on('tabItem.onClick',function(e){
 				var detail= e.detail;
@@ -288,21 +292,24 @@
         	  }
         	},
         	jump: function(page){
-            	if(this.$getConfig().env.platform==='web'){
-            		return  getBaseUrl(this.root,this.doc_name);
+            	if(this.$getConfig().env.platform==='Web'){
+            		return  getBaseUrl(this.root,this.doc_name) + '&customId='+customId;
             	}else{
             		// return 'http://192.168.1.31:12580/static/webApp/view/' + this.doc_name;
-            		return baseUrl + '/index?page='+ this.root + this.doc_name; 
+            		return baseUrl + '/' + this.root + this.doc_name; 
             	}	        
 	        },
         	takepart:function(){
         		var params = {
-        			url: this.jump()+ '&customId='+customId,
+        			url: this.jump(),
         			animated: 'true'
         		}
-        		navigator.push(params, function(){
-        			log('to selected');
-        		})
+        		storage.setItem('customId', customId, function(){
+        			navigator.push(params, function(e){
+        				
+        			})
+        		});
+
         	}
         }
   };
@@ -421,6 +428,7 @@
 	.footer{
 	  flex-direction: row;
 	  justify-content: center;
+	  align-items: center;
 	  height: 200;
 	  background-color: #fff;
 	}
@@ -444,7 +452,6 @@
 	  text-align: center;
 	  top: 6px;
 	  left: 26px;
-	  z-index: 9;
 	  border-radius: 13px;
 	  font-size: 20px;
 	  color: #ffffff;
@@ -460,10 +467,9 @@
 	  font-size: 24px;
 	  color: #FFFFFF;
 	  background-color: #ff404b;
-	  line-height: 60px;
 	  border-radius: 30px;
 	  text-align: center;
-	  margin-top: 20px;
+	  padding-top: 18;
 	}
 
 </style>
