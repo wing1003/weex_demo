@@ -2,7 +2,7 @@
     <div class="wrapper">
         <embed class="content" style="visibility:{{visibility}}" repeat={{tabItems}} src={{src}} type="weex"></embed>
         <div class="tabbar" append = "tree">
-            <buou-tabitem repeat={{tabItems}} index={{index}} icon={{icon}} title={{title}} title-color={{titleColor}}></buou-tabItem>
+            <buou-tabitem repeat={{tabItems}} index={{index}} icon={{icon}} title={{title}} title-color={{titleColor}}></buou-tabitem>
         </div>
     </div>
 </template>
@@ -21,13 +21,13 @@
         top: 0; left: 0; 
         right: 0; 
         bottom: 0; 
-        margin-top: 88;  
-        margin-bottom: 0;
+        margin-top: 0;  
+        margin-bottom: 88;
     }
     .tabbar { 
         flex-direction: row; 
         position: fixed; 
-        top: 0;
+        top: 0; 
         left: 0; 
         right: 0;  
         height: 88;
