@@ -49,7 +49,7 @@
 			</div>
 		</div>
 		<text style="padding-left: 20;font-size: 23;margin-top: 10;color:#999;" if="{{Default}}">当前地址已为默认地址</text>
-		<div style="position:fixed;bottom:50;left:120;flex-direction: row;justify-content: center;">
+		<div style="position:fixed;bottom:250;left:120;flex-direction: row;justify-content: center;">
 			<text onclick="save" class="btn">保存</text>
 		</div>
 
@@ -178,6 +178,28 @@ function getBaseUrl(dir,page){
     return "?page=./"+ root + '/' + subRoot + page;
 }
 
+// 本地存储
+var storage = "undefined"!== typeof window ? window.localStorage : require('@weex-module/storage');
+// 跳转
+var navigator = require('@weex-module/navigator');
+// 请求
+stream = require('@weex-module/stream');
+
+
+var apiUrl= "http://121.43.182.174:8080/";
+
+var modal = require('@weex-module/modal');
+function log(arg1){
+  modal.alert({
+    message: arg1,
+    okTitle: "OK"
+    }, function() {
+    // TODO after the alert is complete.
+  })
+}
+
+var storageObj = {};
+
 require('weex-components');
 module.exports = {
 	data: {
@@ -211,16 +233,37 @@ module.exports = {
       	view__list:[]
 	    },
         created:function(){
-	        stream=__weex_require__('@weex-module/stream');
 	        var that=this;
-	        this.ajaxGet("",{
-	          response:function(data){
-	            that.first__list = that.getList(data);
-	            that.view__list=that.first__list;
-	          }
-	        });
 
-          	this._getData();
+	        storage.getAllKeys(function(e){
+				var arr = e.data,
+				 	count = 0;
+				function over(ret){
+					storageObj = ret
+					next();
+				}
+
+				var values={};
+				arr.forEach(function(key){
+
+					storage.getItem(key,function(e){
+						values[key] = e.data;
+						count++;
+						if(count === arr.length){over(values);}
+					})
+				})
+			});
+
+
+	        function next(){
+		        that.ajaxGet("",{
+					response:function(data){
+						that.first__list = that.getList(data);
+						that.view__list=that.first__list;
+					}
+		        });
+	          	that._getData();
+	        }
 	     },
     methods: {
     	name_change:function(data){
@@ -255,7 +298,7 @@ module.exports = {
 		ajaxGet:function(areaCode,res){
           stream.fetch({
             method:"get",
-            url:"/area/list?areaCode="+areaCode,
+            url:apiUrl +"/area/list?areaCode="+areaCode,
             type:"json"
           },function(response){
            if(response.data.msg == "OK"){
@@ -295,14 +338,15 @@ module.exports = {
         _getData:function(){
     		var that=this,
     			address_id,
+    			memberToken,
     			stream=__weex_require__('@weex-module/stream');
 			//获取address_id
-        	if(window.localStorage){
-        		address_id=localStorage.getItem("AddressId");
-        	}
+
+        	address_id = storageObj.AddressId,
+        	memberToken=storageObj.memberToken;
     		stream.fetch({
         			method:"get",
-        			url:"address/get?memberToken=4834c3d2226e4a388f868401d75d4ecc&id="+address_id,
+        			url: apiUrl + "/address/get?memberToken="+memberToken + "&id=" + address_id,
         			type:"json"
         		},function(response){
     				 if(response.status == 200){
@@ -447,13 +491,15 @@ module.exports = {
         		var that=this,
             		address_id;
 
-	 			window.localStorage && (address_id=localStorage.getItem("AddressId"));
+
+	 			address_id = storageObj.AddressId;
+
 	        	var form=new FormData();
 	        	form.append("id",address_id);
 	        	//debugger;
 	        	stream.fetch({
 	        		method:"post",
-		            url:"/address/delete?memberToken=4834c3d2226e4a388f868401d75d4ecc",
+		            url: apiUrl + "/address/delete?memberToken=4834c3d2226e4a388f868401d75d4ecc",
 		            type:"json",
 		            body:form
 		          },function(response){
@@ -475,27 +521,41 @@ module.exports = {
         	},
         	//回到列表页
             backToList:function(){
-	        	require('@weex-module/event').openURL(this.jump(0));
+            	navigator.push(this.jump(0), function(){});
+	        	//require('@weex-module/event').openURL(this.jump(0));
 	        },
             //更新
             save:function(){
             	var that=this,
             		address_id;
-	 			window.localStorage && (address_id=localStorage.getItem("AddressId"));
-	        	var form=new FormData();
-	        	form.append("addressee",this.name);
-	        	form.append("mobile",this.mobile);
-	        	form.append("areaIdCombo",this.comboAreaId.join(","));
-	        	form.append("detail",this.detail);
-	        	form.append("isDefault",this.chkDefault);
-	        	form.append("type",2);
-	        	form.append("id",address_id);
+
+	 			address_id = storageObj.AddressId;
+
+	        	var form = {
+	        		addressee: this.name,
+	        		mobile: this.mobile,
+	        		areaIdCombo: this.comboAreaId.join(","),
+	        		detail: this.detail,
+	        		isDefault: this.default,
+	        		type: 2,
+	        		memberToken: storageObj.memberToken
+	        	}
+
+	        	function parmsto(obj){
+	        		var arr = [];
+	        		for(var item in obj){
+	        			arr.push(item + '=' +obj[item]);
+	        		}
+	        		
+	        		return arr.join('&');
+	        	}
+
+	        	var formParam = parmsto(form);
 	        	//debugger;
 	        	stream.fetch({
 	        		method:"post",
-		            url:"/address/update?memberToken=4834c3d2226e4a388f868401d75d4ecc",
-		            type:"json",
-		            body:form
+		            url: apiUrl + "/address/update?" + formParam,
+		            type:"json"
 		          },function(response){
 		           if(200===response.status){
 		                    //这里需要兼容web和Native，Native需要将传递的数据JSON化

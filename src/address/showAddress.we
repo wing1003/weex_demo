@@ -1,6 +1,6 @@
 <template>
 	<div style="background-color: #efefef;">
-	<list style="height:1100;">
+	<list style="height:900;">
 		<div repeat="{{address_list}}" style="height:210;flex-direction: row;background-color: #fff;margin-bottom: 20;">
 			<div style="width: 100;" class="choose">
 				<image style="width:45;height:45;" if="{{checked}}" src="./static/webApp/image/xz_icon@3x.png"></image>
@@ -18,7 +18,7 @@
 				<image style="width:45;height:45;" src="./static/webApp/image/bj_icon@3x.png" onclick="edit" id="edit_address" address_id="{{address_id}}"></image>
 			</div>
 		</div>
-		<div style="position: fixed;bottom:40;left:120;flex-direction: row;justify-content: center;">
+		<div style="position: fixed;bottom:240;left:120;flex-direction: row;justify-content: center;">
 			<text onclick="save" class="btn">添加地址</text>
 		</div>
 	</div>
@@ -75,6 +75,27 @@
     //return './index.html?page=./' + root + '/' + subRoot;
     return "?page=./"+ root + '/' + subRoot + page;
 }
+
+var modal = require('@weex-module/modal');
+function log(arg1){
+  modal.alert({
+    message: arg1,
+    okTitle: "OK"
+    }, function() {
+    // TODO after the alert is complete.
+  })
+}
+
+// 本地存储
+var storage = "undefined"!== typeof window ? window.localStorage : require('@weex-module/storage');
+// 跳转
+var navigator = require('@weex-module/navigator');
+
+
+var apiUrl= "http://121.43.182.174:8080/";
+var storageObj;
+
+
   module.exports = {
 
   	 data: {
@@ -91,7 +112,27 @@
 	      }]
 	    },
         created: function () {
-          this._getData();
+        	var that = this;
+
+        	storage.getAllKeys(function(e){
+        	  	var arr = e.data,
+        	    	count = 0;
+				function over(ret){
+					storageObj = ret;
+					that._getData();
+				}
+				var values={};
+				arr.forEach(function(key){
+					storage.getItem(key,function(e){
+						values[key] = e.data;
+						count++;
+						if(count === arr.length){
+							over(values);
+						}
+					});
+        	  	});
+        	});
+         
          
         },
         methods: {
@@ -100,7 +141,7 @@
         			stream=__weex_require__('@weex-module/stream');
         		stream.fetch({
         			method:"get",
-        			url:"address/list?memberToken=4834c3d2226e4a388f868401d75d4ecc",
+        			url: apiUrl + "address/list?memberToken="+ storageObj.memberToken,
         			type:"json"
         		},function(response){
     				 if(response.status == 200){
@@ -159,19 +200,32 @@
             //编辑
             edit:function(e){
             	var address_id=e.target.attr.address_id;
-            	if(window.localStorage){
-            		localStorage.setItem("AddressId",address_id);
-            		//localStorage.setItem("serialId",serial_id);
+
+            	storage.setItem('AddressId',address_id, function(){});
+
+            	var params = {
+            		url: this.jump(1),
+            		animated: 'true'
             	}
-            	require('@weex-module/event').openURL(this.jump(1));
+            	navigator.push(params, function(){});
             },
             //新增
             save:function(){
             	//require('@weex-module/event').openURL(this.jump(2));
-		__weex_require__('@weex-module/navigator').push(this.jump(2));
+            	var params = {
+            		url: this.jump(2),
+            		animated: 'true'
+            	}
+				require('@weex-module/navigator').push(params, function(){});
             },
             jump: function(index){
-		        return getBaseUrl(this.root,this.doc_name[index]);
+            	if(this.$getConfig().env.paltform === 'Web'){
+            		return baseUrl + getBaseUrl(this.root,this.doc_name[index]);
+            	}else{
+            		var baseUrl = 'http://192.168.1.31:12580/';
+            		return baseUrl + this.root +  '/' + this.doc_name[index];
+            	}
+		        
 		        //console.log(base + this.pages[page].name + '.js');
 	        } 
         }
