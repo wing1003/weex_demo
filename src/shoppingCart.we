@@ -1,21 +1,29 @@
 <!-- 收银台 -->
 <template>
-  <div class="total">
-    <div repeat="{{parentsList}}">
+<list style="height: {{dheight}}">
+<cell>
+  <div class="total" if="{{allIsShown}}">
+   
+    <div repeat="{{parentsList}}" if={{praIsShown}}>
       <div class="goods__title">
       <div class="goods__title-left">
-        <img class="parentsCkecked" onclick="praCheck($index)" src="static/webApp/image/checked{{ischecked}}.png"></img>
+        <!-- <img class="parentsCkecked" indexId="{{productIndex}}" onclick="praCheck($index)" src="{{baseUrl}}static/webApp/image/checked{{ischecked}}.png"></img> -->
+        <img class="parentsCkecked" indexId="{{productIndex}}" onclick="praCheck($index)" src="{{pngUrl}}static/webApp/image/checked{{ischecked}}.png"></img>
         <text class="title iconfont">{{goodsName}}&#xe631;</text>
       </div>
         <text class="order__type">{{orderType}}</text>
           <!-- <div class="iconfont">&#xe601;</div> -->
       </div>
-       <div repeat="{{sonList}}" class="goods__content" indexid="{{indexid}}" onclick="getRemove">
+       <div repeat="{{sonList}}" if={{isShown}}  track-by="indexid" class="goods__content" indexid="{{indexid}}" onclick="getRemove">
        <div id="{{indexid}}" style="flex-direction:row;">
        <div style="flex-direction:row;">
-          <img class="sonCkecked" src="static/webApp/image/checked{{ischecked}}.png" indexId="{{indexid}}" onclick="sonCheck"></img>
+          <img class="sonCkecked" src="{{pngUrl}}static/webApp/image/checked{{ischecked}}.png" indexId="{{indexid}}" onclick="sonCheck"></img>
+          <div style="position: relative">
+           <!-- onclick="goDetail" -->
           <img class="goods__iamge" src="{{goods__png}}"></img>
-          <div class="goods__right">
+          <img class="invild" if="{{!isvalid}}" src="{{pngUrl}}static/webApp/image/invalid.png"></img>
+          </div>
+          <div class="goods__right {{isLine}}">
             <div class="goods__detail">
               <text class="goods__tip">{{goodsDetail}}...</text>
               <div class="goods__price">
@@ -24,7 +32,7 @@
               </div>
             </div>
             <div class="goods__footer">
-              <text class="goods__size">颜色：{{color}}&nbsp;尺码：{{size}}</text>
+              <text class="goods__size">{{color}}&nbsp;{{size}}</text>
               <div class="number__choose">
                 <text onclick="minus" indexid="{{indexid}}" class="number__left">-</text>
                 <text class="number">{{number}}</text>
@@ -40,94 +48,262 @@
     </div>
     <div class="footer">
       <div class="footer__left">
-        <img class="all__check" onclick="all__check" src="static/webApp/image/checked{{ischecked}}.png"></img>
+        <!-- <img class="all__check"   onclick="all__check" src="{{pngUrl}}static/webApp/image/checked{{ischecked}}.png"></img> -->
+        <img class="all__check"   onclick="all__check" src="{{all__image}}"></img>
         <text class="all__text">全选</text>
       </div>
       <div class="footer__right">
         <div class="price">
-          <text class="footer__last-price">实际支付：&#165;0.00</text>
-          <text class="footer__pre-price">原价：&#165;0.00</text>
+          <text class="footer__last-price">实际支付：&#165;{{preTotalPrice}}</text>
+          <text class="footer__pre-price">原价：&#165;{{totalPrice}}</text>
         </div>
-        <text class="submit">去结算</text>
+        <text class="submit" onclick="praCheck">去结算</text>
+          <!-- <wxc-button type="primary" onclick="{{confirm}}" value="Confirm" style="margin-bottom: 20px;"></wxc-button> -->
       </div>
     </div>
   </div>
-
+  <div class="allIsNo" if="{{!allIsShown}}">
+    <text style="height: 20px;background-color: #efefef"></text>
+    <img class="no__contentpng" src="{{pngUrl}}static/webApp/image/noGoods.png"></img>
+    <text class="no__contenttext">还没有喜欢的宝贝？快去挑选~</text>
+  </div>
+  </cell>
+</list>
 </template>
 
 
 
 <script>
+function getBaseUrl(dir,page){
+  var dirs = dir.split('/');
+  dirs.forEach(function(dir, index) {
+    if (!dir) dirs.splice(index, 1);
+  });
+  var root = dirs.length > 0 ? dirs[0] : '';
+  var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
+
+  //return './index.html?page=./' + root + '/' + subRoot;
+  return "?page=./"+ root + '/' + subRoot + page;
+}
+
+
 module.exports = {
     data: {
-      ischecked:1,
-      parentsList:[{
-        goodsName:"无尾熊和熊",
-        orderType:"定制订单",
-        ischecked:1,   //1为选中，2为非选中
-        sonList:[{
-          goods__png:"static/webApp/image/goods.png",
-          goodsDetail:"无袖白色雪纺修身裙子韩版休闲舒适",
-          lastPrice:"299.00",
-          prePrice:"349.00",
-          left:-160,
-          color:"白",
-          size:"S",
-          number:1,
-          ischecked:1,
-          indexid:"0_0"
-        },{
-          goods__png:"static/webApp/image/goods.png",
-          goodsDetail:"无袖白色雪纺修身裙子韩版休闲舒适",
-          lastPrice:"299.00",
-          prePrice:"349.00",
-          left:-160,
-          color:"白",
-          size:"S",
-          number:1,
-          ischecked:1,
-          indexid:"0_1"
-        }]
-      },
-      {
-        goodsName:"无尾熊和熊",
-        orderType:"",
-        ischecked:1,   //1为选中，2为非选中
-        sonList:[{
-          goods__png:"static/webApp/image/goods.png",
-          goodsDetail:"无袖白色雪纺修身裙子韩版休闲舒适",
-          lastPrice:"299.00",
-          prePrice:"349.00",
-          left:-160,
-          color:"白",
-          size:"S",
-          number:1,
-          ischecked:1,
-          indexid:"1_0"
-        },{
-          goods__png:"static/webApp/image/goods.png",
-          goodsDetail:"无袖白色雪纺修身裙子韩版休闲舒适",
-          lastPrice:"299.00",
-          prePrice:"349.00",
-          left:-160,
-          color:"白",
-          size:"S",
-          number:1,
-          ischecked:1,
-          indexid:"1_1"
-        }]
-      }
+      pngUrl:'',
+      dheight:"",
+      all__image:"",
+      allIsShown:false,
+      root:"static/webApp/view",
+      detail_name:"detail/customDetail.js",
+      ischeckedall:1,
+      preTotalPrice:null,
+      totalPrice:null,
+      unvildGoods:[],
+      unvlidProduct:[],
+      parentsList:[
+      // {
+      //   goodsName:"无尾熊和熊",
+      //   orderType:"定制订单",
+      //   ischecked:1,   //1为选中，2为非选中
+      //   productIndex:0,
+      //   praIsShown:true,
+      //   goodsNum:2,
+      //   productIndex:0,
+      //   isvalid:1,
+      //   sonList:[{
+      //     goods__png:"static/webApp/image/goods.png",
+      //     goodsDetail:"无袖白色雪纺修身裙子韩版休闲舒适",
+      //     lastPrice:"299.00",
+      //     prePrice:"349.00",
+      //     left:-160,
+      //     color:"白",
+      //     size:"S",
+      //     number:1,
+      //     ischecked:1,
+      //     indexid:"0_0",
+      //     isShown:true,
+      //     isvalid:true
+      //   },{
+      //     goods__png:"static/webApp/image/goods.png",
+      //     goodsDetail:"无袖白色雪纺修身裙子韩版休闲舒适",
+      //     lastPrice:"299.00",
+      //     prePrice:"349.00",
+      //     left:-160,
+      //     color:"白",
+      //     size:"S",
+      //     number:1,
+      //     ischecked:1,
+      //     indexid:"0_1",
+      //     isShown:true,
+      //     isvalid:true
+      //   }]
+      // },
+      // {
+      //   goodsName:"无尾熊和熊",
+      //   orderType:"",
+      //   ischecked:1,   //1为选中，2为非选中
+      //   productIndex:0,
+      //   praIsShown:true,
+      //   goodsNum:2,
+      //   productIndex:0,
+      //   isvalid:1,
+      //   sonList:[{
+      //     goods__png:"static/webApp/image/goods.png",
+      //     goodsDetail:"无袖白色雪纺修身裙子韩版休闲舒适",
+      //     lastPrice:"299.00",
+      //     prePrice:"349.00",
+      //     left:-160,
+      //     color:"白",
+      //     size:"S",
+      //     number:1,
+      //     ischecked:1,
+      //     indexid:"1_0",
+      //     isShown:true,
+      //     isvalid:true
+      //   },{
+      //     goods__png:"static/webApp/image/goods.png",
+      //     goodsDetail:"无袖白色雪纺修身裙子韩版休闲舒适",
+      //     lastPrice:"299.00",
+      //     prePrice:"349.00",
+      //     left:-160,
+      //     color:"白",
+      //     size:"S",
+      //     number:1,
+      //     ischecked:1,
+      //     indexid:"1_1",
+      //     isShown:true,
+      //     isvalid:true
+      //   }]
+      // }
       ]
     },
-    ready:function(){
-          
+    created:function(){
+      var that=this;
+      if(this.$getConfig().env.platform==='iOS' || this.$getConfig().env.platform==='android'){
+            baseUrl = this.$getConfig().openUrl;
+            resourcePath = this.$getConfig().bundleUrl;
+            //that.pngUrl="http://192.168.1.38:8085/";
+            //pngUrl="http://192.168.1.38:8085/";
+            that.pngUrl=baseUrl;
+            pngUrl=baseUrl;
+            buyerId = this.$getConfig().buyerId;
+            that.dheight=this.$getConfig().deviceHeight;
+          }else{
+            var homeParams = params(window.location.search.split('?')[1]);
+            that.pngUrl=""
+            baseUrl = "/";
+            pngUrl="";
+            resourcePath = this.$getConfig().bundleUrl;
+            buyerId = homeParams.buyerId;
+            that.dheight=2000;
+          }
+
+          function params(str){
+              var arr = str.split('&'),
+                obj = {};
+
+              arr.forEach(function(item){
+                var sourArr = item.split('='),
+                  key = sourArr[0],
+                  value = sourArr[1];
+                if(!obj.hasOwnProperty(key)){
+                  obj[key] = value;
+                } 
+              })
+              return obj
+            }
+        that.all__image=pngUrl+"static/webApp/image/checked1.png"
+        stream=__weex_require__('@weex-module/stream');
+        var id=buyerId || 100;
+        stream.fetch({
+            method:"POST",
+            url:baseUrl+"v2/shopCart/findByBuyerId?buyerId="+id,
+            //body:"?buyerId=100",
+            type:"json"
+          },function(response){
+               if(200==response.status){
+                    //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                    var data = response.data;
+                    try{
+                      data = JSON.parse(response.data); 
+                    }catch(e){}
+                    var dateArr=[];
+
+                    if(data){
+                      if(data.data) that.allIsShown=true;
+                      data.data.forEach(function(obj1,index1){
+                        var sonList=[];
+                        var praisvalid=0;
+                        obj1.shopCarts.forEach(function(obj2,index2,data){
+                          console.log(obj2);
+                          if(obj2.specItemList.length>0){
+                            color="颜色："+obj2.specItemList[1].value;
+                            size="尺码："+obj2.specItemList[0].value;
+                          }else{
+                            color="";
+                            size="";
+                          }
+                          if(obj2.sku.originalPrice!=0&&obj2.sku.originalPrice!=obj2.sku.marketPrice){
+                            prePrice=obj2.sku.originalPrice.toFixed(2);
+                          }else{
+                            prePrice="";
+                          }
+                          if(obj2.product.status==30){
+                            that.unvildGoods.push(index1+"_"+index2);
+                          }
+                          praisvalid=praisvalid+(obj2.product.status==30?0:1);
+
+                          var isLine=(index2<data.length-1)?"goods__bottom":0;
+
+                          sonList.push({
+                            goods__png:"http://image.buoumall.com"+obj2.product.mainPic,
+                            goodsDetail:obj2.product.description,
+                            lastPrice:obj2.sku.marketPrice.toFixed(2),
+                            prePrice:prePrice,
+                            left:-160,
+                            color:color,
+                            size:size,
+                            number:obj2.num,
+                            ischecked:obj2.product.status==30?0:1,
+                            indexid:index1+"_"+index2,
+                            shopCartId:obj2.id,
+                            isShown:true,
+                            isvalid:obj2.product.status==30?false:true,
+                            isLine:isLine
+                          })
+                        })
+                        if(praisvalid==0){
+                          that.unvlidProduct.push(index1);
+                        }
+                        dateArr.push({
+                          goodsName:obj1.memberDetail.nickname,
+                          orderType:obj1.shopCarts[0].saleType==0?"定制订单":"",
+                          ischecked:praisvalid==0?0:1,   //1为选中，2为非选中
+                          sonList:sonList,
+                          praIsShown:true,
+                          goodsNum:sonList.length,
+                          productIndex:index1,
+                          isvalid:praisvalid==0?0:1
+                        });
+                      })
+                      console.log(dateArr);
+                      that.parentsList=dateArr;
+                      this.allIsShown=true;
+                      that.updatePrice();
+                    }                   
+                  }else{
+                      //TODO:错误处理
+                  }
+              },function(response){
+                   //TODO:错误处理
+          })
+    },
+    computed:{
+      all__image:function(){
+        return pngUrl+"static/webApp/image/checked"+this.ischeckedall+".png"
+      }
     },
     methods: {
-      plus:function(e){
-        var pindex=e.target.attr.indexid.split("_")[0];
-        var sindex=e.target.attr.indexid.split("_")[1];
-        this.parentsList[pindex].sonList[sindex].number++;
-      },
       getRemove:function(e){
         var that=this;
         var pindex=e.target.attr.indexid.split("_")[0];
@@ -145,40 +321,203 @@ module.exports = {
             that.parentsList[pindex].sonList[sindex].left=-160-that.parentsList[pindex].sonList[sindex].left;
           })
       },
+      plus:function(e){
+        console.log(e.target.attr.indexid);
+        var pindex=e.target.attr.indexid.split("_")[0];
+        var sindex=e.target.attr.indexid.split("_")[1];
+        this.parentsList[pindex].sonList[sindex].number++;
+        this.updateNum(this.parentsList[pindex].sonList[sindex].number,this.parentsList[pindex].sonList[sindex].shopCartId);
+      },
       minus:function(e){
         var pindex=e.target.attr.indexid.split("_")[0];
         var sindex=e.target.attr.indexid.split("_")[1];
         if(this.parentsList[pindex].sonList[sindex].number>1){
           this.parentsList[pindex].sonList[sindex].number--;
+          this.updateNum(this.parentsList[pindex].sonList[sindex].number,this.parentsList[pindex].sonList[sindex].shopCartId);
         }
+        
       },
       praCheck:function(index){
+        //this.confirm();
+        // /this.all__image=pngUrl+"static/webApp/image/checked0.png";
+        //this.ischeckedall=0;
+        //this.alert(this.ischecked);
+        //this.alert(1);
+        var that=this;
+        if(that.unvlidProduct.indexOf(index)>-1){
+          return;
+        }
         this.parentsList[index].ischecked=1-this.parentsList[index].ischecked;
         var ischecked=this.parentsList[index].ischecked;
-        this.parentsList[index].sonList.forEach(function(data,index){
+        this.parentsList[index].sonList.forEach(function(data,index2){
+          if(that.unvildGoods.indexOf(index+"_"+index2)>-1) return;
           data.ischecked=ischecked;
+          console.log(index+"_"+index2);
         })
+        var flagpra=1;
+        console.log(that.parentsList);
+        that.parentsList.forEach(function(data,index){
+          if(data.praIsShown==true&&data.isvalid==1){
+            flagpra=flagpra*that.parentsList[index].ischecked;
+          }
+        });
+        this.ischeckedall=flagpra;
+        this.updatePrice();
       },
-      sonCheck:function(e){  //子选择
+      confirm:function(e){
+        this.ischecked=0;
+        this.alert(2);
+      },
+      sonCheck:function(e){  
+        var that=this;
         var pindex=e.target.attr.indexid.split("_")[0];
         var sindex=e.target.attr.indexid.split("_")[1];
+        if(that.unvildGoods.indexOf(e.target.attr.indexid)>-1){
+          return;
+        }
         this.parentsList[pindex].sonList[sindex].ischecked=1-this.parentsList[pindex].sonList[sindex].ischecked;
         var ischecked=this.parentsList[pindex].sonList[sindex].ischecked;
         if(ischecked==0)  this.parentsList[pindex].ischecked=0;
+        //
+        var flagson=1;
+        that.parentsList[pindex].sonList.forEach(function(data,index){
+          if(data.isShown==true&&data.isvalid==true){
+            flagson=flagson*data.ischecked;
+          }
+        });
+        that.parentsList[pindex].ischecked=flagson;
+        //
+        var flagpra=1;
+        that.parentsList.forEach(function(data,index){
+          if(data.praIsShown==true&&data.isvalid==true){
+            flagpra=flagpra*data.ischecked;
+          }
+        });
+        that.ischeckedall=flagpra;
+        //
+        this.updatePrice();
+        //
       },
-      remove:function(e){
+      remove:function(e){   //删除
+        var that=this;
         var pindex=e.target.attr.indexid.split("_")[0];
         var sindex=e.target.attr.indexid.split("_")[1];
-        this.parentsList[pindex].sonList.splice(sindex,1);
+        //that.parentsList[pindex].sonList.splice(sindex,1);
+        that.parentsList[pindex].sonList[sindex].isShown=false;
+        that.parentsList[pindex].sonList[sindex].ischecked=0;
+        
+        //
+        //var form=new FormData();
+        //form.append("id",that.parentsList[pindex].sonList[sindex].shopCartId);
+        stream.fetch({
+            method:"POST",
+            url:"/v2/shopCart/deleteByBuyerIdAndSkuId?id="+that.parentsList[pindex].sonList[sindex].shopCartId,
+            body:form,
+            type:"json"
+          },function(response){
+               if(200===response.status){
+                    //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                    that.parentsList[pindex].goodsNum--;
+                    if(that.parentsList[pindex].goodsNum==0){
+                       that.parentsList[pindex].praIsShown=false;
+                    }
+                    that.updatePrice();                 
+                  }else{
+                      //TODO:错误处理
+                  }
+              },function(response){
+                   //TODO:错误处理
+          })
       },
       all__check:function(){      //全选
-        this.ischecked=1-this.ischecked;
-        for(var i=0;i<this.parentsList.length;i++){
-          this.parentsList[i].ischecked=this.ischecked;
-          for(var j=0;j<this.parentsList[i].sonList.length;j++){
-            this.parentsList[i].sonList[j].ischecked=this.ischecked;
-          }
-        }
+        this.ischeckedall=1-this.ischeckedall;
+        var that =this;
+        that.parentsList.forEach(function(data1,i){
+          if(data1.isvalid==0) return;
+          data1.ischecked=that.ischeckedall;
+          data1.sonList.forEach(function(data2,j){
+            if(data2.isvalid==0) return;
+            data2.ischecked=that.ischeckedall;
+          })
+        })
+        that.updatePrice();
+      },
+      updateNum:function(number,shopCartId){
+        var that=this;
+        var form="shopCartId="+shopCartId+"&num="+number;
+        console.log(form);
+        stream.fetch({
+            method:"POST",
+            url:baseUrl+"v2/shopCart/updateNum?"+form,
+            type:"json"
+          },function(response){
+               if(200==response.status){
+                    //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                    var data = response.data;
+                    try{
+                      data = JSON.parse(response.data); 
+                    }catch(e){}
+                    if(data){
+                      console.log(data);
+                      that.updatePrice();
+                    }                   
+                  }else{
+                      //TODO:错误处理
+                  }
+              },function(response){
+                   //TODO:错误处理
+          })
+      },
+      updatePrice:function(){
+        var that=this;
+        var shopCartIds="";
+        that.parentsList.forEach(function(data1,index1){
+          that.parentsList[index1].sonList.forEach(function(data2,index2){
+            if(that.parentsList[index1].sonList[index2].ischecked==1){
+              shopCartIds=shopCartIds+","+that.parentsList[index1].sonList[index2].shopCartId;
+            }
+          })
+        })
+        console.log(shopCartIds.substr(1,shopCartIds.length-1));
+        var form="shopCartIds="+shopCartIds.substr(1,shopCartIds.length-1);
+        stream.fetch({
+            method:"POST",
+            url:baseUrl+"v2/shopCart/calcTotalPrice?"+form,
+            type:"json"
+          },function(response){
+               if(200==response.status){
+                    //这里需要兼容web和Native，Native需要将传递的数据JSON化 
+                    var data = response.data;
+                    try{
+                      data = JSON.parse(response.data); 
+                    }catch(e){}
+                    if(data){
+                      console.log(data);
+                      that.totalPrice=data.data.totalPrice;
+                      that.preTotalPrice=data.data.payFeePrice;
+                    }          
+                  }else{
+                      //TODO:错误处理
+                  }
+              },function(response){
+                   //TODO:错误处理
+          })
+      },
+      jump: function(name){
+          return getBaseUrl(this.root,this[name+"_name"]);
+          //console.log(base + this.pages[page].name + '.js');
+      },
+      goDetail:function(){
+        require('@weex-module/event').openURL(this.jump("detail"));
+      },
+      alert:function(arg1){
+        var modal = require('@weex-module/modal');
+        modal.alert({
+        message: arg1,
+        okTitle: "OK"
+        }, function() {
+  // TODO after the alert is complete.
+        })
       }
     }
 }
@@ -247,7 +586,11 @@ module.exports = {
   flex-direction: column;
   margin-top: 34px;
   margin-left: 20px;
-  border-bottom: 1px solid #e0e0e0;
+}
+.goods__bottom{
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: #cdcdcd;
 }
 .goods__detail{
   flex-direction: row;
@@ -286,25 +629,34 @@ module.exports = {
   flex-direction: row;
   height: 60px;
   width: 200px;
-  border: 1px solid #cdcdcd;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #cdcdcd;
   border-radius: 6px;
   margin-top: 15px;
 }
 .number__left{
+  font-size: 28px;
   width: 58px;
   text-align: center;
   color: #999999;
   line-height: 58px;
 }
 .number{
+  font-size: 28px;
   width: 81px;
   text-align: center;
   color: #333333;
   line-height: 58px;
-  border-left: 1px solid #cdcdcd;
-  border-right: 1px solid #cdcdcd;
+  border-left-width: 1px;
+  border-left-style: solid;
+  border-left-color: #cdcdcd;
+  border-right-width: 1px;
+  border-right-style: solid;
+  border-right-color: #cdcdcd;
 }
 .number__right{
+  font-size: 28px;
   width: 58px;
   text-align: center;
   color: #999999;
@@ -326,6 +678,9 @@ module.exports = {
   background-color: #fff;
   flex-direction: row;
   justify-content: space-between;
+  position: fixed;
+  bottom: 0;
+  width: 750px;
 }
 .footer__left{
   flex-direction: row;
@@ -367,6 +722,29 @@ module.exports = {
   line-height: 120px;
   background-color: #e0e0e0;
   color: #fff;
+  font-size: 32px;
+}
+
+.invild{
+  position: absolute;
+  top: 20px;
+  width: 160px;
+  height: 30px;
+  margin-left: 38px;
+  margin-top: 140px;
+}
+.allIsNo{
+  flex-direction: column;
+}
+.no__contentpng{
+  height: 224px;
+  width: 327px;
+  margin-top: 200px;
+  margin-left: 210px;
+}
+.no__contenttext{
+  text-align: center;
+  margin-top: 200px;
   font-size: 32px;
 }
 </style>
