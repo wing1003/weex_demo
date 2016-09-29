@@ -1,0 +1,56 @@
+<template>
+	<div>
+		<div style="flex-direction: column;">
+	    	<buou-tabbar tab-items = {{tabItems}}></buou-tabbar>
+	    </div>
+		<div style="visibility: {{tabItems[0].visibility}}">
+		  <web style="width: 750px;height:{{devHeight}};" src="http://www.baidu.com"></web>
+		</div>
+		<div style="visibility: {{tabItems[1].visibility}}">
+			<text>222222222</text>
+		</div>
+	</div>
+</template>
+<script>
+	require('../buou-components/buou-tabbar.we');
+	var webview = require('@weex-module/webview');
+
+	module.exports = {
+    data: {
+    	  devHeight:0,
+	      tabItems: [
+	        {
+	          index: 0,
+	          title: '详情',
+	          titleColor: '#000000',
+	          visibility: 'visible'
+	        },
+	        {
+	          index: 1,
+	          title: '评论',
+	          titleColor: '#000000',
+	          visibility: 'hidden'
+	        }
+	      ],
+    },
+    methods: {
+      ready: function (e) {
+  	    var $getConfig=this.$getConfig();
+        this.devHeight=$getConfig.env.deviceHeight - 64;
+
+        var vm = this;
+        vm.$on('tabBar.onClick',function(e){
+          var index = e.detail.index;
+          	vm.tabItems.forEach(function(arr,_index){
+          		if(_index=index){
+          			vm.visibility=arr.visibility;
+          		}
+          	});
+        });
+      },
+    }
+};
+</script>
+<style>
+  
+</style>
