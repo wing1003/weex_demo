@@ -4,12 +4,12 @@
 <cell>
   <div class="total">
     
-     <div class="no__address" onclick="goAddress" if="{{is}}">
-       <text class="no__address--text">请填写收货地址</text>
+     <div class="no__address" onclick="goAddress" if="{{!has__address}}">
+       <text class="no__address--text">去添加收货地址</text>
        <text class="address__right">></text>
      </div>
      <!-- 收货地址 -->
-     <div class="address" onclick="goAddress">
+     <div class="address" if="{{has__address}}" onclick="goAddress">
        <div class="address__left">
          <div class="receipt">
            <text class="receipt__name">收件人：{{receipt__name}}</text>
@@ -134,6 +134,7 @@ module.exports = {
        image:"http://image.buoumall.com",
         root:"static/webApp/view",
         address_name:"address/showAddress.js",
+        addAddress_name:"address/addAddress.js",
         invoice_name:"invoice/invoice.js",
         pay_name:"pay/checkoutCounter.js",
         receipt__name:"",
@@ -263,6 +264,7 @@ module.exports = {
                response:function(data){
                  if(data){
                          var obj=data.data;
+                         that.alert(data);
                            if(obj){
 
                               that.addressid = obj.id;
@@ -346,8 +348,10 @@ module.exports = {
           this.remark__content=data.value;
         },
         goAddress:function(){
+          var that=this;
+          var jumpName = that.has__address?"address":"addAddress";
           var params = {
-            url: this.jump("address"),
+            url: this.jump(jumpName),
             animated: 'true'
           };
           navigator.push(params, function(){});
@@ -508,11 +512,11 @@ module.exports = {
 .no__address--text{
   color: #999999;
   font-size: 28px;
-  margin-left: 50px;
+  align-items: center;
 }
 .address__right{
-  margin-right: 20px;
   justify-content: center;
+  align-items: center;
 }
 .address{
   flex-direction: row;
