@@ -114,7 +114,6 @@ var navigator = require('@weex-module/navigator');
 // 请求
 var stream = require('@weex-module/stream');
  
-var apiUrl= "http://121.43.182.174:8080/";
 
 var modal = require('@weex-module/modal');
 function log(arg1){
@@ -132,7 +131,7 @@ var storageObj = {};
 module.exports = {
     data: {
       dheight:"",
-     image:"http://image.buoumall.com",
+       image:"http://image.buoumall.com",
         root:"static/webApp/view",
         address_name:"address/showAddress.js",
         invoice_name:"invoice/invoice.js",
@@ -157,22 +156,41 @@ module.exports = {
         remark__content:"",
         before__price:"0.00",
         addressid:'',
-        customItemId:''
+        customItemId:'',
+        orderNum:"",
+        invoiceTitle:""
     },
     created: function () {
       var that=this;
+       if(this.$getConfig().env.platform==='iOS' || this.$getConfig().env.platform==='android'){
+            //baseUrl = this.$getConfig().openUrl;
+            //resourcePath = this.$getConfig().bundleUrl;
+             //customId = this.$getConfig().customId;
+            //memberToken = this.$getConfig().memberToken;
+            that.dheight=this.$getConfig().env.deviceHeight - 64;
+          }else{
+            var homeParams = params(window.location.search.split('?')[1]);
 
+            openUrl = "/";
+            resourcePath = this.$getConfig().bundleUrl;
+            customId = homeParams.customId;
+            that.dheight=this.$getConfig().env.deviceHeight;
+          }
 
       storage.getAllKeys(function(e){
         var arr = e.data,
             count = 0;
-        function over(ret){
-          storageObj = ret
+            function over(ret){
+              storageObj = ret
+               
+              //that.alert(storageObj);
+               
 
 
-          next();
-        }
+              next();
+            }
         var values={};
+
         arr.forEach(function(key){
 
           storage.getItem(key,function(e){
@@ -180,24 +198,13 @@ module.exports = {
             count++;
             if(count === arr.length){over(values);}
           })
-        })
-      });
+        });
+      });  
 
 
-      if(this.$getConfig().env.platform==='iOS' || this.$getConfig().env.platform==='android'){
-            baseUrl = this.$getConfig().openUrl;
-            resourcePath = this.$getConfig().bundleUrl;
-            // customId = this.$getConfig().customId;
 
-            that.dheight=this.$getConfig().env.deviceHeight;
-          }else{
-            var homeParams = params(window.location.search.split('?')[1]);
 
-            baseUrl = "/";
-            resourcePath = this.$getConfig().bundleUrl;
-            customId = homeParams.customId;
-            that.dheight=this.$getConfig().env.deviceHeight;
-          }
+     
 
           function params(str){
               var arr = str.split('&'),
@@ -215,13 +222,14 @@ module.exports = {
             }
 
 
-        var that=this;
 
 
         function next(){
-          storageObj.memberToken="f38cdc3bc92042d59d5762958474d4d3";
-           that.fare=storageObj.delFee || "免运费";
-           that.customItemId=storageObj.customItemId || 224;
+          that.image=storageObj.imgUrl;
+          openUrl=storageObj.openUrl;
+          customId=storageObj.customId;
+           that.fare=(storageObj.delFee==0)?"免运费":storageObj.delFee;
+           that.customItemId=storageObj.customItemId;
            //获取规格
            speCombo = storageObj.speCombo.split("_");
 
@@ -273,13 +281,14 @@ module.exports = {
              })
            };
            //获取商品信息
-            that.ajaxGet("custom/getCustomDetails?customId=43",{
+            that.ajaxGet("custom/getCustomDetails?customId="+customId,{
              response:function(data){
                if(data){
                        var obj=data.data;
                        that.order__type=obj.customDetailBean.product.saleType==0?"定制商品":"";
                        that.goods__name=obj.customDetailBean.memberDetailBean.memberDetail.nickname;
                          that.goods__png=that.image+obj.customDetailBean.custom.mainPic;
+                         //that.alert(that.goods__png);
                          that.goods__tip=obj.customDetailBean.product.name;
                          that.price=obj.customDetailBean.custom.mostPrice.toFixed(2);
                          that.real__price=obj.customDetailBean.custom.leastPrice.toFixed(2);
@@ -309,7 +318,12 @@ module.exports = {
               that.invoice__type=Arr[invoiceObj.invoiceType];
             }else{
               invoiceObj={
-                invoiceType:0
+                invoiceType:0,
+                natureId:"",
+                title:"",
+                takerMobile:"",
+                takerEmail:"",
+                invoiceContent:""
               }
             }
             
@@ -319,6 +333,15 @@ module.exports = {
 
       },
       methods: {
+         alert:function(arg1){
+          var modal = require('@weex-module/modal');
+          modal.alert({
+          message: arg1,
+          okTitle: "OK"
+          }, function() {
+          // TODO after the alert is complete.
+          })
+        },
         remark:function(data){
           this.remark__content=data.value;
         },
@@ -344,8 +367,8 @@ module.exports = {
           }else{
             // return 'http://192.168.1.31:12580/static/webApp/view/' + this.doc_name;
             //baseUrl = 'http://192.168.1.31:12580';
-            baseUrl="http://192.168.1.38:8085"
-            return baseUrl + '/' + this.root + '/' + this[name+"_name"]; 
+            //baseUrl="http://192.168.1.38:8085"
+            return openUrl + '/' + this.root + '/' + this[name+"_name"]; 
           }
 
           // return getBaseUrl(this.root,this[name+"_name"]);
@@ -359,9 +382,15 @@ module.exports = {
             customItemId: this.customItemId,
             num: this.number,
             addressId: this.addressid,
-            invoiceType: invoiceObj.invoiceType
+            invoiceType: invoiceObj.invoiceType,
+            description:this.remark__content,
+            natureId:invoiceObj.natureId,
+            title:invoiceObj.title,
+            takerMobile:invoiceObj.takerMobile,
+            takerEmail:invoiceObj.takerEmail,
+            invoiceContent:invoiceObj.invoiceContent
           }
-
+          //that.alert(form);
           function parmsto(obj){
             var arr = [];
             for(var item in obj){
@@ -385,8 +414,7 @@ module.exports = {
           var invoiceType=this.invoice__type;
           stream.fetch({
             method:"POST",
-            // /url:apiUrl+"order/addOrder?"+formParam,
-            url:apiUrl+"order/addOrder?"+formParam,
+            url:openUrl+"order/addOrder?"+formParam,
             type:"json"
           },function(response){
 
@@ -396,13 +424,15 @@ module.exports = {
                 try{
                   data = JSON.parse(response.data); 
                 }catch(e){}
-                
-                var params = {
-                  url: that.jump("pay"),
-                  animated: 'true'
-                };
-                storage.setItem('orderId',data.orderId);
-                navigator.push(params, function(){});
+                that.orderNum=data.orderId;
+                //that.alert(data.orderId);
+                that.pay();
+                // var params = {
+                //   url: that.jump("pay"),
+                //   animated: 'true'
+                // };
+                // storage.setItem('orderId',data.orderId);
+                //navigator.push(params, function(){});
                  
                 // navigator.push(params, function(){});
 
@@ -414,14 +444,16 @@ module.exports = {
           });
         },
         ajaxGet:function(url,res){
+          var that=this;
           stream.fetch({
             method:"get",
-            url:apiUrl+url,
+            url:openUrl+url,
             type:"json"
           },function(response){
            if(response.data.msg == "OK"){
                     //这里需要兼容web和Native，Native需要将传递的数据JSON化
                     var data = response.data;
+                    
                     try{
                       data = JSON.parse(response.data); 
                     }catch(e){}
@@ -433,6 +465,30 @@ module.exports = {
               },function(response){
                   //TODO:错误处理
           });
+        },
+        pay:function(){
+          // var cost=this.total__price;
+          // var orderNum=this.orderNum;
+          // var takerName=this.receipt__name;
+          // var takerMobile=this.receipt__phone;
+          // var takerAddress=this.receipt__address;
+          // var invoiceTitle=this.invoiceTitle;
+          // var payWay="在线支付";
+          var payObj={
+            action: 'pay',
+            content: {
+              cost: this.total__price,
+              orderNum:this.orderNum,
+              takerName: this.receipt__name,
+              takerMobile: this.receipt__phone,
+              takerAddress:this.receipt__address,
+              invoiceTitle:this.invoiceTitle,
+              payWay:"在线支付"
+            }
+          }
+          var payStr=JSON.stringify(payObj);
+          this.alert(payStr);
+          this.$openURL(payStr);
         }
       }
 }

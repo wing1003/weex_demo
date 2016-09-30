@@ -184,6 +184,7 @@ module.exports = {
             resourcePath = this.$getConfig().bundleUrl;
             //that.pngUrl="http://192.168.1.38:8085/";
             //pngUrl="http://192.168.1.38:8085/";
+            imgUrl=this.$getConfig().imgUrl;
             that.pngUrl=baseUrl;
             pngUrl=baseUrl;
             buyerId = this.$getConfig().buyerId;
@@ -230,7 +231,11 @@ module.exports = {
                     var dateArr=[];
 
                     if(data){
-                      if(data.data) that.allIsShown=true;
+                      if(data.data.length>0){
+                        that.allIsShown=true;
+                      }else{
+                        return;
+                      } 
                       data.data.forEach(function(obj1,index1){
                         var sonList=[];
                         var praisvalid=0;
@@ -256,7 +261,7 @@ module.exports = {
                           var isLine=(index2<data.length-1)?"goods__bottom":0;
 
                           sonList.push({
-                            goods__png:"http://image.buoumall.com"+obj2.product.mainPic,
+                            goods__png:imgUrl+obj2.product.mainPic,
                             goodsDetail:obj2.product.description,
                             lastPrice:obj2.sku.marketPrice.toFixed(2),
                             prePrice:prePrice,
@@ -288,7 +293,7 @@ module.exports = {
                       })
                       console.log(dateArr);
                       that.parentsList=dateArr;
-                      this.allIsShown=true;
+                      that.allIsShown=true;
                       that.updatePrice();
                     }                   
                   }else{
