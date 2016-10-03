@@ -1,9 +1,8 @@
 <template>
-<list style="height:{{devHeight}};" loadmoreoffset={{pageNo}}>
-  <cell>
-    <div class="total">
-       <!-- 帖子发起者 -->
-       <div class="head__detail">
+<div>
+  
+   <div>
+    <div class="head__detail">
         <img class="head__png" src="{{avatarImg}}"></img>
         <div style="margin-left:20px;">
           <div style="flex-direction:row">
@@ -15,14 +14,23 @@
             <text class="focus">发起 | {{sponsor__num}}</text>
           </div>
         </div> 
-       </div>
+   </div>
+      <web style="width: 750px;10000px;" src="{{jumpPostSrc}}"></web>
+   </div>
+   <div>
+     
+     <list style="height:{{devHeight}};" loadmoreoffset={{pageNo}}>
+  <cell>
+    <div class="total">
+       <!-- 帖子发起者 -->
+      
       
        <text class="trend__text">{{content}}</text>
        <!-- 帖子图片内容 -->
-       <div  repeat="{{imageList}}">
-         <img class="trend__img" src="{{image}}"></img>
-       </div>
-       <div style="height: 20px;background-color:#fafafa;margin-top:10px;"></div>
+       
+      
+
+       <div style="height: 20px;background-color:#efefef;margin-top:10px;"></div>
        <!-- 点赞者 -->
        <div id="liker" class="liker"  ontouchstart="test()">
          <div class="liker__num">
@@ -32,7 +40,7 @@
          <img class="liker__head" repeat="{{likers}}" src="{{likerImg}}"></img>
          <div style="width: 20px;"></div>
        </div>
-       <div style="height: 20px;background-color:#fafafa;margin-top:10px;"></div>
+       <div style="height: 20px;background-color:#efefef;margin-top:10px;"></div>
        <!-- 评论 -->
        <text class="talk__number">评论 {{talk__number}}</text>
        <div style="padding-bottom: 30px;border-bottom: 1px solid #efeff0" repeat="{{talks__repeat}}" if="{{shown}}">
@@ -65,11 +73,15 @@
       <loading-indicator style="color:#445566;"></loading-indicator>
   </loading>
 </list>
+   </div>
+
+</div>
 </template>
 
 
 
 <script>
+var postId;
 module.exports = {
     data: {
       devHeight:0,
@@ -82,14 +94,15 @@ module.exports = {
       head:"",
       content:"",
       like__number:0,
-      talk__number:20,
+      talk__number:0,
       shown:false,
       tempImage:[],
       imageList:[],
       likers:[],
       talks__repeat:[],
       loading_display:"show",
-      hasNext:true
+      hasNext:true,
+      postId: ""
     },
     methods: {
       loading:function(e){
@@ -110,128 +123,132 @@ module.exports = {
           }, function() {
           // TODO after the alert is complete.
           })
-        },
-        _getData:function(){
-            var that=this;
-            stream = __weex_require__('@weex-module/stream');
-               var $getConfig=this.$getConfig();
-            this.devHeight=$getConfig.env.deviceHeight;
+      },
+      _getData:function(){
+          var that=this;
+          stream = __weex_require__('@weex-module/stream');
+             var $getConfig=this.$getConfig();
+          this.devHeight=$getConfig.env.deviceHeight - 1200;
 
-            if($getConfig.env.platform==='iOS' || $getConfig.env.platform==='android'){
-               openUrl = $getConfig.openUrl;
+          if($getConfig.env.platform==='iOS'){
+             openUrl = $getConfig.openUrl;
+             memberToken = $getConfig.memberToken;
+             postId=this.postId = $getConfig.postId;
+             imgUrl=$getConfig.imgUrl;
+          }else if($getConfig.env.platform==='android'){
+              openUrl = $getConfig.openUrl;
                memberToken = $getConfig.memberToken;
-               postId = $getConfig.postId;
+               postId=this.postId = $getConfig.postId;
                imgUrl=$getConfig.imgUrl;
-            }else{
+          }
 
-            }
-            //this.alert(postId);
-            //memberToken="44a33235788b4165bde0ea2d5cceda28";
-              //postId="4847532735769554";
-              
-              stream.fetch({
-                method:"POST",
-                url:openUrl+"/v2/post/detail?memberToken="+memberToken+"&postId="+postId,
-                type:"json"
-              },function(response){
+          //this.alert(postId);
+          //memberToken="44a33235788b4165bde0ea2d5cceda28";
+            //postId="4847532735769554";
+            
+            stream.fetch({
+              method:"POST",
+              url:openUrl+"/v2/post/detail?memberToken="+memberToken+"&postId="+postId,
+              type:"json"
+            },function(response){
 
-               if(response.status == 200){
-                        //这里需要兼容web和Native，Native需要将传递的数据JSON化
-                        var data = response.data;
-                        try{
-                          data = JSON.parse(response.data); 
+             if(response.status == 200){
+                      //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                      var data = response.data;
+                      try{
+                        data = JSON.parse(response.data); 
 
-                        }catch(e){}                 
-                        if(data){
-                          var obj = data.data;
-                              mood=obj,
-                              author=mood.author;
-                          that.avatarImg=imgUrl + author.avatar;
-                          that.name=author.nickname;
-                          that.focus__num=author.followNum,
-                          that.fans__num=author.fansNum,
-                          that.sponsor__num=author.sponsorNum;
-                          that.content=mood.content;
-                          //that.opearte(mood.content);
-                          that.like__number=mood.likeNum;
-                          that.talk__number=mood.commentNum;
-                          if(0!==mood.commentNum){
-                               that.shown=true;
-                          }
-                          var imgArr=[];
-                          mood.imgList && mood.imgList.forEach(function(value){
-                            var url={
-                              image:imgUrl+value+"@300w"
-                            };
-                            imgArr.push(url);
-                            //that.tempImage=imgArr;
-                          });
-                          var flag=0;
-                          var timer=setInterval(function(){
-                              if(flag<imgArr.length){
-                                 //that.imageList.push(imgArr[flag]);
-                                that.imageList.push(imgArr[flag]);
-                                //that.alert(that.imageList[flag]);
-                              }else{
-                              }
-                              flag++;
-
-                          },500);
-
-                        }else{
-                         //TODO:
+                      }catch(e){}                 
+                      if(data){
+                        var obj = data.data;
+                            mood=obj;
+                            author=mood.author;
+                        that.avatarImg=imgUrl + author.avatar;
+                        that.name=author.nickname;
+                        that.focus__num=author.followNum,
+                        that.fans__num=author.fansNum,
+                        that.sponsor__num=author.sponsorNum;
+                        //that.content=mood.content;
+                        //that.opearte(mood.content);
+                        that.like__number=mood.likeNum;
+                        that.talk__number=mood.commentNum;
+                        if(0!==mood.commentNum){
+                             that.shown=true;
                         }
+                        var imgArr=[];
+                        mood.imgList && mood.imgList.forEach(function(value){
+                          var url={
+                            image:imgUrl+value+"@300w"
+                          };
+                          imgArr.push(url);
+                          //that.tempImage=imgArr;
+                        });
+                        var flag=0;
+                        var timer=setInterval(function(){
+                            if(flag<imgArr.length){
+                               //that.imageList.push(imgArr[flag]);
+                              that.imageList.push(imgArr[flag]);
+                              //that.alert(that.imageList[flag]);
+                            }else{
+                            }
+                            flag++;
+
+                        },500);
+
                       }else{
-                          //TODO:错误处理
-                          //console.log('--response:--', response);
+                       //TODO:
                       }
-                  },function(err){
-                      //console.log('---err---', err);
-                      //TODO:错误处理
-              });
-              //获取点赞
-              stream.fetch({
-                method:"POST",
-                url:openUrl+"/v2/post/manOfLike?postId="+postId+"&pageNo=0",
-                //url:"/v2/post/detail?postId="+postId+"&memberToken=03efaa75d858414a8ac676baae3e2bd9",
-                //url:$url+"/v2/post/detail?postId="+postId+"&memberToken=75752510eb7241658b9d1e529f18de33",
-                type:"json"
-              },function(response){
-               if(response.status == 200){
-                        //这里需要兼容web和Native，Native需要将传递的数据JSON化
-                        var data = response.data;
-                        try{
-                          data = JSON.parse(response.data); 
+                    }else{
+                        //TODO:错误处理
+                        //console.log('--response:--', response);
+                    }
+                },function(err){
+                    //console.log('---err---', err);
+                    //TODO:错误处理
+            });
+            //获取点赞
+            stream.fetch({
+              method:"POST",
+              url:openUrl+"/v2/post/manOfLike?postId="+postId+"&pageNo=1",
+              //url:"/v2/post/detail?postId="+postId+"&memberToken=03efaa75d858414a8ac676baae3e2bd9",
+              //url:$url+"/v2/post/detail?postId="+postId+"&memberToken=75752510eb7241658b9d1e529f18de33",
+              type:"json"
+            },function(response){
+             if(response.status == 200){
+                      //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                      var data = response.data;
+                      try{
+                        data = JSON.parse(response.data); 
 
-                        }catch(e){}
-                                                          
-                        if(data){
-                          var obj = data.data,
-                               imgArr=[];
-                          obj.list && obj.list.forEach(function(value){
-                             var url={
-                              likerImg:imgUrl + value.avatar
-                            };
-                            imgArr.push(url);
-                            that.likers=imgArr;
-                          });
+                      }catch(e){}
+                                                        
+                      if(data){
+                        var obj = data.data,
+                             imgArr=[];
+                        obj.list && obj.list.forEach(function(value){
+                           var url={
+                            likerImg:imgUrl + value.avatar
+                          };
+                          imgArr.push(url);
+                          that.likers=imgArr;
+                        });
 
-                        }else{
-                         //TODO:
-                        }
                       }else{
-                          //TODO:错误处理
-                          //console.log('--response:--', response);
+                       //TODO:
                       }
-                  },function(err){
-                      //console.log('---err---', err);
-                      //TODO:错误处理
-              });
+                    }else{
+                        //TODO:错误处理
+                        //console.log('--response:--', response);
+                    }
+                },function(err){
+                    //console.log('---err---', err);
+                    //TODO:错误处理
+            });
 
-              that.getcommentList();
-              
-              
-          },
+            that.getcommentList();
+            
+            
+      },
       test:function(evt){
         //console.log(evt.target);
  
@@ -439,6 +456,11 @@ module.exports = {
                             //that.detailInfo=detailInfo;
        }
     },
+    computed:{
+      jumpPostSrc: function(){
+        return "http://app.buoumall.com/post/postContainer?postId="+this.postId;
+      }
+    },
     created:function(){
         this._getData();
     }
@@ -476,7 +498,7 @@ module.exports = {
   margin-left: 18px;
 }
 .name{
-  font-size: 26px;
+  font-size: 28px;
   line-height: 40px;
   color: #666666;
 }
