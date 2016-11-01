@@ -5,26 +5,28 @@
   	    <buou-tabbar tab-items = {{tabItems}}></buou-tabbar>
   	</div>
   	<div style="height: 88"></div>
-  	<div style="display: {{tabItems[0].display}}; height: {{contentHeight}}">
-  		<div class="sure">
+  	<div style="height: {{contentHeight}}" if="{{tabItems[0].display}}">
+  		<div class="sure" onclick="toOrder(0)">
   			<buou-button type="sure" size="large" value="确定"></buou-button>
   		</div>
   	</div>
 
-  	<div style="display: {{tabItems[1].display}}; height: {{contentHeight}}; padding-top: 20px">
+  	<div style=" height: {{contentHeight}}; padding-top: 20px"  if="{{tabItems[1].display}}">
   		<buou-panel class="margBottom" type="white" border="1px" font-size="28"
 			title="发票抬头"
 
   			>
-  			<div class="invoiceHead invoiceHead-pad" style="flex-direction: row;">
-  				<div repeat="{{selectHead}}">
-  					<text class="iconfont gray">{{icon}}{{text}}</text>
+  			<div class="invoiceHead invoiceHead-pad row">
+  				<div repeat="{{selectHead}}"  class="marR140 row" onclick="selectHeadType($index)">
+  					<text class="iconfont {{icon==='select'?'show':'hide'}} red marR15 font42">&#xe61f;</text>
+  					<text class="iconfont {{icon==='select'?'hide':'show'}} gray marR15 font42">&#xe620;</text>
+  					<text class="font28">{{text}}</text>
   				</div>
   			</div>
   			<input
   				class="invoiceTitle"
 			    type="url"
-			    autofocus="true"
+			    oninput="nameChange"
 			    placeholder="请填写名称"
 			    value=""
 			    style="placeholder-color: #666666; height: 90;">
@@ -35,18 +37,25 @@
 			title="收票人信息"
 
   			>
-  			<div class="receive receive-padb" style="flex-direction: row; border-bottom-width: 1; border-color: #cccccc">
-  				<text>*</text>
+  			<div class="receive receive-padb row" style="border-bottom-width: 1; border-color: #cccccc">
+  				<text class="red">*</text>
   				<text class="fSizeM gray" style="width: 200;">收票人手机</text>
-  				<text class="fSizeM">{{mobile}}</text>
+  				<input
+	  				class="mail"
+				    type="tel"
+				    oninput="phoneChange"
+				    placeholder="请填写手机号"
+				    value="{{mobile}}"
+				    style="placeholder-color: #666666; font-size: 28; padding-top: 4">
+				</input>
 			</div>
 			<div class="receive receive-padt" style="flex-direction: row;">
   				<text class="fSizeM gray" style="width: 200; padding-left: 14;">收票人邮箱</text>
   				<input
 	  				class="mail"
 				    type="url"
-				    autofocus="true"
-				    placeholder="请填写名称"
+				    oninput="mailboxChange"
+				    placeholder="用来接受电子发票邮箱,可选填"
 				    value=""
 				    style="placeholder-color: #666666; font-size: 28; padding-top: 4">
 				</input>
@@ -57,30 +66,34 @@
 			title="发票内容"
 
   			>
-			<div class="invoiceCont invoiceCont-pad" repeat="{{selectHead}}">
-				<text class="{{icon}}"></text><text class="iconfont fSizeM">{{text}}</text>
+			<div class="invoiceCont invoiceCont-pad row" repeat="{{selectCont}}" onclick="selectContent($index)">
+				<text class="iconfont {{icon==='select'?'show':'hide'}} red marR15 font42">&#xe61f;</text>
+				<text class="iconfont {{icon==='select'?'hide':'show'}} gray marR15 font42">&#xe620;</text>
+				<text class="font28">{{text}}</text>
 			</div>
   		</buou-panel>
 
-  		<div class="sure">
-  			<buou-button type="sure" size="large" value="确定"></buou-button>
+  		<div class="sure" onclick="jump(1)">
+  			<buou-button type="sure" size="large" value="确定" onclick="toOrder(1)"></buou-button>
   		</div>
   	</div>
 
-  	<div style="display: {{tabItems[2].display}}; height: {{contentHeight}}">
+  	<div style="height: {{contentHeight}}"  if="{{tabItems[2].display}}">
   		<buou-panel class="margBottom" type="white" border="1px" font-size="28"
 			title="发票抬头"
 
   			>
   			<div class="invoiceHead invoiceHead-pad" style="flex-direction: row;">
-  				<div repeat="{{selectHead}}">
-  					<text class="iconfont fSizeM">{{icon}}{{text}}</text>
+  				<div repeat="{{selectHead}}"  class="marR140 row" onclick="selectHeadType($index)">
+  					<text class="iconfont {{icon==='select'?'show':'hide'}} red marR15 font42">&#xe61f;</text>
+  					<text class="iconfont {{icon==='select'?'hide':'show'}} gray marR15 font42">&#xe620;</text>
+  					<text class="font28">{{text}}</text>
   				</div>
   			</div>
   			<input
-  				class="invoiceTitle"
+  				class="invoiceTitle input"
 			    type="url"
-			    autofocus="true"
+			    oninput="nameChange"
 			    placeholder="请填写名称"
 			    value=""
 			    style="placeholder-color: #cccccc; height: 90;">
@@ -92,12 +105,12 @@
 
   			>
 			<div class="invoiceCont invoiceCont-pad" repeat="{{selectHead}}">
-				<text class="iconfont fSizeM">{{icon}}{{text}}</text>
+				<text class="icon icon-active"></text><text class="iconfont fSizeM">{{text}}</text>
 			</div>
   		</buou-panel>
 
-  		<div class="sure">
-  			<buou-button type="sure" size="large" value="确定"></buou-button>
+  		<div class="sure" onclick="jump(2)">
+  			<buou-button type="sure" size="large" value="确定" onclick="toOrder(2)"></buou-button>
   		</div>
   	</div>
 
@@ -106,9 +119,236 @@
 
 </template>
 
+
+
+<script>
+
+	require('weex-components');
+	require('../components/buou-tabbar.we');
+	require('../components/buou-button.we');
+	require('../components/buou-panel.we');
+                    
+
+	function getBase(dir){
+	  var dirs = dir.split('/');
+	  dirs.forEach(function(dir, index) {
+	    if (!dir) dirs.splice(index, 1);
+	  });
+	  
+	  var root = dirs.length > 0 ? dirs[0] : '';
+	  var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
+
+	  return './index.html?page=./' + root + '/' + subRoot;
+	}
+
+
+	// 本地存储
+	var storage = "undefined"!== typeof window ? window.localStorage : require('@weex-module/storage');
+	// 跳转
+	var navigator = require('@weex-module/navigator');
+	// 请求
+	var stream = require('@weex-module/stream');
+	 
+	var apiUrl= "http://121.43.182.174:8080/";
+
+	var modal = require('@weex-module/modal');
+	function log(arg1){
+	  modal.alert({
+	    message: arg1,
+	    okTitle: "OK"
+	    }, function() {
+	    // TODO after the alert is complete.
+	  })
+	}
+
+	var storageObj = {};
+
+module.exports = {
+	data: {
+	    root: 'static/webApp/view',
+	    page: {
+	      order: 'order/order.js'
+	    },
+	    imageDomain: '../images',
+	    pageImage: 'customDetails.jpg',
+	    ctHeight: 800,
+	    contentHeight: 800,
+	    tabItems: [
+	        {
+	          index: 0,
+	          display: true,
+	          title: '不开发票',
+	          titleColor: '#000000',
+	          // selectedImage: '',
+	          // visibility: 'visible',
+	        },
+	        {
+	          index: 1,
+	          display: false,
+	          title: '电子发票',
+	          titleColor: '#000000',
+	          // selectedImage: '...',
+	          // visibility: 'hidden',
+	        },
+	        {
+	          index: 2,
+	          display: false,
+	          title: '普通发票(纸质)',
+	          titleColor: '#000000',
+	          // selectedImage: '...',
+	          // visibility: 'hidden',
+	        }
+	    ],
+		invoiceType: 0, 	// 0:不开发票;1:电子发票;2:纸质发票
+		selectHead: [{
+			icon: 'select',
+			text: '个人'
+		},{
+			icon: 'unselect',
+			text: '单位'
+		}],
+		selectCont: [{
+			icon: 'select',
+			text: '明细'
+		},{
+			icon: 'unselect',
+			text: '服饰'
+		}],
+		headType:0,    //发票抬头：个人 0/单位 1
+		name:"",
+		mobile: "1111111111",
+		mailbox:"",
+		note:0,   //发票内容：明细 0/服饰1
+
+		enableClick: true	// 防止按钮重复快速点击
+
+	},
+
+	created: function() {
+		this.ctHeight = this.$getConfig().env.deviceHeight;
+		this.contentHeight = this.ctHeight-88;
+
+		this.$on('tabBar.onClick', function(e){
+			var detail = e.detail;
+			this.invoiceType = detail.index;
+			
+			for (var i=0; i < this.tabItems.length; i++) {
+				if(detail.index == i){
+					this.tabItems[i].display = true;
+				}else{
+					this.tabItems[i].display = false;
+				}
+				log(this.tabItems[i].display);
+			}
+
+		})
+
+		// this.$on('button.onClick', function(e){
+			
+		// });
+
+	},
+	computed: {
+	},
+	methods: {
+		jump: function(){
+			if(this.$getConfig().env.platform==='Web'){
+			  
+				return  getBaseUrl(this.root,this.root + this.page.order);
+			}else{
+				baseUrl = 'http://192.168.1.31:12580';
+				return baseUrl + '/' + this.root+ '/' + this.page.order; 
+			}
+
+		},
+	    toOrder: function(e){
+	    	if(!this.enableClick)return false;
+	    	this.enableClick = false;
+	    	this.invoiceType = e;
+	    	if(this.invoiceType===0){
+	    		this.mobile = "";
+	    		this.mailbox = "";
+	    		this.headType = "";
+	    		this.note = "";
+	    	}else if(this.invoiceType===1){
+	    		if(this.name===""){
+		    		modal.toast({'message': '请填写名称', 'duration': 1});
+		    		this.enableClick = true;
+		    		return false;		    			
+	    		}
+
+	    		if(this.mobile===""){
+	    			
+		    		modal.toast({'message': '请填写手机号', 'duration': 1});
+		    		this.enableClick = true;
+		    		return false;		    			
+	    		}
+
+	    		if(this.mailbox===""){
+		    		modal.toast({'message': '请填写手邮箱', 'duration': 1});
+		    		this.enableClick = true;
+		    		return false;		    			
+	    		}
+	    	}else if(this.invoiceType===2){
+	    		if(this.name===""){
+		    		modal.toast({'message': '请填写名称', 'duration': 1});
+		    		this.enableClick = true;
+		    		return false;		    			
+	    		}
+	    	}
+
+
+			var toStorage={
+				invoiceType:this.invoiceType,
+				name:this.name,
+				mobile:this.mobile,
+				mailbox:this.mailbox,
+				headType:this.headType,
+				note:this.note
+			};
+			
+			// console.log(JSON.stringify(storageObj));
+			storage.setItem("invoiceObj",JSON.stringify(toStorage));
+
+			this.enableClick = true;
+
+			var navigator = require('@weex-module/navigator');
+			var params = {
+			    'url': this.jump(),
+			    'animated' : 'true'
+			}
+			navigator.push(params, function(){});
+
+	    },
+	    nameChange:function(data){
+	    	this.name = data.value;
+	    },
+	    phoneChange:function(data){
+	    	this.mobile = data.value;
+	    },
+	    mailboxChange:function(data){
+	    	this.mailbox = data.value;
+	    },
+	    selectHeadType: function(index){
+	    	this.headType = index;
+	    	this.selectHead.forEach(function(item){
+	    		item.icon=item.$index===index?'select':'unselect';
+	    	})
+	    },
+	    selectContent: function(index){
+	    	this.note = index;
+	    	this.selectCont.forEach(function(item){
+	    		item.icon=item.$index===index?'select':'unselect';
+	    	})
+	    }
+	  }
+	}
+</script>
+
 <style>
 	.wrapper{
 		background: #eee;
+		flex-direction: column;
 		position: relative;
 		height: 100%;
 		font-family: Microsoft Yahei,Arial, "Helvetica Neue", Helvetica, sans-serif;
@@ -156,7 +396,7 @@
 	}
 
 	.invoiceCont-pad{
-		justify-content: flex-end;
+		justify-content: flex-start;
 	}
 
 	.mail{
@@ -164,22 +404,46 @@
 		font-size: 32;
 	}
 
+/*= margin =*/
 	.margBottom{
 		margin-bottom: 20;
 	}
-
-	.iconfont{
-		font-family: 'iconfont';
+	
+	.marR140{
+		margin-right: 140;
 	}
 
+	.marR15{
+		margin-right: 15;
+	}
+
+/*= fontsize =*/
+	.font28{
+		font-size: 28;
+	}
+
+	.font42{
+		font-size: 42;
+	}
 	.fSizeM{
 		font-size: 28;
 	}
 
+	input::-webkit-input-placeholder{
+		color: #d9d9d9;
+		color: red;
+		font-family: Microsoft Yahei;
+	}
+
+/*= iconfont =*/
+	.iconfont{
+		font-family: 'buou-iconfont';
+	}
+
+/*= color =*/
 	.red{
 		color: #ff404b;
 	}
-
 	.gray{
 		color: #999999;
 	}
@@ -187,123 +451,18 @@
 		color: #cccccc;
 	}
 
-	@font-face{
-		font-family: "iconfont";
-		src: "url('//at.alicdn.com/t/font_1473300269_5417576.ttf')";
+/*= flex =*/
+	.row{
+		flex-direction: row;
+		align-items: center;
 	}
+
+/*= display =*/
+/*	.show{
+		display: block;
+	}
+	.hide{
+		display: none;
+	}*/
 
 </style>
-
-<script>
-
-	require('weex-components');
-	require('./components/buou-tabbar.we');
-	require('./components/buou-button.we');
-	require('./components/buou-panel.we');
-
-
-	function getBase(dir){
-	  var dirs = dir.split('/');
-	  dirs.forEach(function(dir, index) {
-	    if (!dir) dirs.splice(index, 1);
-	  });
-	  
-	  var root = dirs.length > 0 ? dirs[0] : '';
-	  var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
-
-	  return './index.html?page=./' + root + '/' + subRoot;
-	}
-
-	module.exports = {
-	  data: {
-	    root: 'dist',
-	    pages: {
-	      page1: {name:'page1'}
-	    },
-	    imageDomain: '../images',
-	    pageImage: 'customDetails.jpg',
-	    ctHeight: 800,
-	    contentHeight: 800,
-	    tabItems: [
-	        {
-	          index: 0,
-	          display: 'block',
-	          title: '不开发票',
-	          titleColor: '#000000',
-	          // selectedImage: '',
-	          visibility: 'visible',
-	        },
-	        {
-	          index: 1,
-	          display: 'none',
-	          title: '电子发票',
-	          titleColor: '#000000',
-	          // selectedImage: '...',
-	          visibility: 'hidden',
-	        },
-	        {
-	          index: 2,
-	          display: 'none',
-	          title: '普通发票',
-	          titleColor: '#000000',
-	          // selectedImage: '...',
-	          visibility: 'hidden',
-	        }
-	      ],
-	    invoiceType: 1,
-	    selectHead: [{
-	    	icon: '&#xe61f;',
-	    	text: '个人'
-	    },{
-	    	icon: '&#xe620;',
-	    	text: '单位'
-	    }],
-	    mobile: 1585665622323
-
-
-	  },
-	  created: function() {
-	  	this.ctHeight = this.$getConfig().env.deviceHeight;
-	  	this.contentHeight = this.ctHeight-88;
-
-	  	this.$on('tabBar.onClick', function(e){
-	  		var detail = e.detail;
-	  		this.invoiceType = detail.index;
-
-	  		for (var i=0; i < this.tabItems.length; i++) {
-	  			if(detail.index == i){
-	  				this.tabItems[i].display = 'block';
-	  			}else{
-	  				this.tabItems[i].display = 'none';
-	  			}
-	  		}
-
-	  	})
-
-
-	  	// iconfont
-	  	var domModule = require('@weex-module/dom');
-	  	      //目前支持ttf、woff文件，不支持svg、eot类型
-	  	      // domModule.addRule('font-face', {
-	  	      //   'font-family': "iconfont_0.0.0",
-	  	      //   'src' : "url('//at.alicdn.com/t/font_1473300269_5417576.ttf')"
-	  	      // });
-	  },
-	  computed: {
-	  	fullcontent: {
-	  		get: function(){
-	  			// 
-	  		},
-	  		set: function(v){
-	  			// 
-	  		}
-	  	}
-	  },
-	  methods: {
-	    jump: function(page){
-	      var base = getBase(this.root);
-	      console.log(base + this.pages[page].name + '.js');
-	    }
-	  }
-	}
-</script>

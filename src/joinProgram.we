@@ -134,6 +134,9 @@
 	}
 
 
+	// 本地存储
+	var storage = "undefined"!== typeof window ? window.localStorage : require('@weex-module/storage');
+
 
 
 	module.exports ={
@@ -185,22 +188,26 @@
 		methods: {
 			_getData: function(){
 				var that = this;
+
         		stream.fetch({
         			method:"get",
         			url:baseUrl + "/custom/supportCustom?customId="+ customId,
         			type:"json"
         		},function(response){
+ 
+        			
 					if(response.status == 200){
 						//这里需要兼容web和Native，Native需要将传递的数据JSON化
 						var data = response.data;
 						try{
 							data = JSON.parse(response.data); 
 						}catch(e){}
-					                                
+					    
+
 						if(data){
 							var dataList=[];
 							that.specBean = [];
-							
+						
 							data.data.customItemAppList.forEach(function(value, index, array){
 								dataList.push({
 									pay:array[index].price,
@@ -208,15 +215,20 @@
 									pngsrc:that.image+data.data.productMainPic,
 									content:array[index].description
 								});
+								
 
 								// 存储颜色规格数据
 								that.specBean[index] = {};
-								that.specBean[index].list = value.list
-								that.specBean[index].price = value.price
+								that.specBean[index].delFee = value.deliveryFee;
+								that.specBean[index].customItemId = value.customItemId;
+								that.specBean[index].list = value.list;
+								that.specBean[index].price = value.price;
+
 								
 							})
 							that.content__list=dataList;
 							
+							log(JSON.stringify(that.specBean) );
 
 							
 						}else{
@@ -236,12 +248,17 @@
 
             	var spotEl = this.$el('spot'),
             		that = this;
-            	
+
             	// this.spotPrice = that.specBean[index].
-            	console.log(that.specBean[index])
+            	
+            	
+            	
+            	that.delFee = that.specBean[index].delFee;
+            	that.customItemId = that.specBean[index].customItemId;
+
             	animation.transition(spotEl, {
             		styles: {
-            			bottom: 0
+            			transform: 'translateY(-1000px)'
             		},
             		duration: 500, //ms
             		timingFunction: 'ease',
@@ -287,6 +304,7 @@
             		})
             		that.colors = dataColors;
             		that.currentColorId = that.colors[0].comboId || '';
+            		that.currentColor = that.colors[0].value || '';
 
             		// 加载尺寸列表
             		that.setSizeData();
@@ -299,7 +317,7 @@
             	var spotEl = this.$el('spot');
             	animation.transition(spotEl, {
             		styles: {
-            			bottom: -800
+            			transform: 'translateY(0px)'
             		},
             		duration: 500, //ms
             		timingFunction: 'ease',
@@ -313,7 +331,8 @@
             		return  getBaseUrl(this.root,this.doc_name);
             	}else{
             		// return 'http://192.168.1.31:12580/static/webApp/view/' + this.doc_name;
-            		return baseUrl+ this.root + this.doc_name; 
+            		baseUrl = 'http://192.168.1.31:12580'
+            		return baseUrl + '/' + this.root + '/' + this.doc_name; 
             	}	        
 	        },
 
@@ -347,8 +366,12 @@
 				sizeEl.slected();
 	        },
 	        setStorage: function(){
-	            // storage.setItem('speCombo', this.speCombId);
+	            storage.setItem('speComboId', this.speCombId,function(){});
+	            storage.setItem('speCombo', this.speText,function(){});
+				storage.setItem('delFee', this.delFee,function(){});
+				storage.setItem('customItemId', this.customItemId,function(){});
 
+	            // log(this.jump());
 	            navigator.push({
 	            	url: this.jump(),
 	            	animated: 'true' 
@@ -361,11 +384,17 @@
 
 			// **************************************************************************************************************
 			// 取native数据
+			var that = this;
 			if(this.$getConfig().env.platform==='iOS' || this.$getConfig().env.platform==='android'){
 				// baseUrl = this.$getConfig().openUrl;
-				baseUrl = 'http://192.168.1.31:12580'
+				baseUrl = 'http://121.43.182.174:8080'
+				// baseUrl = 'http://192.168.1.31:12580'
 				resourcePath = this.$getConfig().bundleUrl;
-				customId = this.$getConfig().customId;
+				// customId = this.$getConfig().customId;
+				storage.getItem('customId', function(e){
+					customId = e.data;
+					that._getData();
+				});
 			}else{
 				var homeParams = params(window.location.search.split('?')[1]);
 				var reg = /(.+)\/index(.*)/;
@@ -405,7 +434,7 @@
 				this.$dispatch('tabBar.onClick', params);
 			});
 
-			this._getData();
+			if(this.$getConfig().env.platform==='Web')this._getData();
 
 			var vm = this;
 			vm.$on('singleselectbtn.onClick', function(e){	
@@ -502,7 +531,8 @@
 		position: fixed;
 		width: 750;
 		height: 800;
-		bottom: -800;
+		left: 0;
+		bottom: -800px;
 	}
 
 	.spec__head{
@@ -510,7 +540,7 @@
 		flex-direction: row;
 		justify-content: flex-end;
 		background: #000;
-		opacity: .5;
+		/*opacity: .5;*/
 	}
 
 	.spec__btnClose{

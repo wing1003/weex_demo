@@ -1,3 +1,637 @@
+<<<<<<< HEAD
+<!-- 确认订单 -->
+<template>
+<list style="height: {{dheight}}">
+<cell>
+  <div class="total">
+    
+     <div class="no__address" onclick="goAddress" if="{{is}}">
+       <text class="no__address--text">请填写收货地址</text>
+       <text class="address__right">></text>
+     </div>
+     <!-- 收货地址 -->
+     <div class="address" onclick="goAddress">
+       <div class="address__left">
+         <div class="receipt">
+           <text class="receipt__name">收件人：{{receipt__name}}</text>
+           <text class="receipt__phone">{{receipt__phone}}</text>
+           <text class="isDefault" if={{isDefault}}>默认</text>
+         </div>
+         <text class="address__content">收货地址：{{receipt__address}}</text>
+       </div>
+       <text class="address__right">></text>
+     </div>
+     <div style="height: 20px;background-color: #efefef;"></div>
+     <!-- 订单详情 -->
+     <div class="goods__head">
+       <text class="goods__name">{{goods__name}} ></text>
+       <text class="order__type">{{order__type}}</text>
+     </div>
+     <div class="goods__content">
+       <div class="goods__left">
+         <img class="goods__png" src="{{goods__png}}"></img>
+         <div class="goods__detail">
+           <text class="goods__tip">
+           {{goods__tip}}...</text>
+           <text class="goods__spec">颜色：{{goods__color}}&nbsp;尺码：{{goods__size}}</text>
+         </div>
+       </div>
+       <div class="goods__right">
+         <text class="real__price">&#165;{{real__price}}</text>
+         <text class="price">{{price}}</text>
+         <text class="num">×{{number}}</text>
+       </div>
+     </div>
+     <div style="height: 20px;background-color:#efefef;"></div>
+     <!-- 运费 -->
+     <div class="fare">
+       <text class="left">运费</text>
+       <text class="right">{{fare}}</text>
+     </div>
+     <!-- 发票信息 -->
+     <div class="invoice">
+       <text class="left">发票信息</text>
+       <text class="right" onclick="goInvoice">{{invoice__type}}></text>
+     </div>
+     <!-- 价格合计 -->
+     <div class="total__price">
+       <text class="left">价格合计</text>
+       <text class="right">&#165;{{total__price}}</text>
+     </div>
+     <!-- 备注 -->
+     <div class="note">
+       <text class="left">填写备注：</text>
+       <input class="note__content" type="text" oninput="remark" placeholder="请填写备注~" value="{{remark__content}}"></input>
+     </div>
+     <div style="height: 20px;background-color:#efefef;"></div>
+     <div class="points">
+       <text class="points__head">风险提示</text>
+       <text class="points__text">请您务必审慎阅读、充分理解协议中相关条款内容，其中包括：</text>
+       <text class="points__text">1.风险提示条款和特别提示条款；</text>
+       <text class="points__text">2.与您约定法律适用和管辖的条款；</text>
+       <text class="points__text">3.其他以粗体标识的重要条款。</text>
+       <text class="points__text">如您不同意相关协议、公告、规则、操作流程和项目页面承诺，您有权选择不支持，一旦选择支持，即视为您已确只并完全同意相关协议。</text>
+     </div>
+     <div class="agreenment">
+       <text class="agreenment__text1">提交订单代表您已同意</text>
+       <text class="agreenment__text2">《布偶猫商品定制协议》</text>
+     </div>
+     <!-- 订单支付 -->
+     <div class="foot">
+       <div class="foot__left">
+         <text class="foot__price">实际支付：&#165;{{total__price}}</text>
+         <text class="foot__original">原价：&#165;{{before__price}}</text>
+       </div>
+       <text class="submit" onclick="submit">提交订单</text>
+     </div>
+     
+  </div>
+   </cell>
+  </list>
+</template>
+
+
+
+<script>
+
+function getBaseUrl(dir,page){
+  var dirs = dir.split('/');
+  dirs.forEach(function(dir, index) {
+    if (!dir) dirs.splice(index, 1);
+  });
+  var root = dirs.length > 0 ? dirs[0] : '';
+  var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
+
+  //return './index.html?page=./' + root + '/' + subRoot;
+  return "?page=./"+ root + '/' + subRoot + page;
+}
+
+// 本地存储
+var storage = "undefined"!== typeof window ? window.localStorage : require('@weex-module/storage');
+// 跳转
+var navigator = require('@weex-module/navigator');
+// 请求
+var stream = require('@weex-module/stream');
+ 
+var apiUrl= "http://121.43.182.174:8080/";
+
+var modal = require('@weex-module/modal');
+function log(arg1){
+  modal.alert({
+    message: arg1,
+    okTitle: "OK"
+    }, function() {
+    // TODO after the alert is complete.
+  })
+}
+
+var storageObj = {};
+
+
+module.exports = {
+    data: {
+      dheight:"",
+     image:"http://image.buoumall.com",
+        root:"static/webApp/view",
+        address_name:"address/showAddress.js",
+        invoice_name:"invoice/invoice.js",
+        pay_name:"pay/checkoutCounter.js",
+        receipt__name:"panda",
+        receipt__phone:"13628670643",
+        isDefault:true,
+        has__address:false,
+        receipt__address:"",
+        order__type:"定制订单",
+        goods__name:"DOUBLEMINT",
+        goods__png:"",
+        goods__tip:"简约纯棉黑色球心瘦上衣纯色T恤",
+        goods__color:"白",
+        goods__size:"S",
+        real__price:"159.00",
+        price:"225.00",
+        number:"1",
+        invoice__type:"默认(不开发票)",
+        fare:"免运费",
+        total__price:"318.00",
+        remark__content:"",
+        before__price:"450.00"
+    },
+    created: function () {
+      var that=this;
+
+
+      storage.getAllKeys(function(e){
+        var arr = e.data,
+            count = 0;
+        function over(ret){
+          storageObj = ret
+          next();
+        }
+        var values={};
+        arr.forEach(function(key){
+
+          storage.getItem(key,function(e){
+            values[key] = e.data;
+            count++;
+            if(count === arr.length){over(values);}
+          })
+        })
+
+      });
+
+
+      if(this.$getConfig().env.platform==='iOS' || this.$getConfig().env.platform==='android'){
+            baseUrl = this.$getConfig().openUrl;
+            resourcePath = this.$getConfig().bundleUrl;
+            // customId = this.$getConfig().customId;
+
+            that.dheight=this.$getConfig().env.deviceHeight;
+          }else{
+            var homeParams = params(window.location.search.split('?')[1]);
+
+            baseUrl = "/";
+            resourcePath = this.$getConfig().bundleUrl;
+            customId = homeParams.customId;
+            that.dheight=this.$getConfig().env.deviceHeight;
+          }
+
+          function params(str){
+              var arr = str.split('&'),
+                obj = {};
+
+              arr.forEach(function(item){
+                var sourArr = item.split('='),
+                  key = sourArr[0],
+                  value = sourArr[1];
+                if(!obj.hasOwnProperty(key)){
+                  obj[key] = value;
+                } 
+              })
+              return obj
+            }
+
+
+        var that=this;
+
+
+        function next(){
+           that.fare=storageObj.delFee || "免运费";
+           customItemId=storageObj.customItemId || 224;
+
+           //获取规格
+           speCombo = storageObj.speCombo.split("_");
+
+           that.goods__color=speCombo[0];
+           that.goods__size=speCombo[1];
+           
+
+           //获取地址
+           addressid = storageObj.addressid;
+           if(addressid){
+             that.ajaxGet("address/list?memberToken="+storageObj.memberToken,{
+               response:function(data){
+                 if(data){
+                         data.data.forEach(function(obj , index) {
+                                  if(data.id=addressid){
+                                  that.has__address=true;
+               
+                                that.receipt__name=obj.addressee;
+                                that.receipt__phone=obj.mobile;
+                                that.receipt__address=obj.proviceName+obj.cityName+obj.countyName+obj.detail;
+                                  }
+                         });
+                         }else{
+                          //TODO:
+                         }
+               }
+             })
+           }else{
+             that.ajaxGet("address/getDefault?memberToken="+storageObj.memberToken,{
+               response:function(data){
+                 if(data){
+                         var obj=data.data;
+                           if(obj){
+                              that.has__address=true;
+                              that.receipt__name=obj.addressee;
+                              that.receipt__phone=obj.mobile;
+                              that.receipt__address=obj.areaCombo.province.placeZh+obj.areaCombo.city.placeZh+obj.areaCombo.county.placeZh+obj.detail;
+                              
+                            }else{
+                              that.has__address=false;
+                            }
+                         }else{
+                          //TODO:
+                         }
+               }
+             })
+           };
+           //获取商品信息
+            that.ajaxGet("custom/getCustomDetails?customId=43",{
+             response:function(data){
+               if(data){
+                       var obj=data.data;
+                       that.order__type=obj.customDetailBean.product.saleType==0?"定制商品":"";
+                       that.goods__name=obj.customDetailBean.memberDetailBean.memberDetail.nickname;
+                         that.goods__png=that.image+obj.customDetailBean.custom.mainPic;
+                         //console.log(that.goods__png);
+                         that.goods__tip=obj.customDetailBean.product.name;
+                         that.price=obj.customDetailBean.custom.mostPrice.toFixed(2);
+                         that.real__price=obj.customDetailBean.custom.leastPrice.toFixed(2);
+                         that.before__price=(that.price*that.number+(that.fare | 0)).toFixed(2);
+                       }else{
+                        //TODO:
+                       }
+             }
+           })
+           //计算价格
+           that.ajaxGet("order/calculatePrice?memberToken="+storageObj.memberToken+"&customItemId="+customItemId+"&num=1",{
+             response:function(data){
+               if(data){
+                       var obj=data.data;
+                         that.total__price=obj.toFixed(2);
+                       }else{ 
+                        //TODO:
+                       }
+             }
+           });
+           //获取发票信息
+            var invoiceStr = storageObj.invoiceObj;
+            if(invoiceStr){
+              invoiceObj=JSON.parse(invoiceStr);
+              // console.log(invoiceObj.invoiceType, "------------");
+              var Arr=["默认(不开发票)","电子发票","普通发票(纸质)"];
+              that.invoice__type=Arr[invoiceObj.invoiceType];
+            }
+            
+                
+        }
+
+
+      },
+      methods: {
+        remark:function(data){
+          this.remark__content=data.value;
+        },
+        goAddress:function(){
+          var params = {
+            url: this.jump("address"),
+            animated: 'true'
+          };
+          navigator.push(params, function(){});
+        },
+        goInvoice:function(){
+            var params = {
+              url: this.jump("invoice"),
+              animated: 'true'
+            };
+            navigator.push(params, function(){});
+        },
+        jump: function(name){
+
+          if(this.$getConfig().env.platform==='Web'){
+            
+            return  getBaseUrl(this.root,this[name+"_name"]);
+          }else{
+            // return 'http://192.168.1.31:12580/static/webApp/view/' + this.doc_name;
+            baseUrl = 'http://192.168.1.31:12580';
+            return baseUrl + '/' + this.root + '/' + this[name+"_name"]; 
+          }
+
+          // return getBaseUrl(this.root,this[name+"_name"]);
+          //console.log(base + this.pages[page].name + '.js');
+        },
+        submit:function(){
+          //specoptionIdCombo=storage.getItem("speComboId");    规格
+          //customItemId=customItemId;    商品id
+          //addressId=addressid;    地址id
+          //invoiceType=    开票类型
+          //specoptionIdCombo=storage.getItem("speComboId");    规格
+
+          
+          stream.fetch({
+            method:"POST",
+            url:apiUrl+"order/addOrder",
+            type:"json"
+          },function(response){
+           if(response.data.msg == "OK"){
+                //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                var data = response.data.data;
+                try{
+                  data = JSON.parse(response.data); 
+                }catch(e){}
+
+
+                storage.setItem('orderId',data.orderIds)
+                navigator.push(this.jump("pay"), function(){});
+
+              }else{
+                  //TODO:错误处理
+              }
+            },function(response){
+                //TODO:错误处理
+          });
+        },
+        ajaxGet:function(url,res){
+          stream.fetch({
+            method:"get",
+            url:apiUrl+url,
+            type:"json"
+          },function(response){
+            //log(JSON.stringify(response));
+           if(response.data.msg == "OK"){
+                    //这里需要兼容web和Native，Native需要将传递的数据JSON化
+                    var data = response.data;
+                    try{
+                      data = JSON.parse(response.data); 
+                    }catch(e){}
+                    res.response(data);                    
+                    
+                  }else{
+                      //TODO:错误处理
+                  }
+              },function(response){
+                  //TODO:错误处理
+          });
+        }
+      }
+}
+</script>
+
+
+<style>
+.total{
+  flex-direction: column;
+}
+.no__address{
+   height: 110px;
+   justify-content: space-between;
+   flex-direction: row;
+   line-height: 110px;
+}
+.no__address--text{
+  color: #999999;
+  font-size: 28px;
+  margin-left: 50px;
+}
+.address__right{
+  margin-right: 20px;
+  justify-content: center;
+}
+.address{
+  flex-direction: row;
+  justify-content: space-between;
+}
+.address__left{
+  width: 634px;
+  margin-left: 20px;
+  margin-top: 34px;
+}
+.receipt{
+  flex-direction: row;
+  margin-bottom: 18px;
+}
+.receipt__name{
+  font-size: 28px;
+  color: #333333;
+  line-height: 36px;
+  margin-right: 80px;
+}
+.receipt__phone{
+  font-size: 28px;
+  margin-right: 20px;
+  line-height: 36px;
+}
+.isDefault{
+  font-size: 24px;
+  background-color: #f15d31;
+  color: #ffffff;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 5px;
+  width: 90px;
+  text-align: center;
+}
+.address__content{
+   line-height: 46px;
+   font-size: 28px;
+   color: #999999;
+   margin-bottom: 30px;
+
+}
+.goods__head{
+  flex-direction: row;
+  justify-content: space-between;
+  height: 90px;
+  color: #333333;
+  background-color: #f8f8f8;
+}
+.goods__name{
+   font-size: 28px;
+   line-height: 90px;
+   margin-left: 70px;
+}
+.order__type{
+   font-size: 28px;
+   line-height: 90px;
+   margin-right: 20px;
+
+}
+.goods__content{
+  flex-direction: row;
+  height: 220px;
+  justify-content: space-between;
+}
+.goods__left{
+  flex-direction: row;
+  margin-top: 30px;
+  margin-left: 20px;
+}
+.goods__png{
+  width: 160px;
+  height: 160px;
+}
+.goods__detail{
+   margin-left: 20px;
+   flex-direction: column;
+   width: 310px;
+}
+.goods__tip{
+  font-size: 28px;
+  color: #333333;
+  line-height: 42px;
+}
+.goods__spec{
+  font-size: 24px;
+  color: #999999;
+  margin-top: 12px;
+}
+.goods__right{
+  margin-right: 20px;
+}
+.real__price{
+  font-size: 28px;
+  color: #ff404b;
+  margin-top: 32px;
+  flex-direction:row;
+  justify-content:flex-end;
+}
+.price{
+  font-size: 24px;
+  color: #999;
+  text-decoration:line-through;
+  margin-top: 10px;
+  flex-direction:row;
+  justify-content:flex-end;
+}
+.num{
+   font-size: 28px;
+   color: #999;
+   margin-top: 40px;
+   flex-direction:row;
+  justify-content:flex-end;
+}
+.fare{
+  height: 110px;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid #e0e0e0;
+}
+.invoice{
+  height: 110px;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid #e0e0e0;
+}
+.total__price{
+  height: 110px;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid #e0e0e0;
+}
+.left{
+   font-size: 28px;
+   color: #333333;
+   line-height: 110px;
+   margin-left: 20px;
+}
+.right{
+   font-size: 28px;
+   color: #999999;
+   line-height: 110px;
+   margin-right: 20px;
+}
+.note{
+  flex-direction: row;
+}
+.note__content{
+  height: 110px;
+  outline: none;
+  font-size: 28px;
+}
+.points{
+  margin-top: 30px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 30px;
+}
+.points__head{
+  font-size: 28px;
+  color: #333333;
+}
+.points__text{
+  font-size: 24px;
+  color: #999999;
+  line-height: 44px;
+}
+.agreenment{
+  height: 150px;
+  background-color: #efefef;
+  padding-left: 20px;
+  padding-top: 20px;
+  flex-direction: row;
+}
+.agreenment__text1{
+  color: #999999;
+  font-size: 28px;
+}
+.agreenment__text2{
+  color: #1ea8e6;
+  font-size: 28px;
+}
+.foot{
+   flex-direction: row;
+   justify-content: flex-end;
+   height: 120px;
+}
+.foot__left{
+    margin-right: 40px;
+}
+.foot__price{
+  flex-direction: row;
+  justify-content: flex-end;
+  font-size: 28px;
+  margin-top: 30px;
+  color: #333333;
+}
+.foot__original{
+   flex-direction: row;
+  justify-content: flex-end;
+  font-size: 24px;
+  text-decoration:line-through;
+  margin-top: 0px;
+  color: #999999;
+}
+.submit{
+   width: 300px;
+   font-size: 32px;
+   line-height: 120px;
+   background-color: #ff555f;
+   color: #ffffff;
+   text-align: center;
+}
+</style>
+
+=======
 <!-- 确认订单 -->
 <template>
 <list style="height: {{dheight}}">
@@ -746,3 +1380,4 @@ module.exports = {
   }
 </style>
 
+>>>>>>> refs/remotes/origin/master

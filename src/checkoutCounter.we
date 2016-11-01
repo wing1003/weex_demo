@@ -33,11 +33,81 @@
 
 
 <script>
+
+  // stream
+  var stream = require('@weex-module/stream');
+  // 本地存储
+  var storage = "undefined"!== typeof window ? window.localStorage : require('@weex-module/storage');
+
+  var baseUrl,    // 根域名
+      resoucePath,  // 图片资源根路径
+      customId; // 定制id
+
+  function getBaseUrl(dir,page){
+    var dirs = dir.split('/');
+    dirs.forEach(function(dir, index) {
+      if (!dir) dirs.splice(index, 1);
+    });
+    var root = dirs.length > 0 ? dirs[0] : '';
+    var subRoot = dirs.length > 1 ? dirs.slice(1).join('/') + '/' : '';
+
+    //return './index.html?page=./' + root + '/' + subRoot;
+    return "?page=./"+ root + '/' + subRoot + page;
+  }
+
+  function log(arg1){
+    var modal = require('@weex-module/modal');
+    modal.alert({
+      message: arg1,
+      okTitle: "OK"
+      }, function() {
+      // TODO after the alert is complete.
+    })
+  }
+
+
 module.exports = {
     data: {
       pay1:2,
       pay2:1,
-      payindex:null
+      payindex: 1
+    },
+    created: function(){
+      // **************************************************************************************************************
+      // 取native数据
+      if(this.$getConfig().env.platform==='iOS' || this.$getConfig().env.platform==='android'){
+        // baseUrl = this.$getConfig().openUrl;
+        baseUrl = 'http://192.168.1.31:12580';
+        resourcePath = this.$getConfig().bundleUrl;
+        customId = this.$getConfig().customId;
+      }else{
+        var homeParams = params(window.location.search.split('?')[1]);
+        var reg = /(.+)\/index(.*)/;
+        baseUrl = window.location.href.replace(reg,'$1');
+        resourcePath = this.$getConfig().bundleUrl;
+        customId = homeParams.customId;
+      }
+
+      function params(str){
+        var arr = str.split('&'),
+          obj = {};
+
+        arr.forEach(function(item){
+          var sourArr = item.split('='),
+            key = sourArr[0],
+            value = sourArr[1];
+          if(!obj.hasOwnProperty(key)){
+            obj[key] = value;
+          } 
+        })
+        return obj;
+      }
+      // 兼容三方配置
+      // baseUrl: ios:'0.0.0.1:8080/static/webApp/view' ; web:'127.0.0.1:8080/index?page=./static/webApp/view'
+      // *************************************************************************************************************
+
+
+
     },
     methods: {
       check:function(index){
@@ -51,7 +121,37 @@ module.exports = {
         }
       },
       pay:function(){
-        alert(this.payindex);
+
+        var POST_URL = baseUrl + "/apiPay/getpayInfo";
+        var POST_data = {
+          orderId: storage.getItem('orderId'),
+          payWay: this.payindex
+        }
+
+        stream.fetch({
+          method:"POST",
+          url: POST_URL,
+          body:JSON.stringify(POST_data)
+        },function(response){
+          if(response.status == 200){
+            console.log(response);
+            //这里需要兼容web和Native，Native需要将传递的数据JSON化
+            var data = response.data;
+            try{
+              data = JSON.parse(response.data); 
+            }catch(e){}
+            
+
+
+          }else{
+              //TODO:错误处理
+              //console.log('--response:-- ', response);
+          }
+        },
+        function(err){
+          //console.log('---err---', err);
+          //TODO:错误处理
+        });
       }
     }
 }
