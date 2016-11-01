@@ -1,21 +1,21 @@
 <template>
 <div>
-	<list class="list" style="height:1334;">
-		<cell style="background-color: #ccc;">
+	<list class="list" style="height:{{devHeight}};" loadmore="onappear">
+		<cell style="background-color: #efeff0;" >
 			<div class="summary">
 				<div>
 					<image class="customImg" src="{{mainPic}}"></image>
 				</div>
 				<div style="flex-direction: row;justify-content: center;font-weight:bold;margin-top:30;">
 					<text class="title">[定制]</text>
-					<text>{{name}}</text>
+					<text style="line-height: 28px;font-size: 28px;">{{name}}</text>
 				</div>
-				<div style="height:80;">
+				<div style="height:110;">
 					<text class="info">{{description}}</text>
 				</div>
 				<div class="price">
 					<text class="sale">{{cut}}</text>	
-					<text style="font-size:32;line-height: 27;padding-right:27;font-weight: bold;color:#ff555f;">&yen;{{leastPrice}}</text>
+					<text style="font-size:32;line-height: 32;padding-right:27;font-weight: bold;color:#ff555f;">&yen;{{leastPrice}}</text>
 					<text style="font-size:20;color:#ccc;text-decoration: line-through;">原价:&yen;{{orignPrice}}</text>
 				</div>
 				<div style="flex-direction: row;justify-content: center;margin-top: 20;">
@@ -30,12 +30,12 @@
 				</div>
 				<div style="flex-direction: row;justify-content: center;margin-top: 64;margin-bottom: 20;">
 					<text style="font-size:20;color:#ccc;">销量{{totalSell}}</text>
-					<text style="font-size:20;color:#ccc;width:203;text-align: center;border-width: 1;border-left-style: solid;border-right-style: solid;border-top-style:none;border-bottom-style:none;margin-left: 45;margin-right: 45;border-color: #ccc; ">收藏量{{likeNum}}</text>
+					<text class="like">收藏量{{likeNum}}</text>
 					<text style="font-size:20;color:#ccc;">包邮</text>
 				</div>
 			</div>
 
-			<div class="detail" style="flex-direction: column;">
+			<div class="detail" style="flex-direction: row;">
 		     	<img class="head__png" src="{{avatar}}"></img>
 	      		<div style="margin-left:20;">
 			        <div style="flex-direction:row">
@@ -55,25 +55,36 @@
 			        </div>
 		        </div>			      
 	     	</div>
-	     	<div class="goods__tab"  style="flex-direction: column;">
+	     	<div class="goods__tab"  style="flex-direction: row;">
 	       		<text style="margin-left: 120px;" class="tab__text active">详情</text>
 	       		<text style="margin-right: 120px;" class="tab__text">评价</text>
 	     	</div>
-	     
+			<div style="height:90px;flex-direction: row;justify-content: center;align-items: center;background-color: #efeff0;">
+				<text>继续拖动,查看图文详细</text>
+			</div>
+			
 	     	<div class="footer">
 	       		<text class="partIn" onclick="takepart">我要参与</text>
        		</div>
 
 		</cell>
+
+		<loading class="refresh-view" display="{{loading_display}}" onloading="onloading">
+		      <text class="refresh-arrow" style="text-align: center; color:rgb(238, 162, 54)" if="{{(refresh_display==='hide')}}">Load more</text>
+		      <loading-indicator style="height:60;width:60;color:#3192e1"></loading-indicator>
+	    </loading>
 	</list>
 </div>
 </template>
 <script>
+	/*添加依赖
+	 *weex组件,动画,缓存,跳转
+	 */
 	require('weex-components');
-	// require('../components/buou-tabbar-info.we');
-	// require('../components/buou-customSpot.we');
-	require('../components/buou-singleselectbtn.we');
-
+	var webview = require('@weex-module/webview');
+	var animation = require('@weex-module/animation');
+	var storage = "undefined"!== typeof window ? window.localStorage : require('@weex-module/storage');
+	var navigator = require('@weex-module/navigator');
 
 	//数组去重 
 	!Array.prototype.unique && (Array.prototype.unique = function(fn){
@@ -89,16 +100,23 @@
 	  return res;
 	});
 
+	var modal = require('@weex-module/modal');
+	function log(arg1){
+	  modal.alert({
+	    message: arg1,
+	    okTitle: "OK"
+	    }, function() {
+	    // TODO after the alert is complete.
+	  })
+	}	
 
-	var animation = require('@weex-module/animation');
-	// 本地存储
-	var storage = "undefined"!== typeof window ? window.localStorage : require('@weex-module/storage');
-	// 跳转
-	var navigator = require('@weex-module/navigator')
 
-	var baseUrl,		// 根域名
-		resoucePath,	// 图片资源根路径
-		customId;	// 定制id
+	var baseUrl,
+		openUrl,
+  		memberToken,
+  		postId,
+  		imgUrl,
+		customId;
 
 
 	function getBaseUrl(dir,page){
@@ -127,8 +145,9 @@
 
 	  	data: {
 	  	 	root:"static/webApp/view/",
-	  	 	doc_name:"detail/joinProgram.js",
+	  	 	doc_name:"detail/moreCustomDetail.js",
 	  	 	devHeight:0,
+	  	 	loading_display : 'hide',
 
 	  	 	mainPic:"",
 	  	 	name:"",
@@ -150,10 +169,15 @@
 
 			listPic: [{
 				src:""
-			}],//[{src: ""}, {src:""}]
-
-
-
+			}],
+			detailInfo:[{
+				infoText:[{
+					str:""
+				}],
+				infoImage:[{
+					img:""
+				}]
+			}]
 	    },
 	    computed: {
 	    	iconUrl: function(){
@@ -175,19 +199,27 @@
 	    	}
 	    },
         created: function () {
+        	var $getConfig=this.$getConfig();
+        	// 取native数据并缓存
+        	this.devHeight=$getConfig.env.deviceHeight - 64;
 
-        	// **************************************************************************************************************
-        	// 取native数据
-        	if(this.$getConfig().env.platform==='iOS' || this.$getConfig().env.platform==='android'){
-        		// baseUrl = this.$getConfig().openUrl;
-        		baseUrl = 'http://192.168.1.31:12580'
-        		resourcePath = this.$getConfig().bundleUrl;
-        		customId = this.$getConfig().customId;
+        	if($getConfig.env.platform==='iOS' || $getConfig.env.platform==='android'){
+        		baseUrl = 'http://192.168.1.31:12580';
+
+    		    openUrl = $getConfig.openUrl,
+          		memberToken = $getConfig.memberToken,
+          		postId = $getConfig.postId,
+          		imgUrl=$getConfig.imgUrl,
+    			customId = $getConfig.customId;
+
+	    		storage.setItem('memberToken', memberToken,function(){ return 1; });
+	    		storage.setItem('imgUrl', imgUrl,function(){ return 1; });
+	    		storage.setItem('openUrl', openUrl,function(){ return 1; });
+
         	}else{
         		var homeParams = params(window.location.search.split('?')[1]);
         		var reg = /(.+)\/index(.*)/;
         		baseUrl = window.location.href.replace(reg,'$1');
-        		resourcePath = this.$getConfig().bundleUrl;
         		customId = homeParams.customId;
         	}
 
@@ -212,10 +244,6 @@
         	// 
 
 			// this.selected(this.selectedIndex);
-
-			storage.setItem('memberToken', this.$getConfig().memberToken,function(){});
-
-
 			this.$on('tabItem.onClick',function(e){
 				var detail= e.detail;
 				this.selectedIndex = detail.index;
@@ -227,16 +255,25 @@
 				this.$dispatch('tabBar.onClick', params);
 			});
 			this._getData();
-
         },
         methods: {
+        	onloading: function (e) {
+		        this.loading_display = "show"
+		        setTimeout(function () {
+		          var params = {
+        			url: this.jump(),
+        			animated: 'true'
+        			};
+        			navigator.push(params, function(e){});
+		        }.bind(this), 1000)
+		      },
         	_getData:function(){
         		var that=this,
 	        		stream=require('@weex-module/stream');
 
         		stream.fetch({
         			method:"get",
-        			url: baseUrl + "/custom/getCustomDetails?customId="+customId,
+        			url: openUrl + "/custom/getCustomDetails?customId="+customId,
         			type:"json"
         		},function(response){
 					if(response.status == 200){
@@ -253,10 +290,124 @@
 								custom=customDetailBean.custom;
 
 							var	memberDetailBean=customDetailBean.memberDetailBean,
+								product=customDetailBean.product,
 								memberDetail=memberDetailBean.memberDetail;
 							
-							that.mainPic=that.image+custom.mainPic;
+							that.mainPic=that.image + custom.mainPic;
 							that.name=custom.name;
+							that.description=custom.description;
+
+
+							var arr=[],
+								tempPArr=[];
+							var getItem=function(text){
+
+                                var _tempText=[],
+
+                                    _tempImg=[],
+
+                                	tempImgArr=[];
+
+                                	//去掉p
+
+                                    _tempText=text.split("<p>").join("").split("</p>");
+
+                                    //去掉Img
+
+                                    //_tempImg=text.split("src=");
+								
+
+                                 function opearteText(_txt){
+
+                                    var posStartImg,posEndImg;
+
+                                    _txt.indexOf("src=")!== -1 && (posStartImg=_txt.indexOf("src="));
+
+                                    _txt.indexOf("title")!== -1 && (posEndImg=_txt.indexOf("title"));
+
+                                    var subText=_txt.substring(posStartImg + 5,posEndImg - 2);
+
+                                    var allText=_txt.substring(posEndImg + 6);
+
+                                    arr.push(subText);
+
+                                    if(allText.indexOf("<img")!==-1){
+
+                                        opearteText(allText);
+
+                                    }
+
+                                    else{
+
+                                      return;
+
+                                    }
+                                 }
+                                 opearteText(text);
+
+
+                                for(var i=0,len=_tempText.length;i<len;i++){
+
+                                    if(_tempText[i].indexOf("<img")===-1 && _tempText[i].indexOf("<br/>")===-1){
+
+                                        tempPArr.push(_tempText[i]);
+
+                                    }
+
+                                }
+/*
+                                 
+
+                                for(var j=0,_len=_tempImg.length;j<_len;j++){
+
+                                if(_tempImg[j].indexOf("<p>")!==-1 && _tempImg[j].indexOf("<br/>")!==-1){
+
+                                    tempImgArr.push(_tempImg[j]);
+
+                                }
+
+                              }*/
+                            }(product.description1);
+
+                        	/*detailInfo:[{
+								infoText:[{
+									str:""
+								}],
+								infoImage:[{
+									img:""
+								}]
+							}]*/
+                        	var detailInfo=[],
+                        		infoText=[],
+                        		infoImage=[],
+                        		obj={
+                        			infoText:[],
+                        			infoImage:[]
+                        		},
+                        		objText={
+                        			str:""
+                        		},
+                        		objImage={
+                        			img:""
+                        		};
+                        	for(var i=0,len=tempPArr.length;i<len;i++){
+                        		objText={
+                        			str:tempPArr[i]
+                        		};
+                        		infoText.push(objText);
+                        		obj.infoText=infoText;
+                        	}
+                			for(var j=0,_len=arr.length;j<_len;j++){
+                        		objImage={
+                        			img:arr[j]
+                        		};
+                        		infoImage.push(objImage);
+                        		obj.infoImage=infoImage;
+                        	}
+
+                        	detailInfo.push(obj);
+                        	that.detailInfo=detailInfo;
+
 							that.leastPrice=custom.leastPrice;
 							that.avatar=that.image+memberDetail.avatar;
 							that.nickName=memberDetail.nickname;
@@ -307,7 +458,7 @@
         		storage.setItem('customId', customId, function(){
         			navigator.push(params, function(e){
         				
-        			})
+        			});
         		});
 
         	}
@@ -316,6 +467,17 @@
 </script>
 
 <style>
+ .refresh-view {
+    height: 120px;
+    width: 750px;
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    -webkit-box-align: center;
+    align-items: center;
+  }
 	.customImg{
 		width: 750;
 		height:750;
@@ -327,6 +489,7 @@
 	}
 	.title{
 		color:#ff555f;
+		font-size:28px;
 	}
 	.info{
 		flex-direction: row;
@@ -356,6 +519,21 @@
 		text-align:center;
 		margin-right:10;
 		margin-top: 1;
+	}
+	.like{
+		font-size:20;
+		color:#ccc;
+		width:203;
+		text-align: center;
+		border-left-width: 1;
+		border-right-width: 1;
+		border-left-style: solid;
+		border-right-style: solid;
+		border-top-style:none;
+		border-bottom-style:none;
+		margin-left: 45;
+		margin-right: 45;
+		border-color: #ccc; 
 	}
     .detail{
     	height:160;
